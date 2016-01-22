@@ -49,7 +49,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       ));
    }
 
-   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
+/*   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
       global $CFG_GLPI;
 
       $tab_names = array();
@@ -65,22 +65,22 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       } else {
          return '';
       }
-   }
+   }*/
 
    function defineTabs($options=array()){
       global $CFG_GLPI;
       $ong = array();
 
       $this->addDefaultFormTab($ong);
-      
+
       return $ong;
    }
 
-   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
+/*   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
       if ($item->getType() == 'Computer') {
          echo "<b>".__('To Be Done', 'fusioninventory')."</b>";
       }
-   }
+   }*/
 
 
    function showJobLogs() {

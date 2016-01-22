@@ -48,9 +48,15 @@ class PluginFusioninventoryNetworkEquipment extends CommonDBTM {
 
    static $rightname = 'plugin_fusioninventory_networkequipment';
 
+   static function isAFusionInventoryDevice($item) {
+      return $item->fields['is_dynamic'] == 1
+         && countElementsInTable('glpi_plugin_fusioninventory_networkequipments',
+                                 "`networkequipments_id`='".$item->getID()."'");
+   }
+
 
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
-      if ($this->canView()) {
+      if ($this->canView() && self::isAFusionInventoryDevice($item)) {
          return self::createTabEntry(__('FusionInventory SNMP', 'fusioninventory'));
       }
    }

@@ -54,6 +54,11 @@ class PluginFusioninventoryInventoryComputerComputer extends CommonDBTM {
    }
 
 
+   static function isAFusionInventoryDevice($item) {
+      return $item->fields['is_dynamic'] == 1
+         && countElementsInTable('glpi_plugin_fusioninventory_inventorycomputercomputers',
+                                 "`computers_id`='".$item->getID()."'");
+   }
 
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
       return array();

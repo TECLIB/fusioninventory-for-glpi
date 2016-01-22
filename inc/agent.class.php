@@ -186,7 +186,8 @@ class PluginFusioninventoryAgent extends CommonDBTM {
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
       global $CFG_GLPI;
       $tab_names = array();
-      if ( $this->can(0, CREATE) ) {
+      if ( $this->can(0, CREATE)
+         && PluginFusioninventoryInventoryComputerComputer::isAFusionInventoryDevice($item)) {
          if ($item->getType() == 'Computer') {
             $tab_names[] = __('FusInv', 'fusioninventory').' '. __('Agent');
          }

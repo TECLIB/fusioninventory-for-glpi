@@ -1536,7 +1536,8 @@ function plugin_pre_item_update_fusioninventory($parm) {
 function plugin_pre_item_purge_fusioninventory($parm) {
    global $DB;
 
-   switch (get_class($parm)) {
+   $itemtype = get_class($parm);
+   switch ($itemtype) {
 
       case 'Computer':
          // Delete link between computer and agent fusion
