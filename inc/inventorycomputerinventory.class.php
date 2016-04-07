@@ -340,7 +340,7 @@ class PluginFusioninventoryInventoryComputerInventory {
             }
 
             // force move agent to computer entity (import refused or not)
-            $pfAgent->update(array('id' => $_SESSION['plugin_fusioninventory_agents_id'], 
+            $pfAgent->update(array('id' => $_SESSION['plugin_fusioninventory_agents_id'],
                                    'entities_id' => $input['entities_id']));
 
             if (isset($dataEntity['locations_id'])) {
