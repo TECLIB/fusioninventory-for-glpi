@@ -310,6 +310,23 @@ class PluginFusioninventoryInventoryComputerComputer extends CommonDBTM {
       }
       return $a_computerextend['is_entitylocked'];
    }
+
+
+   /**
+    * Get automatic inventory info for a computer
+    * @since 9.1+1.2
+    * @param computers_id the computer ID to look for
+    * @return inventory computer infos or an empty array
+    */
+    function hasAutomaticInventory($computers_id) {
+       $a_computerextend = current($this->find("`computers_id`='$computers_id'",
+                                               "", 1));
+       if (empty($a_computerextend)) {
+          return [];
+       } else {
+          return $a_computerextend;
+       }
+    }   
 }
 
 ?>
