@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    Gonéri Le Bouder
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -97,7 +97,7 @@ class PluginFusioninventoryComputerLicenseInfo extends CommonDBTM {
          foreach ($a_licenseInfo as $licenseInfo) {
             $licence_link = $licence_endlink = "";
             if (!empty($licenseInfo['softwarelicenses_id'])) {
-               $licence_link = "<a href='".GLPI_ROOT."/front/softwarelicense.form.php?id=".
+               $licence_link = "<a href='".$CFG_GLPI['root_doc']."/front/softwarelicense.form.php?id=".
                   $licenseInfo['softwarelicenses_id']."'>";
                $licence_endlink = "</a>";
                $licence_endlink .= "<form method='post' action='".$CFG_GLPI['root_doc'].
@@ -239,11 +239,8 @@ class PluginFusioninventoryComputerLicenseInfo extends CommonDBTM {
 
 
    static function cleanComputer($computers_id) {
-      $pfLicenseinfo = new PluginFusioninventoryComputerLicenseInfo();
-      $a_licenses = $pfLicenseinfo->find("`computers_id`='".$computers_id."'");
-      foreach ($a_licenses as $data) {
-         $pfLicenseinfo->delete($data);
-      }
+      $license = new self();
+      $license->deleteByCriteria(array('computers_id' => $computers_id));
    }
 }
 

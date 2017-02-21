@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -85,36 +85,31 @@ class PluginFusioninventoryIPRange extends CommonDBTM {
 
 
    function getSearchOptions() {
-
       $tab = array();
 
       $tab['common'] = __('IP range configuration', 'fusioninventory');
-
 
       $tab[1]['table'] = $this->getTable();
       $tab[1]['field'] = 'name';
       $tab[1]['linkfield'] = 'name';
       $tab[1]['name'] = __('Name');
-
       $tab[1]['datatype'] = 'itemlink';
 
       $tab[2]['table'] = 'glpi_entities';
       $tab[2]['field'] = 'completename';
       $tab[2]['linkfield'] = 'entities_id';
       $tab[2]['name'] = __('Entity');
-
+      $tab[2]['datatype'] = 'dropdown';
 
       $tab[3]['table'] = $this->getTable();
       $tab[3]['field'] = 'ip_start';
       $tab[3]['linkfield'] = 'ip_start';
       $tab[3]['name'] = __('Start of IP range', 'fusioninventory');
 
-
-       $tab[4]['table'] = $this->getTable();
+      $tab[4]['table'] = $this->getTable();
       $tab[4]['field'] = 'ip_end';
       $tab[4]['linkfield'] = 'ip_end';
       $tab[4]['name'] = __('End of IP range', 'fusioninventory');
-
 
       return $tab;
    }
@@ -296,9 +291,33 @@ class PluginFusioninventoryIPRange extends CommonDBTM {
    }
 
 
+   function pre_deleteItem() {
+      $iprange_id = $this->getId();
+      $pfTaskjob  = new PluginFusioninventoryTaskjob;
+      $pfTask     = new PluginFusioninventoryTask;
+      $tasks_link = array();
 
-   function post_deleteItem() {
+      $found = $pfTaskjob->find("targets LIKE '%PluginFusioninventoryIPRange\":\"$iprange_id%'");
+      if (count($found)) {
+         foreach($found as $job_withdeleted_iprange) {
+            $pfTask->getFromDB($job_withdeleted_iprange['plugin_fusioninventory_tasks_id']);
+            $tasks_link[] = $pfTask->getLink();
+         }
 
+         $tasks_link = array_unique($tasks_link);
+         Session::addMessageAfterRedirect(
+            __("You can't delete that item, because it is used for one or more items".
+            " : ".implode(', ', $tasks_link)),
+            false, ERROR);
+
+         return false;
+      }
+
+      return true;
+   }
+
+
+   function post_purgeItem() {
       $pfIPRange_ConfigSecurity = new PluginFusioninventoryIPRange_ConfigSecurity();
       $a_data = getAllDatasFromTable('glpi_plugin_fusioninventory_ipranges_configsecurities',
                                      "`plugin_fusioninventory_ipranges_id`='".$this->fields['id']."'");
@@ -309,6 +328,18 @@ class PluginFusioninventoryIPRange extends CommonDBTM {
       parent::post_deleteItem();
    }
 
+
+   /**
+    * Massive action ()
+    */
+   function getSpecificMassiveActions($checkitem=NULL) {
+
+      $actions = array();
+      if (Session::haveRight("plugin_fusioninventory_task", UPDATE)) {
+         $actions['PluginFusioninventoryTask'.MassiveAction::CLASS_ACTION_SEPARATOR.'addtojob_target'] = __('Target a task', 'fusioninventory');
+      }
+      return $actions;
+   }
 
 }
 

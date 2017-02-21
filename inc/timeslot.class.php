@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -78,6 +78,7 @@ class PluginFusioninventoryTimeslot extends CommonDBTM {
       $tab[2]['table']     = 'glpi_entities';
       $tab[2]['field']     = 'completename';
       $tab[2]['name']      = __('Entity');
+      $tab[2]['datatype']  = 'dropdown';
 
       $tab[3]['table']     = $this->getTable();
       $tab[3]['field']     = 'is_recursive';
@@ -130,7 +131,7 @@ class PluginFusioninventoryTimeslot extends CommonDBTM {
     *    )
     */
 
-   function getTimeslotEntries($timeslot_ids = array(), $weekdays = null ) {
+   function getTimeslotEntries($timeslot_ids = array(), $weekdays = null) {
 
       $condition = array(
          "`plugin_fusioninventory_timeslots_id` in ('".implode("','",$timeslot_ids)."')",
@@ -154,6 +155,35 @@ class PluginFusioninventoryTimeslot extends CommonDBTM {
       }
 
       return $results;
+   }
+
+   /**
+   * Get all current active timeslots
+   * @since 0.85+1.0
+   */
+   function getCurrentActiveTimeslots() {
+      global $DB;
+
+      $timeslots   = array();
+      $date        = new DateTime('NOW');
+      $day_of_week = $date->format("N");
+      $timeinsecs  = $date->format('H') * HOUR_TIMESTAMP
+                        + $date->format('i') * MINUTE_TIMESTAMP
+                        + $date->format('s');
+
+      //Get all timeslots currently active
+      $query_timeslot = "SELECT `t`.`id`
+                         FROM `glpi_plugin_fusioninventory_timeslots` as t
+                         INNER JOIN `glpi_plugin_fusioninventory_timeslotentries` as te
+                           ON (`te`.`plugin_fusioninventory_timeslots_id`=`t`.`id`)
+                         WHERE $timeinsecs BETWEEN `te`.`begin`
+                            AND `te`.`end`
+                            AND `day`='".$day_of_week."'";
+      foreach ($DB->request($query_timeslot) as $timeslot) {
+         $timeslots[] = $timeslot['id'];
+      }
+
+      return $timeslots;
    }
 
    /**

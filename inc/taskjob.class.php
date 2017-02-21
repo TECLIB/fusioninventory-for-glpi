@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -76,44 +76,6 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
                "ON taskjob.`plugin_fusioninventory_tasks_id` = task.`id`"
          )
       );
-   }
-
-   function getSearchOptions() {
-
-      $tab = array();
-
-      $tab['common'] = __('Task');
-
-
-      $tab[1]['table']          = $this->getTable();
-      $tab[1]['field']          = 'name';
-      $tab[1]['linkfield']      = '';
-      $tab[1]['name']           = __('Name');
-      $tab[1]['datatype']       = 'itemlink';
-
-      $tab[2]['table']           = 'glpi_entities';
-      $tab[2]['field']           = 'completename';
-      $tab[2]['linkfield']       = 'entities_id';
-      $tab[2]['name']            = __('Entity');
-
-      $tab[4]['table']          = 'glpi_plugin_fusioninventory_tasks';
-      $tab[4]['field']          = 'name';
-      $tab[4]['linkfield']      = 'plugin_fusioninventory_tasks_id';
-      $tab[4]['name']           = __('Task');
-      $tab[4]['datatype']       = 'itemlink';
-      $tab[4]['itemlink_type']  = 'PluginFusioninventoryTask';
-
-      $tab[5]['table']          = $this->getTable();
-      $tab[5]['field']          = 'status';
-      $tab[5]['linkfield']      = '';
-      $tab[5]['name']           = __('Status');
-
-      $tab[6]['table']          = $this->getTable();
-      $tab[6]['field']          = 'id';
-      $tab[6]['linkfield']      = '';
-      $tab[6]['name']           = __('ID');
-
-      return $tab;
    }
 
    function getTask() {
@@ -516,45 +478,6 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
    }
 
 
-   /*
-    * @function cronUpdateDynamicTasks
-    * This function update already running tasks with dynamic groups
-    */
-   static function cronUpdateDynamicTasks() {
-      global $DB;
-
-      $pfTask = new PluginFusioninventoryTask();
-
-      //Get every running tasks with dynamic groups
-      $running_tasks = $pfTask->getItemsFromDB(
-         array(
-            'is_running'  => TRUE,
-            'is_active'   => TRUE,
-            'actors' => array('PluginFusioninventoryDeployGroup' => "")
-         )
-      );
-
-      $pfTaskjob = new PluginFusioninventoryTaskjob();
-      foreach ($running_tasks as $task) {
-         $task['taskjob']['definitions_filter'] = array('PluginFusioninventoryDeployGroupDynamic', 'Group');
-         if ($pfTaskjob->getFromDB($task['taskjob']['id'])) {
-            $pfTaskjob->prepareRunTaskjob(
-               $task['taskjob']
-            );
-         }
-      }
-
-      if(isset($_SESSION['glpi_plugin_fusioninventory']['agents']) ) {
-         foreach (array_keys($_SESSION['glpi_plugin_fusioninventory']['agents']) as $agents_id) {
-            $pfTaskjob->startAgentRemotly($agents_id);
-         }
-         unset($_SESSION['glpi_plugin_fusioninventory']['agents']);
-      }
-
-      return 1;
-   }
-
-
    /**
    * re initialize all taskjob of a taskjob
    *
@@ -570,7 +493,7 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
       $pfTaskjob      = new PluginFusioninventoryTaskjob();
       $pfTaskjobstate = new PluginFusioninventoryTaskjobstate();
       $pfTaskjoblog   = new PluginFusioninventoryTaskjoblog();
-      $query = "SELECT *, UNIX_TIMESTAMP(date_scheduled) as date_scheduled_timestamp
+      $query = "SELECT *, UNIX_TIMESTAMP(datetime_start) as date_scheduled_timestamp
             FROM `".$pfTask->getTable()."`
          WHERE `id`='".$tasks_id."'
          LIMIT 1";
@@ -660,13 +583,13 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
                for($i=2; ($data['date_scheduled_timestamp'] + $periodtotal) <= date('U'); $i++) {
                   $periodtotal = $period * $i;
                }
-               $data['date_scheduled'] = date("Y-m-d H:i:s",
+               $data['datetime_start'] = date("Y-m-d H:i:s",
                                               $data['date_scheduled_timestamp'] + $periodtotal);
             } else if ($data['date_scheduled_timestamp'] > date('U')) {
                // Don't update date next execution
 
             } else {
-               $data['date_scheduled'] = date("Y-m-d H:i:s",
+               $data['datetime_start'] = date("Y-m-d H:i:s",
                                               $data['date_scheduled_timestamp'] + $period);
             }
          }
@@ -701,7 +624,7 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
 
          $query = "SELECT `".$pfTaskjob->getTable()."`.*,
                `glpi_plugin_fusioninventory_tasks`.`communication`,
-               UNIX_TIMESTAMP(date_scheduled) as date_scheduled_timestamp
+               UNIX_TIMESTAMP(datetime_start) as date_scheduled_timestamp
             FROM ".$pfTaskjob->getTable()."
             LEFT JOIN `glpi_plugin_fusioninventory_tasks`
                ON `plugin_fusioninventory_tasks_id`=`glpi_plugin_fusioninventory_tasks`.`id`
@@ -827,7 +750,7 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
       echo __('Scheduled date', 'fusioninventory')."&nbsp;:";
       echo "</td>";
       echo "<td align='center'>";
-      Html::showDateTimeFormItem("date_scheduled", date("Y-m-d H:i:s"), 1);
+      Html::showDateTimeFormItem("datetime_start", date("Y-m-d H:i:s"), 1);
       echo "</td>";
       echo "</tr>";
 
@@ -1192,7 +1115,7 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
          $link .= (strpos($link, '?') ? '&amp;':'?').'id=' . $pfTaskjob->fields['id'];
          echo "<td><a href='".$link."'>".$pfTaskjob->getNameID(1)."</a></td>";
          echo "<td>".Dropdown::getYesNo($pfTask->fields['is_active'])."</td>";
-         echo "<td>".$pfTask->fields['date_scheduled']."</td>";
+         echo "<td>".$pfTask->fields['datetime_start']."</td>";
          $a_time = '';
          switch ($pfTask->fields['periodicity_type']) {
 
@@ -1413,8 +1336,11 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
          $data = current($a_tasksjobs);
          $pfTaskjob->getFromDB($data['id']);
          echo "<tr class='tab_bg_1'>";
-         echo "<td><input type='checkbox' name='taskjobstoforcerun[]' value='".$data['id']."' ".
-                 "checked /></td>";
+         echo "<td>";
+         Html::showCheckbox(array('name'    => 'taskjobstoforcerun[]',
+                                  'value'   => $data['id'],
+                                  'checked' => true));
+         echo "</td>";
          $link_item = $pfTaskjob->getFormURL();
          $link  = $link_item;
          $link .= (strpos($link, '?') ? '&amp;':'?').'id=' . $pfTaskjob->fields['id'];
@@ -1424,8 +1350,10 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
          foreach ($a_list as $data) {
             $pfTaskjob->getFromDB($data['id']);
             echo "<tr class='tab_bg_1'>";
-            echo "<td><input type='checkbox' name='taskjobstoforcerun[]' ".
-                    "value='".$data['id']."' /></td>";
+            echo "<td>";
+            Html::showCheckbox(array('name'    => 'taskjobstoforcerun[]',
+                                     'value'   => $data['id']));
+            echo "</td>";
             $link_item = $pfTaskjob->getFormURL();
             $link  = $link_item;
             $link .= (strpos($link, '?') ? '&amp;':'?').'id=' . $pfTaskjob->fields['id'];
@@ -1599,6 +1527,48 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
 //      }
    }
 
+   static function restartJob($params) {
+      $task     = new PluginFusioninventoryTask();
+      $job      = new PluginFusioninventoryTaskjob();
+      $jobstate = new PluginFusioninventoryTaskjobstate();
+      $joblog   = new PluginFusioninventoryTaskjoblog();
+      $agent    = new PluginFusioninventoryAgent();
+
+      // get old state
+      $jobstate->getFromDB($params['jobstate_id']);
+
+      // prepare new state (copy from old)
+      $run = $jobstate->fields;
+      unset($run['id']);
+      $run['state']  = PluginFusioninventoryTaskjobstate::PREPARED;
+      $run['uniqid'] = uniqid();
+      if ($run['specificity'] == "") {
+         $run['specificity'] = "NULL";
+      }
+
+      // add this new state and first log 
+      if($run_id = $jobstate->add($run)) {
+         $log = array(
+            'date'    => date("Y-m-d H:i:s"),
+            'state'   => PluginFusioninventoryTaskjoblog::TASK_PREPARED,
+            'plugin_fusioninventory_taskjobstates_id' => $run_id,
+            'comment' => ''
+         );
+         if ($joblog->add($log)) {
+
+            //wake up agent (only if task support wakeup)
+            $job->getFromDB($jobstate->fields['plugin_fusioninventory_taskjobs_id']);
+            $task->getFromDB($job->fields['plugin_fusioninventory_tasks_id']);
+
+            if ($task->fields['wakeup_agent_counter'] > 0
+                && $task->fields['wakeup_agent_time'] > 0) {
+               $agent->getFromDB($params['agent_id']);
+               $agent->wakeUp();
+            }
+         }
+      }
+   }
+
 
 
    static function functionWizardEnd() {
@@ -1737,7 +1707,8 @@ function new_subtype(id) {
       foreach ($a_taskjobs as $data) {
          echo Search::showNewLine(Search::HTML_OUTPUT, ($i%2));
          echo "<td class='control'>";
-         echo "<input type='checkbox' name='taskjob_entries[]' value='$i' />";
+         Html::showCheckbox(array('name'    => 'taskjob_entries[]',
+                                  'value'   => $i));
          echo "</td>";
          echo "<td>";
          echo "<a class='edit' ".
@@ -1832,7 +1803,7 @@ function new_subtype(id) {
 
       switch ($ma->getAction()) {
          case "plugin_fusioninventory_transfert" :
-            
+
             foreach($ids as $key) {
                $pfTaskjob->getFromDB($key);
                $pfTaskjob->forceEnd();
@@ -1842,7 +1813,7 @@ function new_subtype(id) {
             }
 
             break;
-      } 
+      }
    }
 
 }

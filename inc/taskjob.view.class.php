@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author Kevin Roy <kiniou@gmail.com>
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -213,7 +213,7 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
       return implode("\n", array(
          "<div class='taskjob_item' id='" . $item_fullid . "'",
          "  >" ,
-         "  <input type='checkbox'>" ,
+         Html::getCheckbox(array()),
          "  </input>" ,
          "  <span class='" . $itemtype ."'></span>",
          "  <label>",
@@ -287,7 +287,7 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
       echo implode( "\n",
          array(
             "<td class='control'>",
-            "<input type='checkbox' name='taskjobs[]' value='$id' />",
+            Html::getCheckbox(array('name' => 'taskjobs[]', 'value' => $id)),
             "</td>"
          )
       );
@@ -304,6 +304,15 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
          )
       );
       echo "<td class='rowhandler control'><div class='drag'/></td>";
+
+      if (isset($_REQUEST['edit_job'])) {
+         echo "<script type=\"text/javascript\">
+         taskjobs.edit(
+           \"".$this->getBaseUrlFor('fi.job.edit')."\", 
+           ".$_REQUEST['edit_job']."
+         );
+         </script>";
+      }
    }
 
    public function ajaxModuleTypesDropdown($options) {
@@ -429,7 +438,7 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
                }
                echo "<tr>";
                echo "<td style='padding: 1px 2px;'>";
-               echo "<input type='checkbox' name='".$name."item' value='".$key."'>";
+               Html::showCheckbox(array('name' => $name."item", 'value' => $key));
                echo "</td>";
                echo "<td style='padding: 1px 2px;'>";
                echo $display;
@@ -665,6 +674,20 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
       $this->showTextArea(__('Comments'), "comment");
 
       $modules_methods = PluginFusioninventoryStaticmisc::getModulesMethods();
+      if (!Session::haveRight('plugin_fusioninventory_networkequipment', READ)
+              AND !Session::haveRight('plugin_fusioninventory_printer', READ)) {
+         if (isset($modules_methods['networkdiscovery'])) {
+            unset($modules_methods['networkdiscovery']);
+         }
+         if (isset($modules_methods['networkinventory'])) {
+            unset($modules_methods['networkinventory']);
+         }
+      }
+      if (!Session::haveRight('plugin_fusioninventory_wol', READ)) {
+         if (isset($modules_methods['wakeonlan'])) {
+            unset($modules_methods['wakeonlan']);
+         }
+      }
       $modules_methods_rand = $this->showDropdownFromArray(
          __('Module method', 'fusioninventory'), "method",
          $modules_methods
@@ -961,6 +984,8 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
     * Submit Form values
     */
    public function submitForm($postvars) {
+      global $CFG_GLPI;
+
       if (isset($postvars['definition_add'])) {
          // * Add a definition
          $mytaskjob->getFromDB($postvars['id']);
@@ -1135,7 +1160,7 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
                $postvars['entities_id'] = $pfTask->fields['entities_id'];
             }
             //$postvars['execution_id'] = $pfTask->fields['execution_id'];
-            $this->add($postvars);
+            $jobs_id = $this->add($postvars);
          } else {
             if (isset($postvars['method_id'])) {
                $postvars['method']  = $postvars['method_id'];
@@ -1171,7 +1196,13 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
             //TODO: get rid of plugins_id and just use method
             //$postvars['plugins_id'] = $postvars['method-'.$postvars['method']];
             $this->update($postvars);
+            $jobs_id = $postvars['id'];
          }
+
+         Html::redirect($CFG_GLPI["url_base"]."/plugins/fusioninventory/front/task.form.php?id=".
+                        $postvars['plugin_fusioninventory_tasks_id']."&edit_job=".$jobs_id.
+                        "#taskjobs_form");
+         exit;
 
       } else if (isset($postvars["delete"])) {
          // * delete taskjob
@@ -1194,7 +1225,7 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
          $input = array();
          $input['plugin_fusioninventory_tasks_id'] = $task_id;
          $input['name']                            = $method;
-         $input['date_scheduled']                  = $postvars['date_scheduled'];
+         $input['datetime_start']                  = $postvars['datetime_start'];
 
          $input['plugins_id']                      = PluginFusioninventoryModule::getModuleId($module);
          $input['method']                          = $method;

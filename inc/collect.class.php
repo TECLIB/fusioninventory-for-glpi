@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -67,6 +67,90 @@ class PluginFusioninventoryCollect extends CommonDBTM {
       $elements['file']     = __('Find file', 'fusioninventory');
 
       return $elements;
+   }
+
+   static function getSearchOptionsToAdd() {
+      $tab = array();
+
+      $i = 5200;
+
+      $pfCollect = new PluginFusioninventoryCollect();
+      foreach ($pfCollect->find(getEntitiesRestrictRequest("", $pfCollect->getTable())) as $collect) {
+
+         //registries
+         $pfCollect_Registry = new PluginFusioninventoryCollect_Registry();
+         $registries = $pfCollect_Registry->find('plugin_fusioninventory_collects_id = ' . $collect['id']);
+         foreach ($registries as $registry) {
+            $tab[$i]['table']         = 'glpi_plugin_fusioninventory_collects_registries_contents';
+            $tab[$i]['field']         = 'value';
+            $tab[$i]['linkfield']     = '';
+            $tab[$i]['name']          = __('Registry', 'fusioninventory')." - ".$registry['name'];
+            $tab[$i]['joinparams']    = array('jointype' => 'child');
+            $tab[$i]['datatype']      = 'text';
+            $tab[$i]['forcegroupby']  = true;
+            $tab[$i]['massiveaction'] = false;
+            $tab[$i]['nodisplay']     = true;
+            $tab[$i]['joinparams']    = array('condition' => "AND NEWTABLE.`plugin_fusioninventory_collects_registries_id` = ".$registry['id'],
+                                          'jointype' => 'child');
+            $i++;
+         }
+
+         //WMIs
+         $pfCollect_Wmi = new PluginFusioninventoryCollect_Wmi();
+         $wmis = $pfCollect_Wmi->find('plugin_fusioninventory_collects_id  = ' . $collect['id']);
+         foreach ($wmis as $wmi) {
+            $tab[$i]['table']         = 'glpi_plugin_fusioninventory_collects_wmis_contents';
+            $tab[$i]['field']         = 'value';
+            $tab[$i]['linkfield']     = '';
+            $tab[$i]['name']          = __('WMI', 'fusioninventory')." - ".$wmi['name'];
+            $tab[$i]['joinparams']    = array('jointype' => 'child');
+            $tab[$i]['datatype']      = 'text';
+            $tab[$i]['forcegroupby']  = true;
+            $tab[$i]['massiveaction'] = false;
+            $tab[$i]['nodisplay']     = true;
+            $tab[$i]['joinparams']    = array('condition' => "AND NEWTABLE.`plugin_fusioninventory_collects_wmis_id` = ".$wmi['id'],
+                                          'jointype' => 'child');
+            $i++;
+         }
+
+         //Files
+         $pfCollect_File = new PluginFusioninventoryCollect_File();
+         $files = $pfCollect_File->find('plugin_fusioninventory_collects_id = ' . $collect['id']);
+         foreach ($files as $file) {
+
+            $tab[$i]['table']         = 'glpi_plugin_fusioninventory_collects_files_contents';
+            $tab[$i]['field']         = 'pathfile';
+            $tab[$i]['linkfield']     = '';
+            $tab[$i]['name']          = __('Find file', 'fusioninventory').
+                                    " - ".$file['name'].
+                                    " - ".__('pathfile', 'fusioninventory');
+            $tab[$i]['joinparams']    = array('jointype' => 'child');
+            $tab[$i]['datatype']      = 'text';
+            $tab[$i]['forcegroupby']  = true;
+            $tab[$i]['massiveaction'] = false;
+            $tab[$i]['nodisplay']     = true;
+            $tab[$i]['joinparams']    = array('condition' => "AND NEWTABLE.`plugin_fusioninventory_collects_files_id` = ".$file['id'],
+                                          'jointype' => 'child');
+            $i++;
+
+            $tab[$i]['table']         = 'glpi_plugin_fusioninventory_collects_files_contents';
+            $tab[$i]['field']         = 'size';
+            $tab[$i]['linkfield']     = '';
+            $tab[$i]['name']          = __('Find file', 'fusioninventory').
+                                    " - ".$file['name'].
+                                    " - ".__('Size', 'fusioninventory');
+            $tab[$i]['joinparams']    = array('jointype' => 'child');
+            $tab[$i]['datatype']      = 'text';
+            $tab[$i]['forcegroupby']  = true;
+            $tab[$i]['massiveaction'] = false;
+            $tab[$i]['nodisplay']     = true;
+            $tab[$i]['joinparams']    = array('condition' => "AND NEWTABLE.`plugin_fusioninventory_collects_files_id` = ".$file['id'],
+                                          'jointype' => 'child');
+            $i++;
+         }
+      }
+
+      return $tab;
    }
 
 
@@ -372,65 +456,91 @@ class PluginFusioninventoryCollect extends CommonDBTM {
 
 
 
-   function run($taskjob, $agent) {
+   function run($taskjobstate, $agent) {
+      global $DB;
+
       $output = array();
-      switch ($taskjob['itemtype']) {
 
-         case 'PluginFusioninventoryCollect_Registry':
+      $this->getFromDB($taskjobstate->fields['items_id']);
+      $sql_where = "plugin_fusioninventory_collects_id =".$this->fields['id'];
+
+      switch ($this->fields['type']) {
+
+         case 'registry':
             $pfCollect_Registry = new PluginFusioninventoryCollect_Registry();
-            $pfCollect_Registry->getFromDB($taskjob['items_id']);
-            $output['function'] = 'getFromRegistry';
-            $output['path'] = $pfCollect_Registry->fields['hive'].
-                    $pfCollect_Registry->fields['path'].
-                    $pfCollect_Registry->fields['key'];
-            $output['uuid'] = $taskjob['uniqid'];
+            $reg_db = $pfCollect_Registry->find($sql_where);
+            foreach ($reg_db as $reg) {
+               $output[] = array(
+                  'function' => 'getFromRegistry',
+                  'path'     => $reg['hive'].
+                     $reg['path'] . $reg['key'],
+                  'uuid'     => $taskjobstate->fields['uniqid'],
+                  '_sid'     => $reg['id']);
+            }
             break;
 
-         case 'PluginFusioninventoryCollect_Wmi':
+         case 'wmi':
             $pfCollect_Wmi = new PluginFusioninventoryCollect_Wmi();
-            $pfCollect_Wmi->getFromDB($taskjob['items_id']);
-            $output['function'] = 'getFromWMI';
-//            $output['moniker'] = $pfCollect_Wmi->fields['moniker'];
-            $output['class'] = $pfCollect_Wmi->fields['class'];
-            $output['properties'] = array($pfCollect_Wmi->fields['properties']);
-            $output['uuid'] = $taskjob['uniqid'];
+            $wmi_db = $pfCollect_Wmi->find($sql_where);
+            foreach ($wmi_db as $wmi) {
+               $output[] = array(
+                  'function'   => 'getFromWMI',
+                  //'moniker'    => $mwi['moniker'],
+                  'class'      => $wmi['class'],
+                  'properties' => array($wmi['properties']),
+                  'uuid'       => $taskjobstate->fields['uniqid'],
+                  '_sid'       => $wmi['id']
+               );
+            }
             break;
 
-         case 'PluginFusioninventoryCollect_File':
+         case 'file':
             $pfCollect_File = new PluginFusioninventoryCollect_File();
-            $pfCollect_File->getFromDB($taskjob['items_id']);
-            $output['function'] = 'findFile';
-            $output['dir'] = $pfCollect_File->fields['dir'];
-            $output['limit'] = $pfCollect_File->fields['limit'];
-            $output['recursive'] = $pfCollect_File->fields['is_recursive'];
-            $output['filter'] = array();
-            if ($pfCollect_File->fields['filter_regex'] != '') {
-               $output['filter']['regex'] = $pfCollect_File->fields['filter_regex'];
-            }
-            if ($pfCollect_File->fields['filter_sizeequals'] > 0) {
-               $output['filter']['sizeEquals'] = $pfCollect_File->fields['filter_sizeequals'];
-            } else if ($pfCollect_File->fields['filter_sizegreater'] > 0) {
-               $output['filter']['sizeGreater'] = $pfCollect_File->fields['filter_sizegreater'];
-            } else if ($pfCollect_File->fields['filter_sizelower'] > 0) {
-               $output['filter']['sizeLower'] = $pfCollect_File->fields['filter_sizelower'];
-            }
-            if ($pfCollect_File->fields['filter_checksumsha512'] != '') {
-               $output['filter']['checkSumSHA512'] = $pfCollect_File->fields['filter_checksumsha512'];
-            }
-            if ($pfCollect_File->fields['filter_checksumsha2'] != '') {
-               $output['filter']['checkSumSHA2'] = $pfCollect_File->fields['filter_checksumsha2'];
-            }
-            if ($pfCollect_File->fields['filter_name'] != '') {
-               $output['filter']['name'] = $pfCollect_File->fields['filter_name'];
-            }
-            if ($pfCollect_File->fields['filter_iname'] != '') {
-               $output['filter']['iname'] = $pfCollect_File->fields['filter_iname'];
-            }
-            $output['filter']['is_file'] = $pfCollect_File->fields['filter_is_file'];
-            $output['filter']['is_dir'] = $pfCollect_File->fields['filter_is_dir'];
-            $output['uuid'] = $taskjob['uniqid'];
-            break;
+            $files_db = $pfCollect_File->find($sql_where);
+            foreach ($files_db as $files) {
+               $datafile = array(
+                  'function'  => 'findFile',
+                  'dir'       => $files['dir'],
+                  'limit'     => $files['limit'],
+                  'recursive' => $files['is_recursive'],
+                  'filter'    => array(
+                     'is_file' => $files['filter_is_file'],
+                     'is_dir'  => $files['filter_is_dir']
+                  ),
+                  'uuid'      => $taskjobstate->fields['uniqid'],
+                  '_sid'       => $files['id']
+               );
+               if ($files['filter_regex'] != '') {
+                  $datafile['filter']['regex'] = $files['filter_regex'];
+               }
+               if ($files['filter_sizeequals'] > 0) {
+                  $datafile['filter']['sizeEquals'] = $files['filter_sizeequals'];
+               } else if ($files['filter_sizegreater'] > 0) {
+                  $datafile['filter']['sizeGreater'] = $files['filter_sizegreater'];
+               } else if ($files['filter_sizelower'] > 0) {
+                  $datafile['filter']['sizeLower'] = $files['filter_sizelower'];
+               }
+               if ($files['filter_checksumsha512'] != '') {
+                  $datafile['filter']['checkSumSHA512'] = $files['filter_checksumsha512'];
+               }
+               if ($files['filter_checksumsha2'] != '') {
+                  $datafile['filter']['checkSumSHA2'] = $files['filter_checksumsha2'];
+               }
+               if ($files['filter_name'] != '') {
+                  $datafile['filter']['name'] = $files['filter_name'];
+               }
+               if ($files['filter_iname'] != '') {
+                  $datafile['filter']['iname'] = $files['filter_iname'];
+               }
+               $output[] = $datafile;
 
+               //clean old files
+               $query = "DELETE
+                         FROM `glpi_plugin_fusioninventory_collects_files_contents`
+                         WHERE `plugin_fusioninventory_collects_files_id` = '".$files['id']."'";
+               $DB->query($query);
+            }
+            break;
 
       }
       return $output;

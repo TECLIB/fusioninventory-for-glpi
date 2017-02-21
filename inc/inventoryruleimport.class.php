@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -60,10 +60,8 @@ class PluginFusioninventoryInventoryRuleImport extends Rule {
 
 
    // From Rule
-   static public $right = 'rule_import';
+   static public $rightname = 'plugin_fusioninventory_ruleimport';
    public $can_sort = TRUE;
-
-
 
    function getTitle() {
 
@@ -130,6 +128,10 @@ class PluginFusioninventoryInventoryRuleImport extends Rule {
 
 
       $criterias['uuid']['name']  = __('Assets to import', 'fusioninventory').' : '.__('UUID');
+
+
+      $criterias['device_id']['name']   = __('agent', 'fusioninventory').' : '.
+                                       __('Device_id', 'fusioninventory');
 
 
       $criterias['mskey']['name'] = __('Assets to import', 'fusioninventory').' : '.
@@ -360,6 +362,7 @@ class PluginFusioninventoryInventoryRuleImport extends Rule {
                                  'hdserial',
                                  'partitionserial',
                                  'uuid',
+                                 'device_id',
                                  'mskey',
                                  'name',
                                  'itemtype',
@@ -563,6 +566,17 @@ class PluginFusioninventoryInventoryRuleImport extends Rule {
 
             case 'uuid':
                $sql_where_computer .= ' AND `uuid`="'.$input['uuid'].'"';
+               break;
+
+            case 'device_id':
+               $sql_from_temp = " LEFT JOIN `glpi_plugin_fusioninventory_agents`
+                                 ON `glpi_plugin_fusioninventory_agents`.`computers_id` = ".
+                                     "`[typetable]`.`id` ";
+               $sql_where_temp = " AND `glpi_plugin_fusioninventory_agents`.`device_id` = '".
+                                    $input["device_id"]."'";
+
+               $sql_from .= $sql_from_temp;
+               $sql_where  .= $sql_where_temp;
                break;
 
             case 'domains_id':

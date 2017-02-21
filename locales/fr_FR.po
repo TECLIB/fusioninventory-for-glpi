@@ -7,26 +7,29 @@
 # Asmodojo <asmodojo@outlook.com>, 2013
 # David Durieux <d.durieux@siprossii.com>, 2014
 # EmmanuelLeNormand <emmanuel@le-normand.org>, 2013
-# Frédéric MOHIER <frederic.mohier@gmail.com>, 2014
+# Frédéric MOHIER, 2014
 # Gonéri Le Bouder <goneri@rulezlan.org>, 2013
 # kiniou <kiniou@gmail.com>, 2014
 # kiniou <kiniou@gmail.com>, 2013-2014
 # Alexandre Brianceau <lostprophet91@gmail.com>, 2013
 # Mathieu Simon <mathieu.sim@gmail.com>, 2013
 # Tamatoa Davio <tamaoviri@gmail.com>, 2013
+# quent1 <quentin@quent1.fr>, 2015
 # Raphaël Threis <webmaster@malmedy.be>, 2014
 # Sebastien <sebastien.janez@free.fr>, 2014
 # Tamatoa Davio <tamaoviri@gmail.com>, 2013
+# CDuv <transifex.accounts@claude.duvergier.fr>, 2015
 # Walid Nouh, 2014
 # Walid Nouh, 2014
+# Xavier CAILLAUD <tsmr@thetsmr.fr>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - plugin FusionInventory\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-12-18 01:16+0100\n"
-"PO-Revision-Date: 2014-12-22 13:39+0000\n"
-"Last-Translator: David Durieux <d.durieux@siprossii.com>\n"
-"Language-Team: French (France) (http://www.transifex.com/projects/p/FusionInventory/language/fr_FR/)\n"
+"PO-Revision-Date: 2015-10-08 15:06+0000\n"
+"Last-Translator: Xavier CAILLAUD <tsmr@thetsmr.fr>\n"
+"Language-Team: French (France) (http://www.transifex.com/ddurieux/FusionInventory/language/fr_FR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -714,8 +717,8 @@ msgid "Inventory frequency (in hours)"
 msgstr "Fréquence des inventaire (en heures)"
 
 #: inc/config.class.php:310
-msgid "Delete tasks logs after"
-msgstr "Effacer les logs des tâches terminées après"
+msgid "Delete tasks after"
+msgstr "Effacer les tâches terminées après"
 
 #: inc/config.class.php:327
 msgid "Extra-debug"
@@ -780,7 +783,7 @@ msgstr "Rétention en jours"
 
 #: inc/configsecurity.class.php:82
 msgid "SNMP version"
-msgstr "Rétention en jours"
+msgstr "Version SNMP"
 
 #: inc/configsecurity.class.php:94
 msgid "Community"
@@ -2314,7 +2317,7 @@ msgstr "Inv. SNMP"
 
 #: inc/menu.class.php:197
 msgid ""
-"The server needs to kown the URL the agents use to access the server. Please"
+"The server needs to know the URL the agents use to access the server. Please"
 " configure it in the General Configuration page."
 msgstr "Le serveur a besoin de connaître l'URL avec laquelle les agents vont accéder au serveur. Merci de la configurer dans la page de configuration générale."
 
@@ -2548,7 +2551,7 @@ msgstr "Monitoring"
 
 #: inc/networkequipment.class.php:700
 msgid "Traffic received/sent"
-msgstr "Trafic reçu/envoyer"
+msgstr "Trafic reçu/envoyé"
 
 #: inc/networkequipment.class.php:704
 msgid "Errors received/sent"
@@ -2860,7 +2863,7 @@ msgstr "La tâche a été désactivée après préparation du job"
 
 #: inc/task.class.php:322
 msgid "This job can not be executed anymore due to the task's schedule."
-msgstr "Le job ne peut pas être exécuté à cause de la planification de la planification de la tâche"
+msgstr "Le job ne peut pas être exécuté à cause de la planification de la tâche"
 
 #: inc/task.class.php:354
 msgid "This job can not be executed anymore due to the task's timeslot."
@@ -3079,6 +3082,10 @@ msgstr "Voir les logs de cette exécution"
 #: inc/taskjoblog.class.php:936 inc/taskjoblog.class.php:991
 msgid "See all executions"
 msgstr "Voir toutes les exécutions"
+
+#: inc/task.view.class.php
+msgid "Include old jobs"
+msgstr "Afficher les anciennes exécutions"
 
 #: inc/taskjoblog.class.php:1053
 msgid "unknown"

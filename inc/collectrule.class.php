@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -93,6 +93,7 @@ class PluginFusioninventoryCollectRule extends Rule {
                   if ($res != ''
                           && ($action->fields["field"] != 'user'
                               && $action->fields["field"] != 'otherserial'
+                              && $action->fields["field"] != 'contact_num'
                               && $action->fields["field"] != 'software'
                               && $action->fields["field"] != 'softwareversion')) {
                      $res = Dropdown::importExternal(
@@ -192,6 +193,9 @@ class PluginFusioninventoryCollectRule extends Rule {
 
       $actions['otherserial']['name']  = __('Inventory number');
       $actions['otherserial']['force_actions'] = array('assign', 'regex_result');
+
+      $actions['contact_num']['name']  = __('Alternate username number');
+      $actions['contact_num']['force_actions'] = array('assign', 'regex_result');
 
       return $actions;
    }

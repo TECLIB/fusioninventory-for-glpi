@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -228,6 +228,8 @@ class FusinvDB extends PHPUnit_Framework_Assert{
               'Cron cleantaskjob not created');
       $this->assertTrue($crontask->getFromDBbyName('PluginFusioninventoryNetworkPortLog', 'cleannetworkportlogs'),
               'Cron cleannetworkportlogs not created');
+      $this->assertTrue($crontask->getFromDBbyName('PluginFusioninventoryAgentWakeup', 'wakeupAgents'),
+              'Cron wakeupAgents not created');
 
 
       /*
@@ -275,12 +277,17 @@ class FusinvDB extends PHPUnit_Framework_Assert{
       $result = $DB->query($query);
       $this->assertEquals($DB->numrows($result), 1, "type 'version' not added in config");
       $data = $DB->fetch_assoc($result);
-      $this->assertEquals($data['value'], '0.85+1.2', "Field 'version' not with right version");
+      $this->assertEquals($data['value'], '0.90+1.3', "Field 'version' not with right version");
 
       $query = "SELECT `id` FROM `glpi_plugin_fusioninventory_configs`
          WHERE `type`='otherserial'";
       $result = $DB->query($query);
       $this->assertEquals($DB->numrows($result), 1, "type 'otherserial' not added in config");
+
+      $query = "SELECT `id` FROM `glpi_plugin_fusioninventory_configs`
+         WHERE `type`='agents_status'";
+      $result = $DB->query($query);
+      $this->assertEquals($DB->numrows($result), 1, "type 'agents_status' not added in config");
 
       // TODO : test glpi_displaypreferences, rules, bookmark...
 

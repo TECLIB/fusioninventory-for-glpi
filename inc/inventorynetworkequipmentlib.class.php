@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -319,11 +319,11 @@ class PluginFusioninventoryInventoryNetworkEquipmentLib extends CommonDBTM {
 
          } else {
             // Delete the port
-            $a_ports_DB = current($networkPort->find(
+            $a_ports_DB = $networkPort->find(
                        "`itemtype`='NetworkEquipment'
                           AND `items_id`='".$items_id."'
-                          AND `logical_number` = '".$a_port['logical_number']."'", '', 1));
-            if (count($a_ports_DB) > 0) {
+                          AND `logical_number` = '".$a_port['logical_number']."'", '', 1);
+            if ($a_ports_DB !== false && count($a_ports_DB) > 0) {
                $networkPort->delete($a_ports_DB);
             }
          }
@@ -549,6 +549,8 @@ class PluginFusioninventoryInventoryNetworkEquipmentLib extends CommonDBTM {
                   $input = array();
                   $manufacturer =
                      PluginFusioninventoryInventoryExternalDB::getManufacturerWithMAC($ifmac);
+                  $manufacturer = Toolbox::addslashes_deep($manufacturer);
+                  $manufacturer = Toolbox::clean_cross_side_scripting_deep($manufacturer);
                   $input['name'] = $manufacturer;
                   if (isset($_SESSION["plugin_fusioninventory_entity"])) {
                      $input['entities_id'] = $_SESSION["plugin_fusioninventory_entity"];

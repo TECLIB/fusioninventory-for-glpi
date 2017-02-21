@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    Vincent Mazzoni
    @co-author David Durieux
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -71,13 +71,34 @@ class PluginFusioninventoryLock extends CommonDBTM{
 
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
 
-      $itemtype = $item->getType();
-      if ($itemtype == 'NetworkEquipment') {
-         $itemtype = "networking";
-      }
       if ($item->getType()=='PluginFusioninventoryConfig') {
          return PluginFusioninventoryLock::getTypeName(2);
       }
+
+      $continue = true;
+      $items_id = $item->getID();
+      $itemtype = $item->getType();
+      switch ($item->getType()) {
+         case 'Computer':
+            $continue = PluginFusioninventoryInventoryComputerComputer::isAFusionInventoryDevice($item);
+            break;
+
+         case 'NetworkEquipment':
+            $continue = PluginFusioninventoryNetworkEquipment::isAFusionInventoryDevice($item);
+            $itemtype = 'networking';
+            break;
+
+         case 'Printer':
+               $continue = PluginFusioninventoryPrinter::isAFusionInventoryDevice($item);
+               break;
+         default:
+            break;
+      }
+
+      if (!$continue) {
+         return '';
+      }
+
       if (Session::haveRight(strtolower($itemtype), UPDATE)) {
          if ($_SESSION['glpishow_count_on_tabs']) {
             return self::createTabEntry(PluginFusioninventoryLock::getTypeName(2),
@@ -180,75 +201,98 @@ class PluginFusioninventoryLock extends CommonDBTM{
       echo "<th>&nbsp;"._n('Lock', 'Locks', 2, 'fusioninventory')."&nbsp;</th>";
       echo "</tr>";
 
-      $checked = '';
+      $checked = false;
       $a_exclude = $this->excludeFields();
       $serialized = $this->getSerialized_InventoryArray($p_itemtype, $p_items_id);
-      $array = search::getOptions($p_itemtype);
+      $options = Search::getOptions($p_itemtype);
       foreach ($item->fields as $key=>$val) {
-         if (isset($serialized[$key])) {
-            $key_source = $key;
-            if (!in_array($key, $a_exclude)) {
-               if (in_array($key, $locked)) {
-                  $checked = 'checked';
-               } else {
-                  $checked = '';
-               }
-
-               // Get name of field
-               $num = search::getOptionNumber($p_itemtype, $key);
-               if (isset($array[$num]['name'])) {
-                  $name = $array[$num]['name'];
-               }
-               $css_glpi_value = '';
-               if ($val != $serialized[$key]) {
-                  $css_glpi_value = "class='tab_bg_1_2'";
-               }
-               // Get value of field
-               $val = $this->getValueForKey($val, $key);
-               echo "<tr class='tab_bg_1'>";
-               $table = getTableNameForForeignKeyField($key);
-               if ($table != "") {
-                  $linkItemtype = getItemTypeForTable($table);
-                  $class = new $linkItemtype();
-                  $name = $class->getTypeName();
-               }
-               echo "<td>".$name."</td>";
-               // Current value of GLPI
-               if ($p_items_id != '0') {
-                  echo "<td ".$css_glpi_value.">".$val."</td>";
-               }
-               // Value of last inventory
-               echo "<td>";
-               if (isset($serialized[$key_source])) {
-                  echo  $this->getValueForKey($serialized[$key_source], $key);
-               }
-               echo "</td>";
-               echo "<td align='center'><input type='checkbox' name='lockfield_fusioninventory[".
-                       $key_source."]' $checked></td>";
-               echo "</tr>";
+         $name = "";
+         $key_source = $key;
+         if (!in_array($key, $a_exclude)) {
+            if (in_array($key, $locked)) {
+               $checked = true;
+            } else {
+               $checked = false;
             }
+
+            // Get name of field
+            $num = Search::getOptionNumber($p_itemtype, $key);
+            if (isset($options[$num]['name'])) {
+               $name = $options[$num]['name'];
+            } else {
+               // Get name by search in linkfields
+               foreach ($options as $opt) {
+                  if (isset($opt['linkfield']) && $opt['linkfield'] == $key) {
+                     $name = $opt['name'];
+                     break;
+                  }
+               }
+            }
+            $css_glpi_value = '';
+            if (isset($serialized[$key]) && $val != $serialized[$key]) {
+               $css_glpi_value = "class='tab_bg_1_2'";
+            }
+            // Get value of field
+            $val = $this->getValueForKey($val, $key);
+            echo "<tr class='tab_bg_1'>";
+            $table = getTableNameForForeignKeyField($key);
+            if ($name == "" && $table != "") {
+               $linkItemtype = getItemTypeForTable($table);
+               $class = new $linkItemtype();
+               $name = $class->getTypeName();
+            }
+            echo "<td>".$name."</td>";
+            // Current value of GLPI
+            if ($p_items_id != '0') {
+               echo "<td ".$css_glpi_value.">".$val."</td>";
+            }
+            // Value of last inventory
+            echo "<td>";
+            if (isset($serialized[$key_source])) {
+               echo  $this->getValueForKey($serialized[$key_source], $key);
+            }
+            echo "</td>";
+            echo "<td align='center'>";
+            Html::showCheckbox(array('name'    => "lockfield_fusioninventory[$key_source]",
+                                     'checked' => $checked));
+            echo "</td>";
+            echo "</tr>";
          }
       }
+
       if ($p_items_id == '0') {
          foreach ($item->fields as $key=>$val) {
+            $name = "";
             $key_source = $key;
             if (!in_array($key, $a_exclude)) {
                // Get name of field
-               $num = search::getOptionNumber($p_itemtype, $key);
-               if (isset($array[$num]['name'])) {
-                  $name = $array[$num]['name'];
+               $num = Search::getOptionNumber($p_itemtype, $key);
+               if (isset($options[$num]['name'])) {
+                  $name = $options[$num]['name'];
+               } else {
+                  // Get name by search in linkfields
+                  foreach ($options as $opt) {
+                     if (isset($opt['linkfield']) && $opt['linkfield'] == $key) {
+                        $name = $opt['name'];
+                        break;
+                     }
+                  }
                }
                $css_glpi_value = '';
                // Get value of field
                $val = $this->getValueForKey($val, $key);
                echo "<tr class='tab_bg_1'>";
                $table = getTableNameForForeignKeyField($key);
-               if ($table != "") {
+               if ($name == "" && $table != "") {
                   $linkItemtype = getItemTypeForTable($table);
                   $class = new $linkItemtype();
                   $name = $class->getTypeName();
                }
                echo "<td>".$name."</td>";
+               echo "<td align='center'>";
+               Html::showCheckbox(array('name'    => "lockfield_fusioninventory[$key_source]",
+                                        'checked' => $checked));
+               echo "</td>";
                echo "<td align='center'><input type='checkbox' name='lockfield_fusioninventory[".
                        $key_source."]' ></td>";
                echo "</tr>";
@@ -289,7 +333,6 @@ class PluginFusioninventoryLock extends CommonDBTM{
    }
 
 
-
    function showFormItemtype($p_itemtype) {
 
       $can = 0;
@@ -325,36 +368,47 @@ class PluginFusioninventoryLock extends CommonDBTM{
       echo "<th>&nbsp;"._n('Lock', 'Locks', 2, 'fusioninventory')."&nbsp;</th>";
       echo "</tr>";
 
-      $checked = '';
+      $checked = false;
       $a_exclude = $this->excludeFields();
       $serialized = $this->getSerialized_InventoryArray($p_itemtype, 0);
-      $array = search::getOptions($p_itemtype);
+      $options = search::getOptions($p_itemtype);
       foreach ($item->fields as $key=>$val) {
+         $name = "";
          $key_source = $key;
          if (!in_array($key, $a_exclude)) {
             if (in_array($key, $locked)) {
-               $checked = 'checked';
+               $checked = true;
             } else {
-               $checked = '';
+               $checked = false;
             }
             // Get name of field
-            $num = search::getOptionNumber($p_itemtype, $key);
-            if (isset($array[$num]['name'])) {
-               $name = $array[$num]['name'];
+            $num = Search::getOptionNumber($p_itemtype, $key);
+            if (isset($options[$num]['name'])) {
+               $name = $options[$num]['name'];
+            } else {
+               //Get name by search in linkfields
+               foreach ($options as $opt) {
+                  if (isset($opt['linkfield']) && $opt['linkfield'] == $key) {
+                     $name = $opt['name'];
+                     break;
+                  }
+               }
             }
             $css_glpi_value = '';
             // Get value of field
             $val = $this->getValueForKey($val, $key);
             echo "<tr class='tab_bg_1'>";
             $table = getTableNameForForeignKeyField($key);
-            if ($table != "") {
+            if ($name == "" && $table != "") {
                $linkItemtype = getItemTypeForTable($table);
                $class = new $linkItemtype();
                $name = $class->getTypeName();
             }
             echo "<td>".$name."</td>";
-            echo "<td align='center'><input type='checkbox' name='lockfield_fusioninventory[".
-                    $key_source."]' ".$checked."></td>";
+            echo "<td align='center'>";
+            Html::showCheckbox(array('name'    => "lockfield_fusioninventory[$key_source]", 
+                                     'checked' => $checked));
+            echo "</td>";
             echo "</tr>";
          }
       }
@@ -373,6 +427,22 @@ class PluginFusioninventoryLock extends CommonDBTM{
    }
 
 
+   /**
+   * Clean locks for an asset
+   *
+   * @param itemtype asset type
+   * @param items_id asset ID
+   * @return Nothing
+   * @since 0.90
+   */
+   static function cleanForAsset($itemtype, $items_id) {
+      global $DB;
+      $query = "DELETE FROM `glpi_plugin_fusioninventory_locks`
+                       WHERE `tablename`='".getTableForItemType($itemtype)."'
+                          AND `items_id`='$items_id'";
+      $DB->query($query);
+
+   }
 
    /**
     * Unlock a field for a record.
@@ -602,8 +672,10 @@ class PluginFusioninventoryLock extends CommonDBTM{
     */
    static function exportChecksToArray($p_checksArray) {
       $array = array();
-      foreach (array_keys($p_checksArray) as $key) {
-         array_push($array, $key);
+      foreach ($p_checksArray as $key => $value) {
+         if ($value > 0 || $value == "on") {
+            array_push($array, $key);
+         }
       }
       return $array;
    }
@@ -621,6 +693,7 @@ class PluginFusioninventoryLock extends CommonDBTM{
       $exclude[] = "entities_id";
       $exclude[] = "is_recursive";
       $exclude[] = "date_mod";
+      $exclude[] = "date_creation";
       $exclude[] = "is_deleted";
       $exclude[] = "is_dynamic";
       $exclude[] = "is_template";
@@ -664,6 +737,12 @@ class PluginFusioninventoryLock extends CommonDBTM{
             }
          }
       }
+
+      //delete all lock case (no more lock)
+      if (!isset($item->updates)) {
+         $a_fieldList = array();
+      }
+
       $item_device = new $itemtype();
       $item_device->getFromDB($items_id);
       $a_serialized = $pfLock->getSerialized_InventoryArray($itemtype, $items_id);
@@ -789,7 +868,7 @@ class PluginFusioninventoryLock extends CommonDBTM{
    **/
    static function showMassiveActionsSubForm(MassiveAction $ma) {
       switch ($ma->getAction()) {
-         case "manage_locks": 
+         case "manage_locks":
             //detect itemtype
             $itemtype = str_replace("massform", "", $_POST['container']);
 
@@ -812,8 +891,8 @@ class PluginFusioninventoryLock extends CommonDBTM{
 
       switch ($ma->getAction()) {
          case "manage_locks":
-            if ($itemtype == "NetworkEquipment" 
-                || $itemtype == "Printer" 
+            if ($itemtype == "NetworkEquipment"
+                || $itemtype == "Printer"
                 || $itemtype == "Computer") {
 
                foreach($ids as $key) {
@@ -833,12 +912,16 @@ class PluginFusioninventoryLock extends CommonDBTM{
                         // KO
                         $ma->itemDone($item->getType(), $key, MassiveAction::ACTION_KO);
                      }
-               
+
                   }
                }
             }
             break;
-      } 
+      }
+   }
+
+   static function isFieldLocked($a_lockable, $field) {
+      return in_array($field, $a_lockable);
    }
 }
 

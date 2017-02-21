@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2011 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2011 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -69,15 +69,40 @@ class PluginFusioninventoryRulematchedlog extends CommonDBTM {
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
 
       $array_ret = array();
-      if ($item->getType() == 'PluginFusioninventoryAgent') {
-         if (Session::haveRight('plugin_fusioninventory_agent', READ)) {
-             $array_ret[0] = self::createTabEntry(__('Import information', 'fusioninventory'));
+      $continue = true;
 
-         }
-      } else {
+      switch ($item->getType()) {
+         case 'PluginFusioninventoryAgent':
+            if (Session::haveRight('plugin_fusioninventory_agent', READ)) {
+                $array_ret[0] = self::createTabEntry(__('Import information', 'fusioninventory'));
+            }
+            break;
+
+         case 'PluginFusioninventoryUnmanaged':
+            $cnt = PluginFusioninventoryRulematchedlog::countForItem($item);
+            $array_ret[1] = self::createTabEntry(__('Import information', 'fusioninventory'), $cnt);
+            break;
+
+         case 'Computer':
+            $continue = PluginFusioninventoryInventoryComputerComputer::isAFusionInventoryDevice($item);
+            break;
+
+         case 'Printer':
+            $continue = PluginFusioninventoryPrinter::isAFusionInventoryDevice($item);
+            break;
+
+         case 'NetworkEquipment':
+            $continue = PluginFusioninventoryNetworkEquipment::isAFusionInventoryDevice($item);
+            break;
+         default:
+            break;
+
+      }
+      if (!$continue) {
+         return array();
+      } elseif(empty($array_ret)) {
          $cnt = PluginFusioninventoryRulematchedlog::countForItem($item);
          $array_ret[1] = self::createTabEntry(__('Import information', 'fusioninventory'), $cnt);
-
       }
       return $array_ret;
    }

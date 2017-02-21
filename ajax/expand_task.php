@@ -1,7 +1,9 @@
-﻿/*
+<?php
+
+/*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -26,26 +28,22 @@
    ------------------------------------------------------------------------
 
    @package   FusionInventory
-   @author    David Durieux
-   @co-author 
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @author    Alexandre Delaunay
+   @co-author
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
    @link      http://forge.fusioninventory.org/projects/fusioninventory-for-glpi/
    @since     2010
- 
+
    ------------------------------------------------------------------------
  */
 
-Author : David DURIEUX
+include ("../../../inc/includes.php");
+Session::checkCentralAccess();
 
-Installation
+header("Content-Type: text/json; charset=UTF-8");
+Html::header_nocache();
 
-Récupérez l'archive tar.gz du plugin
-Décompressez la dans le répertoire plugins de votre installation de glpi
-
-Une fois copié dans le répertoire, dans l'onglet plugin vous verrez apparaître "FusionInventory".
-Règlez les droits sur le plugin en fonction des profils.
-Le plugin est ensuite prêt à l'emploi : il est accessible via le menu "Plugins"->"FusionInventory".
-
+$_SESSION['plugin_fusioninventory_tasks_expanded'][intval($_GET['task_id'])] = $_GET['expanded'];

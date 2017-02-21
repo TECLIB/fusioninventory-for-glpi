@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    Walid Nouh
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -165,7 +165,7 @@ class PluginFusioninventoryDeployCheck {
          echo Search::showNewLine(Search::HTML_OUTPUT, ($i%2));
          if ($pfDeployPackage->can($pfDeployPackage->getID(), UPDATE)) {
             echo "<td class='control'>";
-            echo "<input type='checkbox' name='check_entries[]' value='$i' />";
+            Html::showCheckbox(array('name' => 'check_entries[]'));
             echo "</td>";
          }
          echo "<td>";
@@ -531,8 +531,10 @@ class PluginFusioninventoryDeployCheck {
       $datas = json_decode(PluginFusioninventoryDeployOrder::getJson($params['orders_id']), TRUE);
 
       //remove selected checks
-      foreach ($params['check_entries'] as $index) {
-         unset($datas['jobs']['checks'][$index]);
+      foreach ($params['check_entries'] as $index => $checked) {
+         if ($checked >= "1" || $checked == "on") {
+            unset($datas['jobs']['checks'][$index]);
+         }
       }
 
       //Ensure checks is an array and not a dictionnary

@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -76,12 +76,16 @@ class PluginFusioninventoryInventoryComputerInventory {
       $time = 600;
       $query = "DELETE FROM `glpi_plugin_fusioninventory_dblockinventorynames` "
               . " WHERE `date` <  CURRENT_TIMESTAMP() - ".$time;
+      $DB->query($query);
       $query = "DELETE FROM `glpi_plugin_fusioninventory_dblockinventories` "
               . " WHERE `date` <  CURRENT_TIMESTAMP() - ".$time;
+      $DB->query($query);
       $query = "DELETE FROM `glpi_plugin_fusioninventory_dblocksoftwares` "
               . " WHERE `date` <  CURRENT_TIMESTAMP() - ".$time;
+      $DB->query($query);
       $query = "DELETE FROM `glpi_plugin_fusioninventory_dblocksoftwareversions` "
               . " WHERE `date` <  CURRENT_TIMESTAMP() - ".$time;
+      $DB->query($query);
 
       // DB LOCK
       $query = "INSERT INTO `glpi_plugin_fusioninventory_dblockinventorynames`
@@ -199,7 +203,7 @@ class PluginFusioninventoryInventoryComputerInventory {
             $a_computerinventory['monitor'][$num] = $pfBlacklist->cleanBlacklist($a_monit);
          }
       }
-      $this->arrayinventory = $a_computerinventory;
+      $this->fill_arrayinventory($a_computerinventory);
 
       $input = array();
 
@@ -212,6 +216,9 @@ class PluginFusioninventoryInventoryComputerInventory {
          if ((isset($a_computerinventory['Computer']['uuid']))
                  AND (!empty($a_computerinventory['Computer']['uuid']))) {
             $input['uuid'] = $a_computerinventory['Computer']['uuid'];
+         }
+         if (isset($this->device_id) && !empty($this->device_id)) {
+            $input['device_id'] = $this->device_id;
          }
          foreach($a_computerinventory['networkport'] as $network) {
             if (((isset($network['virtualdev']))
@@ -332,6 +339,10 @@ class PluginFusioninventoryInventoryComputerInventory {
                $_SESSION["plugin_fusioninventory_entity"] = 0;
             }
 
+            // force move agent to computer entity (import refused or not)
+            $pfAgent->update(array('id' => $_SESSION['plugin_fusioninventory_agents_id'],
+                                   'entities_id' => $input['entities_id']));
+
             if (isset($dataEntity['locations_id'])) {
                $_SESSION['plugin_fusioninventory_locations_id'] = $dataEntity['locations_id'];
             }
@@ -395,7 +406,17 @@ class PluginFusioninventoryInventoryComputerInventory {
          }
          $inputdb['rules_id'] = $data['_ruleid'];
          $inputdb['method'] = 'inventory';
-         $pfIgnoredimportdevice->add($inputdb);
+         $inputdb['plugin_fusioninventory_agents_id'] = $_SESSION['plugin_fusioninventory_agents_id'];
+
+         $sql = "`plugin_fusioninventory_agents_id`='".$inputdb['plugin_fusioninventory_agents_id']."'
+                  AND `serial`='".$inputdb['serial']."'";
+         if ($found = $pfIgnoredimportdevice->find($sql)) {
+            $agent = array_pop($found);
+            $inputdb['id'] = $agent['id'];
+            $pfIgnoredimportdevice->update($inputdb);
+         } else {
+            $pfIgnoredimportdevice->add($inputdb);
+         }
       }
    }
 
@@ -419,7 +440,8 @@ class PluginFusioninventoryInventoryComputerInventory {
       );
       $pfFormatconvert = new PluginFusioninventoryFormatconvert();
 
-      $a_computerinventory = $pfFormatconvert->replaceids($this->arrayinventory);
+      $a_computerinventory = $pfFormatconvert->replaceids($this->arrayinventory,
+              $itemtype, $items_id);
       $entities_id = $_SESSION["plugin_fusioninventory_entity"];
 
       if ($itemtype == 'Computer') {
@@ -477,9 +499,11 @@ class PluginFusioninventoryInventoryComputerInventory {
                }
             }
          }
-         $a_computerinventory = $pfFormatconvert->extraCollectInfo(
-                                                $a_computerinventory,
-                                                $items_id);
+         if ($items_id > 0) {
+            $a_computerinventory = $pfFormatconvert->extraCollectInfo(
+                                                   $a_computerinventory,
+                                                   $items_id);
+         }
          $a_computerinventory = $pfFormatconvert->computerSoftwareTransformation(
                                                 $a_computerinventory,
                                                 $entities_id);
@@ -654,6 +678,13 @@ class PluginFusioninventoryInventoryComputerInventory {
       $state = $config->getValue("states_id_default");
       if ($state) {
          if (!$check_management || ($check_management && !$management_value)) {
+            if (isset($input['id'])) {
+               $locks = PluginFusioninventoryLock::getLockFields('glpi_computers', $input['id']);
+               if (in_array('states_id', $locks)) {
+                  return $input;
+               }
+            }
+
             $input['states_id'] = $state;
          }
       }
@@ -669,6 +700,12 @@ class PluginFusioninventoryInventoryComputerInventory {
     */
    static function getMethod() {
       return 'inventory';
+   }
+
+
+
+   function fill_arrayinventory($data) {
+      $this->arrayinventory = $data;
    }
 }
 

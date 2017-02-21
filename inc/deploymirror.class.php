@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    Walid Nouh
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -45,6 +45,9 @@ if (!defined('GLPI_ROOT')) {
 }
 
 class PluginFusioninventoryDeployMirror extends CommonDBTM {
+   const MATCH_LOCATION = 0;
+   const MATCH_ENTITY   = 1;
+   const MATCH_BOTH     = 2;
 
    public $dohistory = TRUE;
 
@@ -59,14 +62,8 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
    function defineTabs($options=array()) {
 
       $ong=array();
-      $ong[1]=__('Main');
-
-
-      if ($this->fields['id'] > 0) {
-         $ong[12]=__('Historical');
-
-      }
-      $ong['no_all_tab'] = TRUE;
+      $this->addDefaultFormTab($ong)
+         ->addStandardTab('Log', $ong, $options);
 
       return $ong;
    }
@@ -84,6 +81,10 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
          return array();
       }
 
+      $mirror_match = isset($PF_CONFIG['server_as_mirror'])
+                        ? $PF_CONFIG['server_as_mirror']
+                        : 0;
+
       $pfAgent = new PluginFusioninventoryAgent();
       $pfAgent->getFromDB($agents_id);
       $agent = $pfAgent->fields;
@@ -97,10 +98,36 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
 
       $mirrors = array();
       foreach ($results as $result) {
-         if ($computer->fields['locations_id'] == $result['locations_id']) {
+         if (in_array($mirror_match, array(self::MATCH_LOCATION,
+                                           self::MATCH_BOTH))
+             && $computer->fields['locations_id'] == $result['locations_id']) {
             $mirrors[] = $result['url'];
          }
-      }
+
+
+         if (in_array($mirror_match, array(self::MATCH_ENTITY,
+                                           self::MATCH_BOTH))) {
+            $entities = $result['entities_id'];
+            if ($result['is_recursive']) {
+               $entities = getSonsOf('glpi_entities', $result['entities_id']);
+            }
+
+            $add_mirror = false;
+            if(is_array($entities)) {
+               if(in_array($computer->fields['entities_id'], $entities)) {
+                  $add_mirror = true;
+               }
+            } else {
+               if($computer->fields['entities_id'] == $result['entities_id']) {
+                  $add_mirror = true;
+               }
+            }
+
+            if(!in_array($result['url'], $mirrors) && $add_mirror) {
+               $mirrors[] = $result['url'];
+            }
+         }
+       }
 
       //add default mirror (this server) if enabled in config
       $entities_id = 0;
@@ -120,12 +147,8 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
    function showForm($id, $options=array()) {
       global $CFG_GLPI;
 
-      if ($id!='') {
-         $this->getFromDB($id);
-      } else {
-         $this->getEmpty();
-      }
-      $this->showTabs($options);
+      $this->initForm($id, $options);
+
       $this->showFormHeader($options);
 
       echo "<tr class='tab_bg_1'>";
@@ -171,11 +194,6 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
 
       $this->showFormButtons($options);
 
-      echo "<div id='tabcontent'></div>";
-
-      echo "<script type='text/javascript'>loadDefaultTab();
-      </script>";
-
       return TRUE;
    }
 
@@ -212,7 +230,7 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
       $tab[80]['table']     = 'glpi_entities';
       $tab[80]['field']     = 'completename';
       $tab[80]['name']      = __('Entity');
-
+      $tab[80]['datatype']  = 'dropdown';
 
       $tab[81]['table']     = getTableNameForForeignKeyField('locations_id');
       $tab[81]['field']     = 'completename';
@@ -249,7 +267,7 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
    **/
    static function showMassiveActionsSubForm(MassiveAction $ma) {
       switch ($ma->getAction()) {
-         case "transfert": 
+         case "transfert":
             Dropdown::show('Entity');
             echo Html::submit(_x('button','Post'), array('name' => 'massiveaction'));
             return true;
@@ -269,7 +287,7 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
 
       switch ($ma->getAction()) {
          case "transfert" :
-            
+
             foreach($ids as $key) {
                if ($pfDeployMirror->getFromDB($key)) {
                   $input = array();
@@ -286,7 +304,7 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
             }
 
             break;
-      } 
+      }
    }
 }
 

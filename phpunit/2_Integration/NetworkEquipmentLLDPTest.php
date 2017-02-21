@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -526,11 +526,11 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
                           count($a_networkports),
                           'May have 3 network ports ('.print_r($a_networkports, TRUE).')');
 
-      $a_unkowns = getAllDatasFromTable('glpi_plugin_fusioninventory_unmanageds');
+      $a_unknowns = getAllDatasFromTable('glpi_plugin_fusioninventory_unmanageds');
 
       $this->assertEquals(1,
-                          count($a_unkowns),
-                          'May have only one unknown device ('.print_r($a_unkowns, TRUE).')');
+                          count($a_unknowns),
+                          'May have only one unknown device ('.print_r($a_unknowns, TRUE).')');
 
 
       $a_networkport_ref = array(

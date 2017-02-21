@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -66,13 +66,13 @@ class PluginFusioninventoryInventoryComputerBlacklist extends CommonDBTM {
       $tab[1]['field']     = 'value';
       $tab[1]['linkfield'] = 'value';
       $tab[1]['name']      = __('blacklisted value', 'fusioninventory');
-      $tab[1]['datatype']  = 'itemlink';
 
       $tab[2]['table']     = 'glpi_plugin_fusioninventory_inventorycomputercriterias';
       $tab[2]['field']     = 'name';
       $tab[2]['linkfield'] = 'plugin_fusioninventory_criterium_id';
       $tab[2]['name']      = __('Type');
-      $tab[2]['datetype']  = "itemlink";
+      $tab[2]['datatype']      = 'itemlink';
+      $tab[2]['itemlink_type'] = 'PluginFusioninventoryInventoryComputerCriteria';
 
       return $tab;
    }

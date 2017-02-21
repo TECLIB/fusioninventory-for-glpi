@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    Alexandre Delaunay
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -129,30 +129,25 @@ class PluginFusioninventoryDeployGroup extends CommonDBTM {
       switch ($ma->getAction()) {
 
         case 'add_to_static_group' :
-           if ($item->getType() == 'Computer') {
-              $group_item = new PluginFusioninventoryDeployGroup_Staticdata();
-              foreach ($ids as $id) {
-                 //if ($group_item->can($id, UPDATE)) {
-                    if (!countElementsInTable($group_item->getTable(),
-                                            "`plugin_fusioninventory_deploygroups_id`='".$_POST['plugin_fusioninventory_deploygroups_id']."'
-                                               AND `itemtype`='Computer'
-                                               AND `items_id`='$id'")) {
-                       $values = array(
-                          'plugin_fusioninventory_deploygroups_id' => $_POST['plugin_fusioninventory_deploygroups_id'],
-                          'itemtype' => 'Computer',
-                          'items_id' => $id);
-                       $group_item->add($values);
-                       $ma->itemDone($item->getType(), $id, MassiveAction::ACTION_OK);
-                    } else {
-                       $ma->itemDone($item->getType(), $id, MassiveAction::ACTION_KO);
-                    }
-              //} else {
-              //   $ma->itemDone($item->getType(), $id, MassiveAction::ACTION_NORIGHT);
-              //   $ma->addMessage($item->getErrorMessage(ERROR_RIGHT));
-              //}
-           }
-        }
-        parent::processMassiveActionsForOneItemtype($ma, $item, $ids);
+            if ($item->getType() == 'Computer') {
+               $group_item = new PluginFusioninventoryDeployGroup_Staticdata();
+               foreach ($ids as $id) {
+                  if (!countElementsInTable($group_item->getTable(),
+                       "`plugin_fusioninventory_deploygroups_id`='".$_POST['plugin_fusioninventory_deploygroups_id']."'
+                          AND `itemtype`='Computer'
+                          AND `items_id`='$id'")) {
+                     $values = array(
+                        'plugin_fusioninventory_deploygroups_id' => $_POST['plugin_fusioninventory_deploygroups_id'],
+                        'itemtype' => 'Computer',
+                        'items_id' => $id);
+                  $group_item->add($values);
+                  $ma->itemDone($item->getType(), $id, MassiveAction::ACTION_OK);
+               } else {
+                  $ma->itemDone($item->getType(), $id, MassiveAction::ACTION_KO);
+               }
+            }
+         }
+         parent::processMassiveActionsForOneItemtype($ma, $item, $ids);
       }
    }
 
@@ -379,7 +374,7 @@ class PluginFusioninventoryDeployGroup extends CommonDBTM {
       echo Html::scriptBlock($clean_script);*/
    }
 
-   static function getTargetsForGroup($groups_id) {
+   static function getTargetsForGroup($groups_id, $use_cache = false) {
       $group = new self();
       $group->getFromDB($groups_id);
 
@@ -391,7 +386,8 @@ class PluginFusioninventoryDeployGroup extends CommonDBTM {
             $results[$tmpgroup['items_id']] = $tmpgroup['items_id'];
          }
       } else {
-         $results = PluginFusioninventoryDeployGroup_Dynamicdata::getTargetsByGroup($group);
+         $results = PluginFusioninventoryDeployGroup_Dynamicdata::getTargetsByGroup($group,
+                                                                                    $use_cache);
       }
       return $results;
    }
