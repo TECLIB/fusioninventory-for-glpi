@@ -155,7 +155,7 @@ class PluginFusioninventoryDeployAction {
          echo Search::showNewLine(Search::HTML_OUTPUT, ($i%2));
          if ($pfDeployPackage->can($pfDeployPackage->getID(), UPDATE)) {
             echo "<td class='control'>";
-            Html::showCheckbox(array('name' => 'action_entries[]'));
+            Html::showCheckbox(array('name' => 'action_entries['.$i.']'));
             echo "</td>";
          }
          $keys = array_keys($action);

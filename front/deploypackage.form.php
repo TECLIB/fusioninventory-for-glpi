@@ -43,7 +43,6 @@
 include ("../../../inc/includes.php");
 Session::checkLoginUser();
 
-
 if (isset($_POST['update_json'])) {
    $order = new PluginFusioninventoryDeployOrder();
 

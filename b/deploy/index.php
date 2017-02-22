@@ -43,6 +43,14 @@ ob_start();
 include ("../../../../inc/includes.php");
 ob_end_clean();
 
+//Store deploy task version
+//If task is lower than 2.2, there's no version sent by the agent
+//we set it to 0
+$deploy_task_version = 0;
+if (isset($_GET['version'])) {
+   $deploy_task_version = $_GET['version'];
+}
+
 $response = FALSE;
 //Agent communication using REST protocol
 if (isset($_GET['action'])) {
@@ -91,6 +99,18 @@ if (isset($_GET['action'])) {
                      $deploycommon = new PluginFusioninventoryDeployCommon();
                      // Get taskjob json order
                      $jobstate_order = $deploycommon->run($taskjobstate);
+
+                     //If task doesn't support checks skip, info, warning,
+                     //send an ignore instead
+                     //tasks version needs to be at least 2.2
+                     if (version_compare($deploy_task_version, '2.2', 'lt')
+                        && isset($jobstate_order['job']['checks'])) {
+                        foreach ($jobstate_order['job']['checks'] as $key => $value) {
+                           if (in_array($value['return'], ['skip', 'info', 'warning'])) {
+                              $jobstate_order['job']['checks'][$key]['return'] = 'ignore';
+                           }
+                        }
+                     }
 
                      // Append order to the final json
                      $order->jobs[] = $jobstate_order['job'];
@@ -152,17 +172,19 @@ if (isset($_GET['action'])) {
 
 
          if ( $error != TRUE) {
-            if ( array_key_exists("msg", $_GET)
-                    && $_GET['msg'] === 'job successfully completed') {
+            if (filter_input(INPUT_GET, "msg") === 'job successfully completed'
+               || filter_input(INPUT_GET, "msg") === 'job skipped') {
                //Job is ended and status should be ok
                $params['code'] = 'ok';
-               $params['msg'] = $_GET['msg'];
+               $params['msg']  = $_GET['msg'];
             } else {
                $params['code'] = 'running';
-               if (array_key_exists("currentStep", $_GET)) {
-                  $params['msg'] = $partjob_mapping[$_GET['currentStep']] . ":" . $_GET['msg'];
+               $fi_currentStep = filter_input(INPUT_GET, "currentStep");
+               if (!empty($fi_currentStep)) {
+                  $params['msg'] = $partjob_mapping[filter_input(INPUT_GET, "currentStep")]
+                     . ":" . filter_input(INPUT_GET, "msg");
                } else {
-                  $params['msg'] = $_GET['msg'];
+                  $params['msg'] = filter_input(INPUT_GET, "msg");
                }
             }
          }
