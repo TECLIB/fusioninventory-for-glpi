@@ -68,9 +68,9 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          $actions['PluginFusioninventoryDeployPackage'.MassiveAction::CLASS_ACTION_SEPARATOR.'import'] = __('Import', 'fusioninventory');
          return $actions;
       }
-      $actions['PluginFusioninventoryDeployPackage'.MassiveAction::CLASS_ACTION_SEPARATOR.'transfert'] = __('Transfer');
-      $actions['PluginFusioninventoryDeployPackage'.MassiveAction::CLASS_ACTION_SEPARATOR.'export'] = __('Export', 'fusioninventory');
-
+      $actions[__CLASS__.MassiveAction::CLASS_ACTION_SEPARATOR.'transfert'] = __('Transfer');
+      $actions[__CLASS__.MassiveAction::CLASS_ACTION_SEPARATOR.'export'] = __('Export', 'fusioninventory');
+      $actions[__CLASS__.MassiveAction::CLASS_ACTION_SEPARATOR.'duplicate'] = _sx('button', 'Duplicate');
       return $actions;
    }
 
@@ -97,12 +97,15 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
    static function showMassiveActionsSubForm(MassiveAction $ma) {
 
       switch ($ma->getAction()) {
-         case 'transfert' :
+         case 'transfert':
             Dropdown::show('Entity');
             echo "<br><br>".Html::submit(__('Post'),
                                          array('name' => 'massiveaction'));
             return true;
 
+         case 'duplicate':
+            echo Html::submit(_x('button','Post'), array('name' => 'massiveaction'));
+            return true;
       }
       return parent::showMassiveActionsSubForm($ma);
    }
@@ -122,7 +125,20 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
               }
             }
             break;
-
+            case 'duplicate':
+               $pfPackage = new self();
+               foreach ($ids as $key) {
+                  if ($pfPackage->getFromDB($key)) {
+                     if ($pfPackage->duplicate($pfPackage->getID())) {
+                        //set action massive ok for this item
+                        $ma->itemDone($item->getType(), $key, MassiveAction::ACTION_OK);
+                     } else {
+                        // KO
+                        $ma->itemDone($item->getType(), $key, MassiveAction::ACTION_KO);
+                     }
+                  }
+               }
+            break;
          case 'transfert' :
             $pfDeployPackage = new PluginFusioninventoryDeployPackage();
             foreach ($ids as $key) {
@@ -147,6 +163,27 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
    }
 
 
+   /**
+   * Duplicate a deploy package
+   * @param $deploypackages_id the ID of the package to duplicate
+   * @return duplication process status
+   */
+   public function duplicate($deploypackages_id) {
+      if (!$this->getFromDB($deploypackages_id)) {
+         return false;
+      }
+      $result = true;
+      $input  = $this->fields;
+      $input['name'] = sprintf(__('Copy of %s'),
+                               $this->fields['name']);
+      unset($input['id']);
+
+      $input = Toolbox::addslashes_deep($input);
+      if (!$this->add($input)) {
+         $result = false;
+      }
+      return $result;
+   }
 
    /**
    *  Check if we can edit (or delete) this item
@@ -306,7 +343,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       $deployOrder = new PluginFusioninventoryDeployOrder;
       $found_order = $deployOrder->find("`plugin_fusioninventory_deploypackages_id`=".
                                           $this->fields['id']);
-      
+
       // remove orders
       $query = "DELETE FROM `glpi_plugin_fusioninventory_deployorders`
                 WHERE `plugin_fusioninventory_deploypackages_id`=".$this->fields['id'];
@@ -790,11 +827,11 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
             $zip->addEmptyDir('files/manifests');
             $zip->addEmptyDir('files/repository');
             foreach ($a_files as $hash=>$data) {
-               $zip->addFile(GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/".$hash, 
+               $zip->addFile(GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/".$hash,
                               "files/manifests/".$hash);
                $a_xml['manifests'][] = $hash;
 
-               foreach (file(GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/".$hash) 
+               foreach (file(GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/".$hash)
                            as $sha512) {
                   $sha512 = trim($sha512);
                   $filepart = PluginFusioninventoryDeployFile::getDirBySha512($sha512).
@@ -806,7 +843,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
 
                   $zip->addFile(GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/repository/".$filepart,
                                                    "files/repository/".$filepart);
-                  
+
                   $a_xml['repository'][] = $filepart;
                }
             }

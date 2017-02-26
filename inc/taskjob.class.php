@@ -1546,7 +1546,7 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
          $run['specificity'] = "NULL";
       }
 
-      // add this new state and first log 
+      // add this new state and first log
       if($run_id = $jobstate->add($run)) {
          $log = array(
             'date'    => date("Y-m-d H:i:s"),
@@ -1816,6 +1816,25 @@ function new_subtype(id) {
       }
    }
 
+   /**
+   * Duplicate all taskjobs for a task to another one
+   * @param $source_tasks_id the ID of the task to clone
+   * @param $target_task_id the ID of the cloned task
+   * @return void
+   */
+   static function duplicate($source_tasks_id, $target_tasks_id) {
+      $pfTaskJob = new self();
+      $result    = true;
+      $taskjobs  = $pfTaskJob->find("`plugin_fusioninventory_tasks_id`='$source_tasks_id'");
+      foreach ($taskjobs as $taskjob) {
+         $taskjob['plugin_fusioninventory_tasks_id'] = $target_tasks_id;
+         unset($taskjob['id']);
+         if (!$pfTaskJob->add($taskjob)) {
+            $result = false;
+         }
+      }
+      return $result;
+   }
 }
 
 ?>

@@ -114,7 +114,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
 
       // add a list limit for include old jobs
       echo __("Include old jobs",'fusioninventory')." : ";
-      $limit_options = array( 1  => __('Last'), 
+      $limit_options = array( 1  => __('Last'),
                               2  => 2,
                               5  => 5,
                               10 => 10,
@@ -213,13 +213,13 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       /*
        * List of counter names
        */
-      
+
       if (!isset($_SESSION['fi_include_old_jobs'])) {
          $_SESSION['fi_include_old_jobs'] = 1;
       }
 
       $include_old_jobs = isset($_SESSION['fi_include_old_jobs'])?$_SESSION['fi_include_old_jobs']:1;
-      
+
       echo implode("\n", array(
          "<script type='text/javascript'>",
          "  include_old_jobs = $include_old_jobs;",
@@ -294,7 +294,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       ));
 
       echo "<a class='openExportDialog'>"._sx('button', 'Export')."</a><br /><br />";
-      
+
       echo "<div id='fiTaskExport_modalWindow'>";
       echo "<form method='GET' class='task_export_form' action='".$CFG_GLPI['root_doc'].
            "/plugins/fusioninventory/front/export_task.php'>";
@@ -302,7 +302,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       // INCLUDE OLD JOBS SELECT
       echo "<div>";
       echo "<label for='include_old_jobs'>".
-           __("Include old jobs",'fusioninventory')." : </label>"; 
+           __("Include old jobs",'fusioninventory')." : </label>";
       echo "<select class='include_old_jobs'>";
       foreach ($limit_options as $value => $label) {
          $selected = "";
@@ -315,14 +315,14 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       echo "</div>";
 
       // STATES CHECKBOXES
-      echo "<hr />"; 
-      echo "<label for='include_old_jobs'>".__("Agent state",'fusioninventory')." : </label>"; 
+      echo "<hr />";
+      echo "<label for='include_old_jobs'>".__("Agent state",'fusioninventory')." : </label>";
       echo "<div>";
       $agent_state_types = array( // true : checked by default
-         'agents_prepared'  => false, 
+         'agents_prepared'  => false,
          'agents_cancelled' => false,
          'agents_running'   => true,
-         'agents_success'   => true, 
+         'agents_success'   => true,
          'agents_error'     => true
       );
       foreach ($agent_state_types as $agent_state_type => $agent_state_checked) {
@@ -556,14 +556,14 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
                   'name'  => 'plugin_fusioninventory_timeslots_exec_id')
             );
 
-         $this->showIntegerField( __('Agent wakeup interval (in minutes)'), "wakeup_agent_time", 
-                                 array('value' => $this->fields['wakeup_agent_time'], 
+         $this->showIntegerField( __('Agent wakeup interval (in minutes)'), "wakeup_agent_time",
+                                 array('value' => $this->fields['wakeup_agent_time'],
                                        'toadd' => array('0' => __('Never')),
                                        'min'   => 1,
                                        'step'  => 1) );
 
-         $this->showIntegerField( __('Number of agents to wake up'), "wakeup_agent_counter", 
-                                 array('value' => $this->fields['wakeup_agent_counter'], 
+         $this->showIntegerField( __('Number of agents to wake up'), "wakeup_agent_counter",
+                                 array('value' => $this->fields['wakeup_agent_counter'],
                                        'toadd' => array('0' => __('None')),
                                        'min'   => 0,
                                        'step'  => 1) );
@@ -632,7 +632,6 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
          Session::checkRight('plugin_fusioninventory_task', CREATE);
 
          $items_id = $this->add($postvars);
-
          Html::redirect(str_replace("add=1", "", $_SERVER['HTTP_REFERER'])."?id=".$items_id);
 
       } else if (isset($postvars["purge"])) {

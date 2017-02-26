@@ -91,7 +91,8 @@ class PluginFusioninventoryDeployGroup extends CommonDBTM {
    function getSpecificMassiveActions($checkitem=NULL) {
 
       $actions = array();
-      $actions['PluginFusioninventoryDeployGroup'.MassiveAction::CLASS_ACTION_SEPARATOR.'targettask'] = __('Target a task', 'fusioninventory');
+      $actions[__CLASS__.MassiveAction::CLASS_ACTION_SEPARATOR.'targettask'] = __('Target a task', 'fusioninventory');
+      $actions[__CLASS__.MassiveAction::CLASS_ACTION_SEPARATOR.'duplicate'] = _sx('button', 'Duplicate');
       return $actions;
    }
 
@@ -111,6 +112,9 @@ class PluginFusioninventoryDeployGroup extends CommonDBTM {
                            array('condition' => "`type`='".PluginFusioninventoryDeployGroup::STATIC_GROUP."'"));
            echo Html::submit(_x('button','Post'), array('name' => 'massiveaction'));
            return true;
+        case 'duplicate':
+           echo Html::submit(_x('button','Post'), array('name' => 'massiveaction'));
+           return true;
       }
       return parent::showMassiveActionsSubForm($ma);
    }
@@ -128,7 +132,7 @@ class PluginFusioninventoryDeployGroup extends CommonDBTM {
 
       switch ($ma->getAction()) {
 
-        case 'add_to_static_group' :
+         case 'add_to_static_group' :
             if ($item->getType() == 'Computer') {
                $group_item = new PluginFusioninventoryDeployGroup_Staticdata();
                foreach ($ids as $id) {
@@ -147,11 +151,50 @@ class PluginFusioninventoryDeployGroup extends CommonDBTM {
                }
             }
          }
-         parent::processMassiveActionsForOneItemtype($ma, $item, $ids);
+         break;
+         case 'duplicate':
+            $pfGroup = new self();
+            foreach ($ids as $key) {
+               if ($pfGroup->getFromDB($key)) {
+                  if ($pfGroup->duplicate($pfGroup->getID())) {
+                     //set action massive ok for this item
+                     $ma->itemDone($item->getType(), $key, MassiveAction::ACTION_OK);
+                  } else {
+                     // KO
+                     $ma->itemDone($item->getType(), $key, MassiveAction::ACTION_KO);
+                  }
+               }
+            }
+            break;
+         default:
+            parent::processMassiveActionsForOneItemtype($ma, $item, $ids);
+            break;
       }
    }
 
-
+   function duplicate($deploygroups_id) {
+      $result = true;
+      if ($this->getFromDB($deploygroups_id)) {
+         $input = $this->fields;
+         unset($input['id']);
+         $input['name'] = sprintf(__('Copy of %s'), $this->fields['name']);
+         $new_deploygroups_id = $this->add($input);
+         if ($new_deploygroups_id) {
+            if ($this->fields['type'] == self::STATIC_GROUP) {
+               $result
+                  = PluginFusioninventoryDeployGroup_Staticdata::duplicate($deploygroups_id, $new_deploygroups_id);
+            } else {
+               $result
+                  = PluginFusioninventoryDeployGroup_Dynamicdata::duplicate($deploygroups_id, $new_deploygroups_id);
+            }
+         } else {
+            $result = false;
+         }
+      } else {
+         $result = false;
+      }
+      return $result;
+   }
 
    function showMenu($options=array())  {
       $this->displaylist = false;
