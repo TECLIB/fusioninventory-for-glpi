@@ -350,7 +350,7 @@ function plugin_fusioninventory_getAddSearchOptions($itemtype) {
                                        __('Last contact', 'fusioninventory');
 
         $sopt[5178]['table']     = 'glpi_plugin_fusioninventory_inventorycomputercomputers';
-        $sopt[5178]['field']     = 'oscomment';
+        $sopt[5178]['field']     = 'hostid';
         $sopt[5178]['name']      = __('HostID', 'fusioninventory');
         $sopt[5178]['joinparams']  = array('jointype' => 'child');
         $sopt[5178]['massiveaction'] = FALSE;
@@ -1871,130 +1871,36 @@ function plugin_fusioninventory_getDatabaseRelations() {
   *
   * @return void
   */
- function postItemForm($params) {
-    $tab = 0;
-    
-    if (isset($params['item']) && $params['item'] instanceof CommonDBTM) {
-       switch (get_class($params['item'])) {
-          default:
-             break;
-          case 'Computer':
-             $id = $params['item']->getID();
-             $pfInventoryComputerComputer = new PluginFusioninventoryInventoryComputerComputer();
-             if (!empty($pfInventoryComputerComputer->hasAutomaticInventory($id))) {
-                return true;
-             } else {
-                $pfAgent = new PluginFusioninventoryAgent();
-                if ($pfAgent->getAgentWithComputerid($id)) {
-                   echo '<tr>';
-                   echo '<td colspan=\'4\'></td>';
-                   echo '</tr>';
+function postItemForm($params) {
+   $tab = 0;
 
-                   echo '<tr>';
-                   echo '<th colspan="4">'.__('FusionInventory', 'fusioninventory').'</th>';
-                   echo '</tr>';
-                   $pfAgent->showInfoForComputer($id, 4);
-                }
+   if (isset($params['item']) && $params['item'] instanceof CommonDBTM) {
+      switch (get_class($params['item'])) {
+         default:
+            break;
+         case 'Computer':
+            $id = $params['item']->getID();
+            if ($params['item']->isNewID($id)) {
+               return true;
+            }
+            $pfInventoryComputerComputer = new PluginFusioninventoryInventoryComputerComputer();
+            if (!empty($pfInventoryComputerComputer->hasAutomaticInventory($id))) {
+               return true;
+            } else {
+               $pfAgent = new PluginFusioninventoryAgent();
+               if ($pfAgent->getAgentWithComputerid($id)) {
+                  echo '<tr>';
+                  echo '<td colspan=\'4\'></td>';
+                  echo '</tr>';
 
-                   echo "<tr class='tab_bg_1'>";
-                   echo "<td>".__('Architecture', 'fusioninventory')."</td>";
-                   echo "<td >";
-
-                   echo Dropdown::getDropdownName(
-                      'glpi_operatingsystemarchitectures',
-                      $pfComputerOperatingSystem->fields['operatingsystemarchitectures_id']
-                   );
-
-                   echo "</td>";
-                   echo "</tr>";
-
-                   echo "<tr class='tab_bg_1'>";
-                   echo "<td>".__('Operating system')."</td>";
-                   echo "<td>";
-
-                   echo Dropdown::getDropdownName(
-                      'glpi_operatingsystems',
-                      $pfComputerOperatingSystem->fields['operatingsystems_id']
-                   );
-
-                   echo "</td>";
-                   echo "</tr>";
-
-                   echo "<tr class='tab_bg_1'>";
-                   echo "<td>"._n('Version of the operating system', 'Versions of the operating systems', 1)."</td>";
-                   echo "<td>";
-
-                   echo Dropdown::getDropdownName(
-                      'glpi_operatingsystemversions',
-                      $pfComputerOperatingSystem->fields['operatingsystemversions_id']
-                   );
-
-                   echo "</td>";
-                   echo "</tr>";
-                   echo "<tr class='tab_bg_1'>";
-                   echo "<td>".__('Operating system kernel name', 'fusioninventory')."</td>";
-                   echo "<td >";
-
-                   echo Dropdown::getDropdownName(
-                      'glpi_plugin_fusioninventory_computeroskernelnames',
-                      $pfComputerOperatingSystem->fields['plugin_fusioninventory_computeroskernelnames_id']
-                   );
-
-                   echo "</td>";
-                   echo "</tr>";
-
-                   echo "<tr class='tab_bg_1'>";
-                   echo "<td>".__('Operating system kernel version', 'fusioninventory')."</td>";
-                   echo "<td >";
-
-                   echo Dropdown::getDropdownName(
-                      'glpi_plugin_fusioninventory_computeroskernelversions',
-                      $pfComputerOperatingSystem->fields['plugin_fusioninventory_computeroskernelversions_id']
-                   );
-
-                   echo "</td>";
-                   echo "</tr>";
-
-                   echo "<tr class='tab_bg_1'>";
-                   echo "<td>"._n('Service pack', 'Service packs', 1)."</td>";
-                   echo "<td>";
-
-                   echo Dropdown::getDropdownName(
-                      'glpi_operatingsystemservicepacks',
-                      $pfComputerOperatingSystem->fields['operatingsystemservicepacks_id']
-                   );
-
-                   echo "</td>";
-                   echo "</tr>";
-
-                   echo "<tr class='tab_bg_1'>";
-                   echo "<td>".__('Operating system edition', 'fusioninventory')."</td>";
-                   echo "<td>";
-
-                   echo Dropdown::getDropdownName(
-                      'glpi_plugin_fusioninventory_computeroperatingsystemeditions',
-                      $pfComputerOperatingSystem->fields['plugin_fusioninventory_computeroperatingsystemeditions_id']
-                   );
-
-                   echo "</td>";
-
-                   echo "</tr>";
-
-                   echo "</tr>";
-
-                }
-
-                echo "<tr class='tab_bg_1'>";
-                echo "<td>".__('HostID', 'fusioninventory')."</td>";
-                echo "<td>";
-                echo $a_computerextend['hostid'];
-                echo "</td>";
-                echo "</tr>";
-
-                echo '</table>';
-                break;
-       }
-    }
+                  echo '<tr>';
+                  echo '<th colspan="4">'.__('FusionInventory', 'fusioninventory').'</th>';
+                  echo '</tr>';
+                  $pfAgent->showInfoForComputer($id, 4);
+               }
+         }
+      }
+   }
 }
 
 ?>
