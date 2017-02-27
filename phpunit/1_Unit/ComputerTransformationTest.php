@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -515,12 +515,14 @@ class ComputerTransformation extends RestoreDatabase_TestCase {
       $a_reference[0] = array(
             'manufacturers_id'   => 'NEC Technologies, Inc.',
             'name'               => 'Écran Plug-and-Play',
-            'serial'             => ''
+            'serial'             => '',
+            'is_dynamic'         => 1
           );
       $a_reference[1] = array(
             'manufacturers_id'   => 'Lenovo',
             'name'               => 'ThinkPad Display 1280x800',
             'serial'             => 'UBYVUTFYEIUI',
+            'is_dynamic'         => 1
           );
       $this->assertEquals($a_reference, $a_return['monitor']);
    }

@@ -103,9 +103,14 @@ CREATE TABLE `glpi_plugin_fusioninventory_tasks` (
   `datetime_start` datetime DEFAULT NULL,
   `datetime_end` datetime DEFAULT NULL,
   `plugin_fusioninventory_timeslots_id` int(11) NOT NULL DEFAULT '0',
+  `plugin_fusioninventory_timeslots_exec_id` int(11) NOT NULL DEFAULT '0',
+  `last_agent_wakeup` datetime DEFAULT NULL,
+  `wakeup_agent_counter` int(11) NOT NULL DEFAULT '0',
+  `wakeup_agent_time` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `entities_id` (`entities_id`),
-  KEY `is_active` (`is_active`)
+  KEY `is_active` (`is_active`),
+  KEY `wakeup_agent_counter` (`wakeup_agent_counter`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 
@@ -310,6 +315,7 @@ CREATE TABLE `glpi_plugin_fusioninventory_ignoredimportdevices` (
    `method` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
    `serial` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
    `uuid` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+   `plugin_fusioninventory_agents_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -362,14 +368,14 @@ CREATE TABLE `glpi_plugin_fusioninventory_inventorycomputerantiviruses` (
   `computers_id` int(11) NOT NULL DEFAULT '0',
   `name` varchar(255) DEFAULT NULL,
   `manufacturers_id` int(11) NOT NULL DEFAULT '0',
-  `version` varchar(255) DEFAULT NULL,
+  `antivirus_version` varchar(255) DEFAULT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT '0',
-  `uptodate` tinyint(1) NOT NULL DEFAULT '0',
+  `is_uptodate` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
-  KEY `version` (`version`),
+  KEY `antivirus_version` (`antivirus_version`),
   KEY `is_active` (`is_active`),
-  KEY `uptodate` (`uptodate`),
+  KEY `is_uptodate` (`is_uptodate`),
   KEY `computers_id` (`computers_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
@@ -410,6 +416,7 @@ CREATE TABLE `glpi_plugin_fusioninventory_inventorycomputercomputers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `computers_id` int(11) NOT NULL DEFAULT '0',
   `bios_date` datetime DEFAULT NULL,
+  `hostid` varchar(255) DEFAULT NULL,
   `bios_version` varchar(255) DEFAULT NULL,
   `bios_assettag` varchar(255) DEFAULT NULL,
   `bios_manufacturers_id` int(11) NOT NULL DEFAULT '0',
@@ -428,6 +435,41 @@ CREATE TABLE `glpi_plugin_fusioninventory_inventorycomputercomputers` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 
+DROP TABLE IF EXISTS `glpi_plugin_fusioninventory_inventorycomputersolariszones`;
+
+CREATE TABLE IF NOT EXISTS `glpi_plugin_fusioninventory_inventorycomputersolariszones` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `entities_id` int(11) NOT NULL DEFAULT '0',
+  `computers_id` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `uuid` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `vcpu` int(11) NOT NULL DEFAULT '0',
+  `ram` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `zone_number` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `zone_max_swap` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `zone_max_locked_memory` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `zone_max_shm_memory` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `zone_cpu_cap` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `zone_dedicated_cpu` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `is_dynamic` tinyint(1) NOT NULL DEFAULT '0',
+  `comment` text COLLATE utf8_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `computers_id` (`computers_id`),
+  KEY `entities_id` (`entities_id`),
+  KEY `name` (`name`),
+  KEY `vcpu` (`vcpu`),
+  KEY `ram` (`ram`),
+  KEY `zone_number` (`zone_number`),
+  KEY `zone_max_swap` (`zone_max_swap`),
+  KEY `zone_max_locked_memory` (`zone_max_locked_memory`),
+  KEY `zone_max_shm_memory` (`zone_max_shm_memory`),
+  KEY `zone_cpu_cap` (`zone_cpu_cap`),
+  KEY `zone_dedicated_cpu` (`zone_dedicated_cpu`),
+  KEY `is_deleted` (`is_deleted`),
+  KEY `is_dynamic` (`is_dynamic`),
+  KEY `uuid` (`uuid`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 DROP TABLE IF EXISTS `glpi_plugin_fusioninventory_inventorycomputerstats`;
 
@@ -482,6 +524,51 @@ CREATE TABLE `glpi_plugin_fusioninventory_inventorycomputerstorages_storages` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 
+DROP TABLE IF EXISTS `glpi_plugin_fusioninventory_inventorycomputeroracledbs`;
+
+CREATE TABLE IF NOT EXISTS
+`glpi_plugin_fusioninventory_inventorycomputeroracledbs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `entities_id` int(11) NOT NULL DEFAULT '0',
+  `computers_id` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `version` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `memory_target` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `sga_target` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `is_dynamic` tinyint(1) NOT NULL DEFAULT '0',
+  `comment` text COLLATE utf8_unicode_ci,
+  `has_advanced_compression` tinyint(1) NOT NULL DEFAULT '0',
+  `has_active_data_guard` tinyint(1) NOT NULL DEFAULT '0',
+  `has_change_management_pack` tinyint(1) NOT NULL DEFAULT '0',
+  `has_configuration_management` tinyint(1) NOT NULL DEFAULT '0',
+  `has_data_masking_pack` tinyint(1) NOT NULL DEFAULT '0',
+  `has_data_mining` tinyint(1) NOT NULL DEFAULT '0',
+  `has_data_vault` tinyint(1) NOT NULL DEFAULT '0',
+  `has_diagnostic_pack` tinyint(1) NOT NULL DEFAULT '0',
+  `has_exadata` tinyint(1) NOT NULL DEFAULT '0',
+  `has_label_security` tinyint(1) NOT NULL DEFAULT '0',
+  `has_olap` tinyint(1) NOT NULL DEFAULT '0',
+  `has_paritionning` tinyint(1) NOT NULL DEFAULT '0',
+  `has_provisionning_patch_automation_pack` tinyint(1) NOT NULL DEFAULT '0',
+  `has_provisionning_patch_automation_pack_for_database` tinyint(1) NOT NULL
+DEFAULT '0',
+  `has_real_application_cluster` tinyint(1) NOT NULL DEFAULT '0',
+  `has_real_application_testing` tinyint(1) NOT NULL DEFAULT '0',
+  `has_spatial` tinyint(1) NOT NULL DEFAULT '0',
+  `has_total_recall` tinyint(1) NOT NULL DEFAULT '0',
+  `has_tuning_pack` tinyint(1) NOT NULL DEFAULT '0',
+  `has_weblogic_server_management_pack` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `computers_id` (`computers_id`),
+  KEY `entities_id` (`entities_id`),
+  KEY `name` (`name`),
+  KEY `version` (`version`),
+  KEY `memory_target` (`memory_target`),
+  KEY `actived_options` (`sga_target`),
+  KEY `is_deleted` (`is_deleted`),
+  KEY `is_dynamic` (`is_dynamic`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 DROP TABLE IF EXISTS `glpi_plugin_fusioninventory_configlogfields`;
 
@@ -499,7 +586,7 @@ DROP TABLE IF EXISTS `glpi_plugin_fusioninventory_networkportconnectionlogs`;
 
 CREATE TABLE `glpi_plugin_fusioninventory_networkportconnectionlogs` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
-   `date_mod` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+   `date_mod` datetime DEFAULT NULL,
    `creation` tinyint(1) NOT NULL DEFAULT '0',
    `networkports_id_source` int(11) NOT NULL DEFAULT '0',
    `networkports_id_destination` int(11) NOT NULL DEFAULT '0',
@@ -565,7 +652,7 @@ DROP TABLE IF EXISTS `glpi_plugin_fusioninventory_printerlogs`;
 CREATE TABLE `glpi_plugin_fusioninventory_printerlogs` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
    `printers_id` int(11) NOT NULL DEFAULT '0',
-   `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+   `date` datetime DEFAULT NULL,
    `pages_total` int(11) NOT NULL DEFAULT '0',
    `pages_n_b` int(11) NOT NULL DEFAULT '0',
    `pages_color` int(11) NOT NULL DEFAULT '0',
@@ -620,7 +707,7 @@ CREATE TABLE `glpi_plugin_fusioninventory_networkports` (
    `ifalias` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
    `portduplex` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
    `trunk` tinyint(1) NOT NULL DEFAULT '0',
-   `lastup` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+   `lastup` datetime DEFAULT NULL,
    PRIMARY KEY (`id`),
    KEY `networkports_id` (`networkports_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
@@ -672,8 +759,8 @@ CREATE TABLE `glpi_plugin_fusioninventory_statediscoveries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `plugin_fusioninventory_taskjob_id` int(11) NOT NULL DEFAULT '0',
   `plugin_fusioninventory_agents_id` int(11) NOT NULL DEFAULT '0',
-  `start_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `end_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `start_time` datetime DEFAULT NULL,
+  `end_time` datetime DEFAULT NULL,
   `date_mod` datetime DEFAULT NULL,
   `threads` int(11) NOT NULL DEFAULT '0',
   `nb_ip` int(11) NOT NULL DEFAULT '0',
@@ -826,6 +913,7 @@ CREATE TABLE `glpi_plugin_fusioninventory_deploygroups_dynamicdatas` (
   `plugin_fusioninventory_deploygroups_id` int(11) NOT NULL DEFAULT '0',
   `fields_array` text DEFAULT NULL,
   `can_update_group` tinyint(1) NOT NULL DEFAULT '0',
+  `computers_id_cache` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `plugin_fusioninventory_deploygroups_id` (`plugin_fusioninventory_deploygroups_id`),
   KEY `can_update_group` (`can_update_group`)
@@ -1212,7 +1300,8 @@ INSERT INTO `glpi_plugin_fusioninventory_inventorycomputerblacklists`
 (60, 1, '0'),
 (61, 1, 'empty'),
 (62, 3, '24:b6:20:52:41:53'),
-(63, 1, 'Not Specified');
+(63, 1, 'Not Specified'),
+(64, 5, 'All Series');
 
 
 

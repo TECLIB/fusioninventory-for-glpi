@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author Kevin Roy
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -49,7 +49,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       ));
    }
 
-   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
+/*   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
       global $CFG_GLPI;
 
       $tab_names = array();
@@ -65,7 +65,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       } else {
          return '';
       }
-   }
+   }*/
 
    function defineTabs($options=array()){
       global $CFG_GLPI;
@@ -76,14 +76,15 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       return $ong;
    }
 
-   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
+/*   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
       if ($item->getType() == 'Computer') {
          echo "<b>".__('To Be Done', 'fusioninventory')."</b>";
       }
-   }
+   }*/
 
 
    function showJobLogs() {
+      global $CFG_GLPI;
 
       $refresh_intervals = array(
          "off" => __('Off', 'fusioninventory'),
@@ -111,6 +112,26 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       echo "      <span></span></div>";
       echo "   </div>"; // end of fusinv_form
 
+      // add a list limit for include old jobs
+      echo __("Include old jobs",'fusioninventory')." : ";
+      $limit_options = array( 1  => __('Last'), 
+                              2  => 2,
+                              5  => 5,
+                              10 => 10,
+                              25 => 25,
+                              50 => 50,
+                              100 => 100,
+                              250 => 250,
+                              -1  => __('All'));
+      echo "<select class='include_old_jobs' id='include_old_jobs'>";
+      foreach ($limit_options as $value => $label) {
+         $selected = "";
+         if (isset($_SESSION['fi_include_old_jobs']) && $value == $_SESSION['fi_include_old_jobs']) {
+            $selected = "selected='selected'";
+         }
+         echo "<option value='$value' $selected>$label</option>";
+      }
+      echo "</select>";
       echo "</div>";
 
       //$pfTaskjob = new PluginFusioninventoryTaskjob();
@@ -122,7 +143,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       // Template structure for tasks' blocks
       echo implode("\n", array(
          "<script id='template_task' type='x-tmpl-mustache'>",
-         "<div id='{{task_id}}' class='task_block'>",
+         "<div id='{{task_id}}' class='task_block {{expanded}}'>",
          "  <h3>".__("Task",'fusioninventory')." <span class='task_name'>{{task_name}}</span></h3>",
          "  <div class='jobs_block'></div>",
          "</div>",
@@ -192,8 +213,16 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       /*
        * List of counter names
        */
+      
+      if (!isset($_SESSION['fi_include_old_jobs'])) {
+         $_SESSION['fi_include_old_jobs'] = 1;
+      }
+
+      $include_old_jobs = isset($_SESSION['fi_include_old_jobs'])?$_SESSION['fi_include_old_jobs']:1;
+      
       echo implode("\n", array(
          "<script type='text/javascript'>",
+         "  include_old_jobs = $include_old_jobs;",
          "  taskjobs.statuses_order = {",
          "     last_executions : [",
          "        'agents_prepared',",
@@ -246,6 +275,8 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       $Computer = new Computer();
       echo implode( "\n", array(
          "<script type='text/javascript'>",
+         "  taskjobs.task_id = '".$task_id."'",
+         "  taskjobs.ajax_url = '".$this->getBaseUrlFor('fi.job.logs')."'",
          "  taskjobs.agents_url = '". $pfAgent->getFormUrl()."'",
          "  taskjobs.computers_url = '". $Computer->getFormUrl()."'",
          "  taskjobs.init_templates();",
@@ -261,6 +292,81 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
          "  );",
          "</script>"
       ));
+
+      echo "<a class='openExportDialog'>"._sx('button', 'Export')."</a><br /><br />";
+      
+      echo "<div id='fiTaskExport_modalWindow'>";
+      echo "<form method='GET' class='task_export_form' action='".$CFG_GLPI['root_doc'].
+           "/plugins/fusioninventory/front/export_task.php'>";
+
+      // INCLUDE OLD JOBS SELECT
+      echo "<div>";
+      echo "<label for='include_old_jobs'>".
+           __("Include old jobs",'fusioninventory')." : </label>"; 
+      echo "<select class='include_old_jobs'>";
+      foreach ($limit_options as $value => $label) {
+         $selected = "";
+         if (isset($_SESSION['fi_include_old_jobs']) && $value == $_SESSION['fi_include_old_jobs']) {
+            $selected = "selected='selected'";
+         }
+         echo "<option value='$value' $selected>$label</option>";
+      }
+      echo "</select>";
+      echo "</div>";
+
+      // STATES CHECKBOXES
+      echo "<hr />"; 
+      echo "<label for='include_old_jobs'>".__("Agent state",'fusioninventory')." : </label>"; 
+      echo "<div>";
+      $agent_state_types = array( // true : checked by default
+         'agents_prepared'  => false, 
+         'agents_cancelled' => false,
+         'agents_running'   => true,
+         'agents_success'   => true, 
+         'agents_error'     => true
+      );
+      foreach ($agent_state_types as $agent_state_type => $agent_state_checked) {
+         $agent_state_type = str_replace("agents_", "", $agent_state_type);
+         $locale = __(ucfirst($agent_state_type), 'fusioninventory');
+         $checked = "";
+         if ($agent_state_checked) {
+            $checked = "checked='checked'";
+         }
+         echo "<div class='agent_state_type_checkbox'>";
+         echo "<input type='checkbox' $checked name='agent_state_types[]' ".
+              "value='$agent_state_type' id='agent_state_types_$agent_state_type' />";
+         echo "<label for='agent_state_types_$agent_state_type'>&nbsp;$locale</label>";
+         echo "</div>";
+      }
+
+      echo "<input type='hidden' name='task_id' value='$task_id' />";
+      echo "<input class='submit' type='submit' value='"._sx('button', 'Export')."'>";
+      Html::closeForm();
+      echo "</div>";
+      echo "</div>";
+
+      echo "<script type='text/javascript'>
+            $('#fiTaskExport_modalWindow').dialog({
+               modal: true,
+               autoOpen: false,
+               height: 200,
+               position: ['center', 20],
+               width: 480,
+               resizeable: true,
+               title: \""._sx('button', 'Export')."\"
+            });
+
+            $('.openExportDialog').click(function(e) {
+               var x = e.pageX - $(document).scrollLeft() - 250;
+               var y = e.pageY - $(document).scrollTop() - 75;
+               $('#fiTaskExport_modalWindow').dialog('option', 'position', [x,y]);
+               $('#fiTaskExport_modalWindow').dialog('open');
+            });
+
+            $('.task_export_form .submit').click(function(e) {
+               $('#fiTaskExport_modalWindow').dialog('close');
+            });
+            </script>";
    }
 
    // TODO: Move this method in task.class
@@ -275,10 +381,24 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       } else {
          $task_ids = array();
       }
-      $logs = $this->getJoblogs($task_ids);
-      echo json_encode($logs);
-      return;
 
+      if (!isset($options['display'])) {
+         $options['display'] = true;
+      }
+
+      if (isset($options['include_old_jobs'])) {
+         $_SESSION['fi_include_old_jobs'] = $options['include_old_jobs'];
+      } else if (!isset($_SESSION['fi_include_old_jobs'])) {
+         $_SESSION['fi_include_old_jobs'] = 1;
+      }
+
+      $logs = $this->getJoblogs($task_ids);
+      $out = json_encode($logs);
+      if ($options['display']) {
+         echo $out;
+      } else {
+         return $out;
+      }
    }
 
    function getCounterTypeName($type = "") {
@@ -424,10 +544,30 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
          );
 
          $this->showDropdownForItemtype(
-            __('Timeslot','fusioninventory'),
+            __('Preparation timeslot','fusioninventory'),
             "PluginFusioninventoryTimeslot",
             array('value' => $this->fields['plugin_fusioninventory_timeslots_id'])
             );
+
+         $this->showDropdownForItemtype(
+            __('Execution timeslot','fusioninventory'),
+            "PluginFusioninventoryTimeslot",
+            array('value' => $this->fields['plugin_fusioninventory_timeslots_exec_id'],
+                  'name'  => 'plugin_fusioninventory_timeslots_exec_id')
+            );
+
+         $this->showIntegerField( __('Agent wakeup interval (in minutes)'), "wakeup_agent_time", 
+                                 array('value' => $this->fields['wakeup_agent_time'], 
+                                       'toadd' => array('0' => __('Never')),
+                                       'min'   => 1,
+                                       'step'  => 1) );
+
+         $this->showIntegerField( __('Number of agents to wake up'), "wakeup_agent_counter", 
+                                 array('value' => $this->fields['wakeup_agent_counter'], 
+                                       'toadd' => array('0' => __('None')),
+                                       'min'   => 0,
+                                       'step'  => 1) );
+
          echo "</div>";
       }
 
@@ -439,18 +579,51 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       return true;
    }
 
+   function showFormButtons($options=array()) {
+      if (isset($this->fields['id'])) {
+         $ID = $this->fields['id'];
+      } else {
+         $ID = 1;
+      }
+
+      echo "<tr>";
+      echo "<td colspan='2'>";
+      if ($this->isNewID($ID)) {
+         echo Html::submit(_x('button','Add'), array('name' => 'add'));
+      } else {
+         echo Html::hidden('id', array('value' => $ID));
+         echo Html::submit(_x('button','Save'), array('name' => 'update'));
+      }
+      echo "</td>";
+
+      if ($this->fields['is_active']) {
+         echo "<td>";
+         echo Html::submit(__('Force start', 'fusioninventory'), array('name' => 'forcestart'));
+         echo "</td>";
+      }
+
+      echo "<td>";
+      if ($this->can($ID, PURGE)) {
+         echo Html::submit(_x('button','Delete permanently'),
+                           array('name'    => 'purge',
+                                 'confirm' => __('Confirm the final deletion?')));
+      }
+      echo "</td>";
+      echo "</tr>";
+
+      // Close for Form
+      echo "</table></div>";
+      Html::closeForm();
+   }
+
 
    public function submitForm($postvars) {
 
       if (isset($postvars['forcestart'])) {
          Session::checkRight('plugin_fusioninventory_task', UPDATE);
 
-         /**
-          * TODO: forcing the task execution should be done in the task object
-          */
-         $pfTaskjob = new PluginFusioninventoryTaskjob();
-
-         $pfTaskjob->forceRunningTask($postvars['id']);
+         $this->getFromDB($postvars['id']);
+         $this->forceRunning();
 
          Html::back();
 

@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -49,6 +49,37 @@ class PluginFusioninventoryComputerArch extends CommonDropdown {
 
    static function getTypeName($nb=0) {
       return __('Architecture', 'fusioninventory');
+   }
+
+   function importExternal($value, $entities_id=-1, $external_params=array(), $comment="",
+                           $add=true) {
+
+      $value = trim($value);
+      if (strlen($value) == 0) {
+         return 0;
+      }
+
+      $ruleinput      = array("name" => stripslashes($value));
+      $rulecollection = getItemForItemtype("PluginFusioninventoryRuleDictionnaryComputerArchCollection");
+
+      foreach ($this->additional_fields_for_dictionnary as $field) {
+         if (isset($external_params[$field])) {
+            $ruleinput[$field] = $external_params[$field];
+         } else {
+            $ruleinput[$field] = '';
+         }
+      }
+
+      $input["name"]        = $value;
+      $input["comment"]     = $comment;
+
+      if ($rulecollection) {
+         $res_rule = $rulecollection->processAllRules(Toolbox::stripslashes_deep($ruleinput), array(), array());
+         if (isset($res_rule["name"])) {
+            $input["name"] = $res_rule["name"];
+         }
+      }
+      return ($add ? $this->import($input) : $this->findID($input));
    }
 }
 

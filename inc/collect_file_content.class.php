@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -84,6 +84,10 @@ class PluginFusioninventoryCollect_File_Content extends CommonDBTM {
    }
 
 
+   static function cleanComputer($computers_id) {
+      $file_content = new self();
+      $file_content->deleteByCriteria(array('computers_id' => $computers_id));
+   }
 
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
 
@@ -93,84 +97,26 @@ class PluginFusioninventoryCollect_File_Content extends CommonDBTM {
       } else if (get_class($item) == 'Computer') {
          $pfCollect_File->showForComputer($item->getID());
       }
-      return TRUE;
+      return true;
    }
 
 
 
-   function updateComputer($computers_id, $collects_files_id, $taskjobstates_id) {
-      global $DB;
-
-      $pfTaskjobstate = new PluginFusioninventoryTaskjobstate();
-      $pfTaskjobstate->getFromDB($taskjobstates_id);
-
-      if ($pfTaskjobstate->fields['specificity'] == '') {
-         $a_data = $this->find("`computers_id` = '".$computers_id."'
-                 AND `plugin_fusioninventory_collects_files_id`=
-                  '".$collects_files_id."'");
-         foreach ($a_data as $data) {
-            $this->delete($data);
-         }
-         return;
-      }
-      // Have files found
-      $file_data = importArrayFromDB($pfTaskjobstate->fields['specificity']);
-
-      $db_files = array();
-      $query = "SELECT `id`, `pathfile`, `size`
-            FROM `glpi_plugin_fusioninventory_collects_files_contents`
-         WHERE `computers_id` = '".$computers_id."'
-              AND `plugin_fusioninventory_collects_files_id`=
-               '".$collects_files_id."'";
-      $result = $DB->query($query);
-      while ($data = $DB->fetch_assoc($result)) {
-         $idtmp = $data['id'];
-         unset($data['id']);
-         $data1 = Toolbox::addslashes_deep($data);
-         $db_files[$idtmp] = $data1;
-      }
-
-      foreach ($file_data as $key => $array) {
-         foreach ($db_files as $keydb => $arraydb) {
-            if ($arraydb['pathfile'] == $array['path']) {
-               $input = array();
-               $input['id'] = $keydb;
-               $input['size'] = $array['size'];
-               $this->update($input);
-               unset($file_data[$key]);
-               unset($db_files[$keydb]);
-               break;
-            }
-         }
-      }
-
-      if (count($file_data) == 0
-         AND count($db_files) == 0) {
-         // Nothing to do
-      } else {
-         if (count($db_files) != 0) {
-            foreach ($db_files as $idtmp => $data) {
-               $this->delete(array('id'=>$idtmp), 1);
-            }
-         }
-         if (count($file_data) != 0) {
-            foreach($file_data as $key=>$value) {
-               $input = array(
-                   'computers_id' => $computers_id,
-                   'plugin_fusioninventory_collects_files_id' => $collects_files_id,
-                   'pathfile'     => $value['path'],
-                   'size'         => $value['size']
-               );
-               $this->add($input);
-            }
-         }
+   function updateComputer($computers_id, $file_data, $collects_files_id) {
+      foreach($file_data as $key => $value) {
+         $input = array(
+            'computers_id' => $computers_id,
+            'plugin_fusioninventory_collects_files_id' => $collects_files_id,
+            'pathfile'     => $value['path'],
+            'size'         => $value['size']
+         );
+         $id = $this->add($input);
       }
    }
 
 
 
    function showForCollect($collects_id) {
-
       $a_colfiles = getAllDatasFromTable('glpi_plugin_fusioninventory_collects_files',
                                               "`plugin_fusioninventory_collects_id`='".$collects_id."'");
       foreach ($a_colfiles as $data) {
@@ -244,26 +190,6 @@ class PluginFusioninventoryCollect_File_Content extends CommonDBTM {
          echo "</tr>";
       }
       echo '</table>';
-   }
-
-
-
-   // all files information sent by agent will be stored in field specificity
-   // of table glpi_plugin_fusioninventory_taskjobstates
-   function storeTempFilesFound($taskjobstates_id, $a_values) {
-      $pfTaskjobstate = new PluginFusioninventoryTaskjobstate();
-
-      $pfTaskjobstate->getFromDB($taskjobstates_id);
-      $a_specificity = array();
-      if ($pfTaskjobstate->fields['specificity'] != '') {
-         $a_specificity = importArrayFromDB($pfTaskjobstate->fields['specificity']);
-      }
-      unset($a_values['_cpt']);
-      $a_specificity[] = $a_values;
-      $input = array();
-      $input['id'] = $pfTaskjobstate->fields['id'];
-      $input['specificity'] = exportArrayToDB($a_specificity);
-      $pfTaskjobstate->update($input);
    }
 }
 

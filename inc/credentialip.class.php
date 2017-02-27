@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -104,6 +104,8 @@ class PluginFusioninventoryCredentialIp extends CommonDropdown {
       $tab[2]['table'] = 'glpi_entities';
       $tab[2]['field'] = 'completename';
       $tab[2]['name']  = __('Entity');
+      $tab[2]['datatype'] = 'dropdown';
+
 
       $tab[3]['table'] = $this->getTable();
       $tab[3]['field'] = 'name';

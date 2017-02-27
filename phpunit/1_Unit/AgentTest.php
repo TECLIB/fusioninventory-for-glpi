@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -145,5 +145,29 @@ class AgentTest extends RestoreDatabase_TestCase {
 
       $this->assertEquals(0, $a_agents['entities_id']);
    }
-}
 
+   /**
+    * @test
+    * @depends addAgent
+    */
+    public function disconnectAgent() {
+
+      $pfAgent  = new PluginFusioninventoryAgent();
+      $agent    = $pfAgent->find(
+         "`device_id` = 'port004.bureau.siprossii.com-2013-01-01-16-27-27'"
+      );
+      $this->assertEquals(1, count($agent));
+      $current_agent = current($agent);
+      $agent_id      = $current_agent['id'];
+
+      //Disconnect the agent from the computer
+      $pfAgent->disconnect(['computers_id' => 100, 'id' => $agent_id]);
+      $count = countElementsInTable('glpi_plugin_fusioninventory_inventorycomputercomputers',
+                                    "`computers_id`='100'");
+      $this->assertEquals(0, $count);
+
+      //Check that computers_id has been set to 0
+      $pfAgent->getFromDB($agent_id);
+      $this->assertEquals(0, $pfAgent->fields['computers_id']);
+   }
+}

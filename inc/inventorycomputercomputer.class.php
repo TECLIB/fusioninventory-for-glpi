@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -54,6 +54,11 @@ class PluginFusioninventoryInventoryComputerComputer extends CommonDBTM {
    }
 
 
+   static function isAFusionInventoryDevice($item) {
+      return $item->fields['is_dynamic'] == 1
+         && countElementsInTable('glpi_plugin_fusioninventory_inventorycomputercomputers',
+                                 "`computers_id`='".$item->getID()."'");
+   }
 
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
       return array();
@@ -109,6 +114,13 @@ class PluginFusioninventoryInventoryComputerComputer extends CommonDBTM {
 
       $pfAgent = new PluginFusioninventoryAgent();
       $pfAgent->showInfoForComputer($item->getID());
+
+      if ($a_computerextend['hostid'] != '') {
+         echo '<tr class="tab_bg_1">';
+         echo '<td>'.__('HostID', 'fusioninventory').'</td>';
+         echo '<td>'.$a_computerextend['hostid'].'</td>';
+         echo '</tr>';
+      }
 
       if ($a_computerextend['bios_date'] != '') {
          echo '<tr class="tab_bg_1">';
@@ -298,6 +310,23 @@ class PluginFusioninventoryInventoryComputerComputer extends CommonDBTM {
       }
       return $a_computerextend['is_entitylocked'];
    }
+
+
+   /**
+    * Get automatic inventory info for a computer
+    * @since 9.1+1.2
+    * @param computers_id the computer ID to look for
+    * @return inventory computer infos or an empty array
+    */
+    function hasAutomaticInventory($computers_id) {
+       $a_computerextend = current($this->find("`computers_id`='$computers_id'",
+                                               "", 1));
+       if (empty($a_computerextend)) {
+          return [];
+       } else {
+          return $a_computerextend;
+       }
+    }   
 }
 
 ?>

@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -132,7 +132,7 @@ class PluginFusioninventoryUnmanaged extends CommonDBTM {
       $tab[8]['field']     = 'completename';
       $tab[8]['linkfield'] = 'entities_id';
       $tab[8]['name']      = __('Entity');
-
+      $tab[8]['datatype']  = 'dropdown';
 
       $tab[9]['table']     = 'glpi_domains';
       $tab[9]['field']     = 'name';
@@ -412,9 +412,7 @@ class PluginFusioninventoryUnmanaged extends CommonDBTM {
       echo __('Sysdescr', 'fusioninventory')."&nbsp;:";
       echo "</td>";
       echo "<td rowspan='2'>";
-      echo "<textarea name='sysdescr'  cols='45' rows='5' />".$this->fields["sysdescr"].
-              "</textarea>";
-
+      echo "<textarea name='sysdescr'  cols='45' rows='5'>".$this->fields["sysdescr"]."</textarea>";
       echo "<td align='center'></td>";
       echo "<td align='center'>";
       echo "</td>";

@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -144,11 +144,10 @@ class PluginFusioninventoryAgentmodule extends CommonDBTM {
          echo "<td align='center'><strong>".$modulename."</strong></td>";
          echo "<td align='center'>";
          $checked = $data['is_active'];
-         $check = "";
-         if ($checked == 1) {
-            $check = "checked='checked'";
-         }
-         echo "<input type='checkbox' name='activation' value='Activation' ".$check." />";
+
+         Html::showCheckbox(array('name'    => 'activation', 
+                                  'value'   => '1', 
+                                  'checked' => $checked));
          echo "</td>";
          echo "<td>";
             echo "<table>";
@@ -267,11 +266,9 @@ class PluginFusioninventoryAgentmodule extends CommonDBTM {
             }
          }
          $check = "";
-         if ($checked == 1) {
-            $check = "checked='checked'";
-         }
-         echo "<input type='checkbox' name='activation-".$data["modulename"]."' ".
-                 "value='Activation' ".$check." />";
+         Html::showCheckbox(array('name'    => "activation-".$data["modulename"], 
+                                  'value'   => '1', 
+                                  'checked' => $checked));
          echo "</td>";
          if ($i == 1) {
             echo "</tr>";

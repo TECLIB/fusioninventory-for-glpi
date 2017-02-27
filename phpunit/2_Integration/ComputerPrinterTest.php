@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -67,12 +67,14 @@ class ComputerPrinter extends Common_TestCase {
               array(
                   'name'    => 'p1',
                   'have_usb'=> 0,
-                  'serial'  => ''
+                  'serial'  => '',
+                  'is_dynamic' => 1
               ),
               array(
                   'name'    => 'p2',
                   'have_usb'=> 0,
-                  'serial'  => 's1537'
+                  'serial'  => 's1537',
+                  'is_dynamic' => 1
               )
           ),
           'peripheral'     => array(),
@@ -130,12 +132,14 @@ class ComputerPrinter extends Common_TestCase {
               array(
                   'name'    => 'p1',
                   'have_usb'=> 0,
-                  'serial'  => 'f275'
+                  'serial'  => 'f275',
+                  'is_dynamic' => 1
               ),
               array(
                   'name'    => 'p2',
                   'have_usb'=> 0,
-                  'serial'  => 's1537'
+                  'serial'  => 's1537',
+                  'is_dynamic' => 1
               )
           ),
           'peripheral'     => array(),
@@ -172,12 +176,14 @@ class ComputerPrinter extends Common_TestCase {
               array(
                   'name'    => 'p1',
                   'have_usb'=> 0,
-                  'serial'  => ''
+                  'serial'  => '',
+                  'is_dynamic' => 1
               ),
               array(
                   'name'    => 'p2',
                   'have_usb'=> 0,
-                  'serial'  => ''
+                  'serial'  => '',
+                  'is_dynamic' => 1
               )
           ),
           'peripheral'     => array(),

@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -77,6 +77,7 @@ class PluginFusioninventoryAgent extends CommonDBTM {
       $tab[2]['table']     = 'glpi_entities';
       $tab[2]['field']     = 'completename';
       $tab[2]['name']      = __('Entity');
+      $tab[2]['datatype'] = 'dropdown';
 
       $tab[3]['table']     = $this->getTable();
       $tab[3]['field']     = 'is_recursive';
@@ -186,7 +187,8 @@ class PluginFusioninventoryAgent extends CommonDBTM {
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
       global $CFG_GLPI;
       $tab_names = array();
-      if ( $this->can(0, CREATE) ) {
+      if ( $this->can(0, CREATE)
+         && PluginFusioninventoryInventoryComputerComputer::isAFusionInventoryDevice($item)) {
          if ($item->getType() == 'Computer') {
             $tab_names[] = __('FusInv', 'fusioninventory').' '. __('Agent');
          }
@@ -353,7 +355,7 @@ class PluginFusioninventoryAgent extends CommonDBTM {
    *
    **/
    function showForm($computers_id, $options=array()) {
-
+      global $CFG_GLPI;
 
       if ($computers_id!='') {
          $this->getFromDB($computers_id);
@@ -394,9 +396,16 @@ class PluginFusioninventoryAgent extends CommonDBTM {
          echo $oComputer->getLink(1);
          echo Html::hidden('computers_id',
                            array('value' => $this->fields["computers_id"]));
+         echo "&nbsp;<a class='pointer' onclick='submitGetLink(\"".
+               $CFG_GLPI['root_doc']."/plugins/fusioninventory/front/agent.form.php\", ".
+               "{\"disconnect\": \"disconnect\",
+                 \"computers_id\": ".$this->fields['computers_id'].",
+                 \"id\": ".$this->fields['id'].",
+                 \"_glpi_csrf_token\": \"".Session::getNewCSRFToken()."\"});'>".
+               "<img src='".$CFG_GLPI['root_doc']."/pics/delete.png' /></a>";
       } else {
          Computer_Item::dropdownConnect("Computer", "Computer", 'computers_id',
-                                        $_SESSION['glpiactive_entity']);
+                                        $this->fields['entities_id']);
       }
       echo "</td>";
       echo "<td>".__('Token')."&nbsp:</td>";
@@ -446,10 +455,6 @@ class PluginFusioninventoryAgent extends CommonDBTM {
              'max' => 60)
          );
       echo "</td>";
-      echo "<td>".__('Last contact', 'fusioninventory')."&nbsp:</td>";
-      echo "<td align='center'>";
-      echo Html::convDateTime($this->fields["last_contact"]);
-      echo "</td>";
       echo "</tr>";
 
 
@@ -478,11 +483,24 @@ class PluginFusioninventoryAgent extends CommonDBTM {
              'max' => 60)
       );
       echo "</td>";
-      echo "<td colspan='2'>";
-      echo "</td>";
       echo "</tr>";
 
       echo "<tr class='tab_bg_1'>";
+
+      echo "<td>".__('Last contact', 'fusioninventory')."&nbsp:</td>";
+      echo "<td align='center'>";
+      echo Html::convDateTime($this->fields["last_contact"]);
+      echo "</td>";
+
+      echo "<td>".__('Useragent', 'fusioninventory')."&nbsp:</td>";
+      echo "<td align='center'>";
+      echo $this->fields["useragent"];
+      echo "</td>";
+
+      echo "</tr>";
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>".__('FusionInventory tag', 'fusioninventory')."&nbsp:</td>";
       $pfConfig = new PluginFusioninventoryConfig();
       echo "<td>".__('Agent port', 'fusioninventory')." (".
               __('if empty use port configured in general options', 'fusioninventory')
@@ -492,6 +510,7 @@ class PluginFusioninventoryAgent extends CommonDBTM {
       echo "</td>";
       echo "<td colspan='2'>";
       echo "</td>";
+      echo "<td colspan='2'></td>";
       echo "</tr>";
 
       $this->showFormButtons($options);
@@ -499,7 +518,18 @@ class PluginFusioninventoryAgent extends CommonDBTM {
       return TRUE;
    }
 
-
+   /**
+   * Disconnect an agent from a computer
+   * @params POST parameters
+   * @return void
+   */
+   function disconnect($params) {
+      if (isset($params['computers_id']) && isset($params['id'])) {
+         $pfComputer = new PluginFusioninventoryInventoryComputerComputer();
+         $pfComputer->deleteByCriteria(['computers_id' => $params['computers_id']]);
+         $this->update(['id' => $params['id'], 'computers_id' => 0]);
+      }
+   }
 
    /**
    * Get agent informations by device_id
@@ -1205,6 +1235,16 @@ class PluginFusioninventoryAgent extends CommonDBTM {
          echo '<td>'.__('FusionInventory tag', 'fusioninventory').'</td>';
          echo '<td>'.$this->fields['tag'].'</td>';
          echo '</tr>';
+
+         echo '<tr class="tab_bg_1">';
+         echo '<td>';
+         echo __('Last contact', 'fusioninventory');
+         echo '</td>';
+         echo '<td>';
+         echo Html::convDateTime($this->fields['last_contact']);
+         echo '</td>';
+         echo '</tr>';
+
       }
    }
 
@@ -1217,7 +1257,7 @@ class PluginFusioninventoryAgent extends CommonDBTM {
    * @return bool cron is ok or not
    *
    **/
-   static function cronCleanoldagents() {
+   static function cronCleanoldagents($task=NULL) {
       global $DB;
 
       $pfConfig = new PluginFusioninventoryConfig();
@@ -1228,15 +1268,36 @@ class PluginFusioninventoryAgent extends CommonDBTM {
          return TRUE;
       }
       $sql = "SELECT * FROM `glpi_plugin_fusioninventory_agents`
-                WHERE `last_contact` < date_add(now(), interval -".$retentiontime." day)";
-      $result=$DB->query($sql);
+                   WHERE `last_contact` < date_add(now(), interval -".$retentiontime." day)";
+      $result = $DB->query($sql);
+
       if ($result) {
-         while ($data=$DB->fetch_array($result)) {
-            $pfAgent->delete($data);
+         $cron_status = FALSE;
+         $action = $pfConfig->getValue('agents_action');
+         if ($action == PluginFusioninventoryConfig::ACTION_CLEAN) {
+            //delete agents
+            while ($data = $DB->fetch_array($result)) {
+               $pfAgent->delete($data);
+               $task->addVolume(1);
+               $cron_status = TRUE;
+            }
+         } else {
+            //change status of agents
+            while ($data = $DB->fetch_array($result)) {
+               $computer = new Computer();
+               if($computer->getFromDB($data['computers_id'])){
+                  $computer->update(array(
+                      'id' => $data['computers_id'],
+                      'states_id' => $pfConfig->getValue('agents_status')));
+                  $task->addVolume(1);
+                  $cron_status = TRUE;
+               }
+            }
          }
       }
-      return TRUE;
+      return $cron_status;
    }
+
 }
 
 ?>

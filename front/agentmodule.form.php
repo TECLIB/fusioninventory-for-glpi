@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -76,7 +76,8 @@ if (isset($_POST["agent_add"])) {
    foreach ($a_modules as $data) {
       $a_agentList        = importArrayFromDB($data['exceptions']);
       $agentModule        = 0;
-      if (isset($_POST['activation-'.$data['modulename']])) {
+      if (isset($_POST['activation-'.$data['modulename']]) 
+          && $_POST['activation-'.$data['modulename']] != 0) {
          $agentModule     = 1;
       }
       $agentModuleBase    = 0;
@@ -120,7 +121,8 @@ if (isset($_POST["agent_add"])) {
 } else if (isset ($_POST["update"])) {
    $agentmodule->getFromDB($_POST['id']);
    $input = array();
-   if (isset($_POST['activation'])) {
+   if (isset($_POST['activation']) 
+      && $_POST['activation']) {
       $input['is_active'] = 1;
    } else {
       $input['is_active'] = 0;

@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    Walid Nouh
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -48,17 +48,46 @@ class PluginFusioninventoryDeployCheck {
 
    static function getTypes() {
       return array(
-         'winkeyExists'     => __("Registry key exists", 'fusioninventory'),
-         'winkeyMissing'    => __("Registry key missing", 'fusioninventory'),
-         'winkeyEquals'     => __("Registry key value equals to", 'fusioninventory'),
-         'fileExists'       => __("File exists", 'fusioninventory'),
-         'fileMissing'      => __("File is missing", 'fusioninventory'),
-         'fileSizeGreater'  => __("File size is greater than", 'fusioninventory'),
-         'fileSizeEquals'   => __("File size is equal to", 'fusioninventory'),
-         'fileSizeLower'    => __("File size is lower than", 'fusioninventory'),
-         'fileSHA512'       => __("SHA-512 hash value is", 'fusioninventory'),
-         'freespaceGreater' => __("Free space is greater than", 'fusioninventory')
-      );
+         'winkeyExists'       => __("Registry key exists", 'fusioninventory'),
+         'winkeyMissing'      => __("Registry key missing", 'fusioninventory'),
+         'winkeyEquals'       => __("Registry key value equals to", 'fusioninventory'),
+         'fileExists'         => __("File exists", 'fusioninventory'),
+         'fileMissing'        => __("File is missing", 'fusioninventory'),
+         'fileSizeGreater'    => __("File size is greater than", 'fusioninventory'),
+         'fileSizeEquals'     => __("File size is equal to", 'fusioninventory'),
+         'fileSizeLower'      => __("File size is lower than", 'fusioninventory'),
+         'fileSHA512'         => __("SHA-512 hash value matches", 'fusioninventory'),
+         'fileSHA512mismatch' => __("SHA-512 hash value mismatch", 'fusioninventory'),
+         'freespaceGreater'   => __("Free space is greater than", 'fusioninventory')      );
+   }
+
+   /**
+    * Get label for a type
+    * @param the type value
+    * @return the type label
+    */
+   static function getLabelForAType($type) {
+      $types = self::getTypes();
+      if (isset($types[$type])) {
+         return $types[$type];
+      } else {
+         return '';
+      }
+   }
+
+   static function getAuditDescription($type, $return) {
+      $return_string = self::getLabelForAType($type);
+      //The skip case is a litte bit different. So we notice to the user
+      //that if audit is successfull, the the audit check process continue
+      if ($return == 'skip') {
+         $return_string.=' : '.__('continue', 'fusioninventory');
+      } else {
+         $return_string.=' : '.__('passed', 'fusioninventory');
+      }
+      $return_string.= ', '.__('otherwise', 'fusioninventory').' : ';
+      $return_string.= self::getValueForReturn($return);
+
+      return $return_string;
    }
 
    static function getUnitSize($unit) {
@@ -146,34 +175,50 @@ class PluginFusioninventoryDeployCheck {
    static function displayList(PluginFusioninventoryDeployOrder $order, $datas, $rand) {
       global $CFG_GLPI;
 
+
       $pfDeployPackage = new PluginFusioninventoryDeployPackage();
       $pfDeployPackage->getFromDB($order->fields['plugin_fusioninventory_deploypackages_id']);
 
       $checks_types = self::getTypes();
+      $package_id   = $pfDeployPackage->getID();
 
       echo "<table class='tab_cadrehov package_item_list' id='table_check_$rand'>";
       $i = 0;
       foreach ($datas['jobs']['checks'] as $check) {
          //specific case for filesystem size
          if (is_numeric($check['value'])) {
-            if ( $check['type'] == "freespaceGreater" ) {
-               $check['value'] = $check['value'] * 1024 * 1024;
+            switch ($check['type']) {
+               case 'freespaceGreater':
+                  $check['value'] = $check['value'] * 1024 * 1024;
+                  break;
+               default:
+                  break;
             }
-            $check['value'] = PluginFusioninventoryDeployFile::processFilesize($check['value']);
          }
+         $check['value'] = PluginFusioninventoryDeployFile::processFilesize($check['value']);
 
          echo Search::showNewLine(Search::HTML_OUTPUT, ($i%2));
-         if ($pfDeployPackage->can($pfDeployPackage->getID(), UPDATE)) {
+         if ($pfDeployPackage->can($package_id, UPDATE)) {
             echo "<td class='control'>";
-            echo "<input type='checkbox' name='check_entries[]' value='$i' />";
+            Html::showCheckbox(array('name' => 'check_entries['.$i.']'));
             echo "</td>";
+         }
+
+
+         //Get the audit full description (with type and return value)
+         //to be displayed in the UI
+         $text = self::getAuditDescription($check['type'], $check['return']);
+         if (isset($check['name']) && !empty($check['name'])) {
+            $check_label = $check['name'].' ('.$text.')';
+         } else {
+            $check_label = $text;
          }
          echo "<td>";
          echo "<a class='edit'".
-            "onclick=\"edit_subtype('check', {$order->fields['id']}, $rand ,this)\">".
-            $checks_types[$check['type']].
-            "</a><br />";
-         echo $check['path'];
+         "onclick=\"edit_subtype('check', ".$order->getID().", $rand ,this)\">".
+          $check_label."</a><br />";
+         $type_values = self::getLabelsAndTypes($check['type'], false);
+         echo $type_values['path_label'].': '.$check['path'];
          if (!empty($check['value'])) {
             echo "&nbsp;&nbsp;&nbsp;<b>";
             if (strpos($check['type'], "Greater") !== FALSE) {
@@ -187,20 +232,21 @@ class PluginFusioninventoryDeployCheck {
             echo $check['value'];
          }
          echo "</td>";
-         if ($pfDeployPackage->can($pfDeployPackage->getID(), UPDATE)) {
+         if ($pfDeployPackage->can($package_id, UPDATE)) {
             echo "<td class='rowhandler control' title='".__('drag', 'fusioninventory').
                "'><div class='drag row'></div></td>";
          }
          echo "</tr>";
          $i++;
       }
-      if ($pfDeployPackage->can($pfDeployPackage->getID(), UPDATE)) {
+
+      if ($pfDeployPackage->can($package_id, UPDATE)) {
          echo "<tr><th>";
          Html::checkAllAsCheckbox("checksList$rand", mt_rand());
          echo "</th><th colspan='3' class='mark'></th></tr>";
       }
       echo "</table>";
-      if ($pfDeployPackage->can($pfDeployPackage->getID(), UPDATE)) {
+      if ($pfDeployPackage->can($package_id, UPDATE)) {
          echo "&nbsp;&nbsp;<img src='".$CFG_GLPI["root_doc"]."/pics/arrow-left.png' alt='' />";
          echo "<input type='submit' name='delete' value=\"".
             __('Delete', 'fusioninventory')."\" class='submit' />";
@@ -263,53 +309,88 @@ class PluginFusioninventoryDeployCheck {
 
    static function getValues($type, $data, $mode) {
       $values = array(
-         'path_label'   => "",
-         'path_value'   => "",
-         'value_type'   => "input",
-         'value_label'  => "",
+         'name_value'  => "",
+         'name_label'  => __('Name'),
+         'name_type'   => "input",
+         'path_label'  => "",
+         'path_value'  => "",
+         'value_type'  => "input",
+         'value_label' => "",
          'value'       => "",
-         'return'       => "error"
+         'return'      => "error"
       );
 
       if ( $mode === 'edit' ) {
+         $values['name_value'] = isset($data['name'])?$data['name']:"";
          $values['path_value'] = isset($data['path'])?$data['path']:"";
-         $values['value'] = isset($data['value'])?$data['value']:"";
-         $values['return'] = isset($data['return'])?$data['return']:"error";
+         $values['value']      = isset($data['value'])?$data['value']:"";
+         $values['return']     = isset($data['return'])?$data['return']:"error";
       }
-      switch ($type) {
+
+      $type_values = self::getLabelsAndTypes($type, true);
+      foreach ($type_values as $key => $value) {
+         $values[$key] = $value;
+      }
+      return $values;
+   }
+
+
+   /**
+   *  Get labels and type for a check
+   * @param check_type the type of check
+   * @param mandatory indicates if mandatory mark must be added to the label
+   * @return the labels and type for a check
+   */
+   static function getLabelsAndTypes($check_type, $mandatory = false) {
+      $values = [];
+      if ($mandatory) {
+         $mandatory_mark = "&nbsp;<span class='red'>*</span>";
+      } else {
+         $mandatory_mark = '';
+    }
+
+      switch ($check_type) {
          case "winkeyExists":
          case "winkeyMissing":
-            $values['path_label'] = __("Key", 'fusioninventory');
+            $values['path_label']  = __("Key", 'fusioninventory').$mandatory_mark;
             $values['value_label'] = FALSE;
             break;
+
          case "winkeyEquals":
-            $values['path_label'] = __("Key", 'fusioninventory');
+            $values['path_label']  = __("Key", 'fusioninventory').$mandatory_mark;
             $values['value_label'] = __('Key value', 'fusioninventory');
             break;
+
          case "fileExists":
          case "fileMissing":
-            $values['path_label'] = __("File", 'fusioninventory');
+            $values['path_label']  = __("File", 'fusioninventory').$mandatory_mark;
             $values['value_label'] = FALSE;
             break;
+
          case "fileSizeGreater":
          case "fileSizeEquals":
          case "fileSizeLower":
-            $values['path_label'] = __("File", 'fusioninventory');
-            $values['value_label'] = __('Value', 'fusioninventory');
-            $values['value_type'] = "input+unit";
+            $values['path_label']  = __("File", 'fusioninventory').$mandatory_mark;
+            $values['value_label'] = __('Value', 'fusioninventory').$mandatory_mark;
+            $values['value_type']  = "input+unit";
             break;
+
          case "fileSHA512":
-            $values['path_label'] = __("File", 'fusioninventory');
-            $values['value_label'] = __('Value', 'fusioninventory');
-            $values['value_type'] = "textarea";
+         case "fileSHA512mismatch":
+            $values['path_label']  = __("File", 'fusioninventory').$mandatory_mark;
+            $values['value_label'] = __('Value', 'fusioninventory').$mandatory_mark;
+            $values['value_type']  = "textarea";
             break;
+
          case "freespaceGreater":
-            $values['path_label'] = __("Disk or directory", 'fusioninventory');
-            $values['value_label'] = __('Value', 'fusioninventory');
-            $values['value_type'] = "input+unit";
+            $values['path_label']  = __("Disk or directory", 'fusioninventory').$mandatory_mark;
+            $values['value_label'] = __('Value', 'fusioninventory').$mandatory_mark;
+            $values['value_type']  = "input+unit";
             break;
+
          default:
-            return FALSE;
+            break;
+
       }
       return $values;
    }
@@ -344,9 +425,12 @@ class PluginFusioninventoryDeployCheck {
          return FALSE;
       }
       echo "<table class='package_item'>";
+      echo "<th>".__('Name')."</th>";
+      echo "<td><input type='text' name='name' id='check_name{$rand}' value=\"{$values['name_value']}\" /></td>";
+      echo "</tr>";
       echo "<tr>";
       echo "<th>{$values['path_label']}</th>";
-      echo "<td><input type='text' name='path' id='check_path{$rand}' value='{$values['path_value']}' /></td>";
+      echo "<td><input type='text' name='path' id='check_path{$rand}' value=\"{$values['path_value']}\" /></td>";
       echo "</tr>";
       if ($values['value_label'] !== FALSE) {
          echo "<tr>";
@@ -418,12 +502,10 @@ class PluginFusioninventoryDeployCheck {
       }
 
       echo "<tr>";
-      echo "<th>".__("In case of error", 'fusioninventory')."</th>";
+      echo "<th>".__("If not successfull", 'fusioninventory')."</th>";
       echo "<td>";
-      Dropdown::showFromArray('return', array(
-                  "error"  => __('Error', 'fusioninventory'),
-                  "ignore" => __("Ignore", 'fusioninventory')
-               ), array('value' => $values['return']));
+      Dropdown::showFromArray('return', self::getAllReturnValues(),
+                              ['value' => $values['return']]);
       echo "</td>";
       echo "</tr>";
 
@@ -441,12 +523,39 @@ class PluginFusioninventoryDeployCheck {
       echo "</table>";
    }
 
+   /**
+   * Get all possible return values for a check
+   * @return an array of return values and their labels
+   */
+   static function getAllReturnValues() {
+      return  ["error"   => __('abort job', 'fusioninventory'),
+               "skip"    => __("skip job", 'fusioninventory'),
+               "info"    => __("report info", 'fusioninventory'),
+               "warning" => __("report warning", 'fusioninventory')
+              ];
+   }
 
+   /**
+   * Get the label for a return value
+   * @param the check return value
+   * @return the label for the return value
+   */
+   static function getValueForReturn($value) {
+      $values = self::getAllReturnValues();
+      if (isset($values[$value])) {
+         return $values[$value];
+      } else {
+         return '';
+      }
+   }
 
    static function add_item($params) {
 
       if (!isset($params['value'])) {
          $params['value'] = "";
+      }
+      if (!isset($params['name'])) {
+         $params['name'] = "";
       }
 
       if (!empty($params['value']) && is_numeric($params['value'])) {
@@ -460,6 +569,7 @@ class PluginFusioninventoryDeployCheck {
 
       //prepare new check entry to insert in json
       $new_entry = array(
+         'name'   => $params['name'],
          'type'   => $params['deploy_checktype'],
          'path'   => $params['path'],
          'value'  => $params['value'],
@@ -488,6 +598,9 @@ class PluginFusioninventoryDeployCheck {
       if (!isset($params['value'])) {
          $params['value'] = "";
       }
+      if (!isset($params['name'])) {
+         $params['name'] = "";
+      }
 
       if (!empty($params['value']) && is_numeric($params['value'])) {
          $params['value'] = $params['value'] * self::getUnitSize($params['unit']);
@@ -499,7 +612,8 @@ class PluginFusioninventoryDeployCheck {
       }
 
       //prepare updated check entry to insert in json
-      $entry = array(
+     $entry = array(
+         'name'   => $params['name'],
          'type'   => $params['deploy_checktype'],
          'path'   => $params['path'],
          'value'  => $params['value'],
@@ -531,8 +645,10 @@ class PluginFusioninventoryDeployCheck {
       $datas = json_decode(PluginFusioninventoryDeployOrder::getJson($params['orders_id']), TRUE);
 
       //remove selected checks
-      foreach ($params['check_entries'] as $index) {
-         unset($datas['jobs']['checks'][$index]);
+      foreach ($params['check_entries'] as $index => $checked) {
+         if ($checked >= "1" || $checked == "on") {
+            unset($datas['jobs']['checks'][$index]);
+         }
       }
 
       //Ensure checks is an array and not a dictionnary

@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    Vincent Mazzoni
    @co-author David Durieux
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -236,28 +236,16 @@ class PluginFusioninventoryCommunicationNetworkInventory {
               'Function PluginFusioninventoryCommunicationNetworkInventory->importDevice().');
 
       $pfFormatconvert = new PluginFusioninventoryFormatconvert();
-      $a_inventory = $pfFormatconvert->replaceids($a_inventory);
+      $a_inventory = $pfFormatconvert->replaceids($a_inventory, $itemtype, $items_id);
 
       // Write XML file
-      if (count($a_inventory) > 0) {
+      if (count($a_inventory) > 0
+              AND isset($_SESSION['plugin_fusioninventory_xmlnum'])) {
          $xml = $PLUGIN_FUSIONINVENTORY_XML->CONTENT->DEVICE[$_SESSION['plugin_fusioninventory_xmlnum']]->asXML();
          PluginFusioninventoryToolbox::writeXML(
                  $items_id,
                  $xml,
                  $itemtype);
-
-
-//         $folder = substr($items_id, 0, -1);
-//         if (empty($folder)) {
-//            $folder = '0';
-//         }
-//         if (!file_exists(GLPI_PLUGIN_DOC_DIR."/fusioninventory/".$itemtype."/".$folder)) {
-//            mkdir(GLPI_PLUGIN_DOC_DIR."/fusioninventory/".$itemtype."/".$folder, 0777, TRUE);
-//         }
-//         $fileopen = fopen(GLPI_PLUGIN_DOC_DIR."/fusioninventory/".$itemtype."/".$folder."/".
-//                           $items_id, 'w');
-//         fwrite($fileopen, print_r($a_inventory, TRUE));
-//         fclose($fileopen);
        }
 
       $errors='';

@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -62,21 +62,58 @@ displaySearchForm();
 
 if(isset($_POST["dropdown_calendar"]) && isset($_POST["dropdown_sup_inf"])) {
 
-      $_GET["field"][0] = 3;
-      $_GET["contains"][0] = getContainsArray($_POST);
+   $date_search = '';
+   if ($_POST['dropdown_sup_inf'] == 'sup') {
+      $date_search .= "> '".$_POST['dropdown_calendar']."'";
+   } else if ($_POST['dropdown_sup_inf'] == 'inf') {
+      $date_search .= "< '".$_POST['dropdown_calendar']."'";
+   } else if ($_POST['dropdown_sup_inf'] == 'equal') {
+      $date_search .= " LIKE '".$_POST['dropdown_calendar']."%'";
+   }
+   $networkport = new NetworkPort();
+   $networkequipment = new NetworkEquipment();
 
-      $_GET["field"][1] = 2;
-      $_GET["contains"][1] = $_POST['location'];
-      $_GET["link"][1] = "AND";
+   $query = "SELECT `glpi_networkports`.`id`, a.date_mod, `glpi_networkports`.`items_id` FROM `glpi_networkports`"
+           . " LEFT JOIN `glpi_plugin_fusioninventory_networkportconnectionlogs` a"
+           . " ON a.id= (SELECT MAX(fn.id) a_id
+               FROM glpi_plugin_fusioninventory_networkportconnectionlogs fn
+               WHERE (fn.networkports_id_source = glpi_networkports.id
+                      OR fn.networkports_id_destination = glpi_networkports.id))"
+           . " WHERE a.id IS NOT NULL AND `glpi_networkports`.`itemtype`='NetworkEquipment'"
+           . " AND a.date_mod".$date_search
+           . " ORDER BY `glpi_networkports`.`items_id`";
+   $result = $DB->query($query);
+   echo "<table width='950' class='tab_cadre_fixe'>";
+      echo "<tr class='tab_bg_1'>";
+      echo "<th>";
+      echo 'Port name';
+      echo "</th>";
+      echo "<th>";
+      echo 'Switch';
+      echo "</th>";
+      echo "<th>";
+      echo 'Last connection';
+      echo "</th>";
+      echo "</tr>";
 
-      $_SESSION["glpisearchcount"]['PluginFusioninventoryNetworkport2'] = 1;
-//      showList('PluginFusioninventoryNetworkport2', $_GET);
-} else {
-//   showList('PluginFusioninventoryNetworkport2', $_GET);
+   while ($data = $DB->fetch_array($result)) {
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>";
+      $networkport->getFromDB($data['id']);
+      echo $networkport->getLink();
+      echo "</td>";
+      echo "<td>";
+      $networkequipment->getFromDB($data['items_id']);
+      echo $networkequipment->getLink();
+      echo "</td>";
+      echo "<td>";
+      echo Html::convDate($data['date_mod']);
+      echo "</td>";
+      echo "</tr>";
+   }
+   echo "</table>";
 }
 Html::footer();
-
-
 
 function displaySearchForm() {
    global $_SERVER, $_GET, $CFG_GLPI;

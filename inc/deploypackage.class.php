@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author Alexandre Delaunay
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -182,45 +182,20 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
                ).
             "</h4>\n";
 
-//         $taskurl_list_ids = implode( ', ',
-//            array_map(
-//               create_function('$task', 'return $task["task"]["id"];'),
-//               $this->running_tasks
-//            )
-//         );
+         foreach ($this->running_tasks as $task) {
 
-         $taskurl_list_names = implode(', ',
-            array_map(
-               create_function('$task', 'return "\"".$task["task"]["name"]."\"";'),
-               $this->running_tasks
-            )
-         );
+            $taskurl_base =
+               Toolbox::getItemTypeFormURL("PluginFusioninventoryTask", TRUE);
 
-
-         /**
-         * WARNING:
-         * The following may be considered as a hack until we get
-         * the Search class splitted to get a SearchUrl correctly
-         * (cf. https://forge.indepnet.net/issues/2476)
-         **/
-         $taskurl_base =
-            Toolbox::getItemTypeSearchURL("PluginFusioninventoryTaskJob", TRUE);
-
-         $taskurl_args = implode("&",
-            array(
-               urlencode("field[0]"). "=4",
-               urlencode("searchtype[0]") ."=contains",
-               urlencode("contains[0]")."= ". urlencode('['.$taskurl_list_names.']'),
-               "itemtype=PluginFusioninventoryTask",
-               "start=0"
-            )
-         );
-         $error_message .= "<a href='$taskurl_base?$taskurl_args'>";
-         $error_message .=  $taskurl_list_names;
-         $error_message .= "</a>";
+            $error_message .= "<a href='$taskurl_base?id=".$task['task']['id']."'>";
+            $error_message .=  $task['task']['name'];
+            $error_message .= "</a>, ";
+         }
       }
       return $error_message;
    }
+
+
 
    //mmmh I'm not sure if it's still used ... -- kiniou
    function post_addItem() {
@@ -241,13 +216,12 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
                array(
                   'is_active' => TRUE,
                   'is_running' => TRUE,
-                  'definitions' => array(
+                  'targets' => array(
                      __CLASS__ => $this->fields['id']
                   ),
                   'by_entities' => FALSE,
                )
             );
-
    }
 
    function getSearchOptions() {
@@ -282,6 +256,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       $tab[80]['table']     = 'glpi_entities';
       $tab[80]['field']     = 'completename';
       $tab[80]['name']      = __('Entity');
+      $tab[80]['datatype']  = 'dropdown';
 
       $tab[86]['table']     = $this->getTable();
       $tab[86]['field']     = 'is_recursive';
@@ -327,9 +302,24 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
    function cleanDBonPurge() {
       global $DB;
 
+      // find order associated to this Package
+      $deployOrder = new PluginFusioninventoryDeployOrder;
+      $found_order = $deployOrder->find("`plugin_fusioninventory_deploypackages_id`=".
+                                          $this->fields['id']);
+      
+      // remove orders
       $query = "DELETE FROM `glpi_plugin_fusioninventory_deployorders`
                 WHERE `plugin_fusioninventory_deploypackages_id`=".$this->fields['id'];
       $DB->query($query);
+
+      //delete unused fileparts (from previous found orders)
+      foreach ($found_order as $order) {
+         $json = json_decode($order['json'], true);
+         foreach ($json['associatedFiles'] as $sha512 => $file) {
+            PluginFusioninventoryDeployFile::removeFileInRepo($sha512);
+         }
+      }
+
    }
 
 
@@ -800,21 +790,34 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
             $zip->addEmptyDir('files/manifests');
             $zip->addEmptyDir('files/repository');
             foreach ($a_files as $hash=>$data) {
-               $sha512 = file_get_contents(GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/".$hash);
-               $sha512 = trim($sha512);
-               $zip->addFile(GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/".$hash, "files/manifests/".$hash);
+               $zip->addFile(GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/".$hash, 
+                              "files/manifests/".$hash);
                $a_xml['manifests'][] = $hash;
-               $file = PluginFusioninventoryDeployFile::getDirBySha512($sha512).
-                       "/".$sha512;
-               $zip->addFile(GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/repository/".$file, "files/repository/".$file);
-               $a_xml['repository'][] = $file;
+
+               foreach (file(GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/".$hash) 
+                           as $sha512) {
+                  $sha512 = trim($sha512);
+                  $filepart = PluginFusioninventoryDeployFile::getDirBySha512($sha512).
+                          "/".$sha512;
+
+                  $zip->addEmptyDir('files/repository/'.substr($sha512, 0, 1));
+                  $zip->addEmptyDir('files/repository/'.substr($sha512, 0, 1).
+                                    '/'.substr($sha512, 0, 2));
+
+                  $zip->addFile(GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/repository/".$filepart,
+                                                   "files/repository/".$filepart);
+                  
+                  $a_xml['repository'][] = $filepart;
+               }
             }
 
             $json_string = json_encode($a_xml);
             $zip->addFromString('information.json', $json_string);
          }
          $zip->close();
-         Session::addMessageAfterRedirect(__("Package exported in", "fusioninventory")." ".GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/export/".$this->fields['uuid'].".".$name.".zip");
+         Session::addMessageAfterRedirect(__("Package exported in", "fusioninventory")." ".
+                                          GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/export/".
+                                          $this->fields['uuid'].".".$name.".zip");
       }
    }
 

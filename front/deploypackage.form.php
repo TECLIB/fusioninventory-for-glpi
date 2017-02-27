@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    Alexandre Delaunay
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -42,7 +42,6 @@
 
 include ("../../../inc/includes.php");
 Session::checkLoginUser();
-
 
 if (isset($_POST['update_json'])) {
    $order = new PluginFusioninventoryDeployOrder();
@@ -81,9 +80,9 @@ if (isset ($data["add"])) {
    Session::checkRight('plugin_fusioninventory_package', UPDATE);
    $package->update($data);
    Html::back();
-} else if (isset ($data["delete"])) {
+} else if (isset ($data["purge"])) {
    Session::checkRight('plugin_fusioninventory_package', PURGE);
-   $package->delete($data);
+   $package->delete($data, 1);
    $package->redirectToList();
 }
 

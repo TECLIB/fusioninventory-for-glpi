@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2011 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2011 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -46,7 +46,7 @@ if (!defined('GLPI_ROOT')) {
 
 class PluginFusioninventoryIgnoredimportdevice extends CommonDBTM {
 
-   static $rightname = 'plugin_fusioninventory_ruleimport';
+   static $rightname = 'plugin_fusioninventory_ignoredimportdevice';
 
    static function getTypeName($nb=0) {
       return __('Equipment ignored on import', 'fusioninventory');
@@ -82,12 +82,12 @@ class PluginFusioninventoryIgnoredimportdevice extends CommonDBTM {
       $tab[4]['name']          = __('Item type');
       $tab[4]['massiveaction'] = false;
       $tab[4]['datatype']      = 'itemtypename';
-      $tab[4]['massiveaction']  = false;
 
       $tab[5]['table']     = 'glpi_entities';
       $tab[5]['field']     = 'completename';
       $tab[5]['name']      = __('Entity');
       $tab[5]['massiveaction']  = false;
+      $tab[5]['datatype']  = 'dropdown';
 
       $tab[6]['table']           = $this->getTable();
       $tab[6]['field']           = 'serial';
@@ -119,7 +119,19 @@ class PluginFusioninventoryIgnoredimportdevice extends CommonDBTM {
       $tab[10]['datatype']        = 'string';
       $tab[10]['massiveaction']  = false;
 
+      $tab[11]['table']           = 'glpi_plugin_fusioninventory_agents';
+      $tab[11]['field']           = 'name';
+      $tab[11]['name']            = __('Agent', 'fusioninventory');
+      $tab[11]['datatype']        = 'itemlink';
+      $tab[11]['massiveaction']  = false;
+      $tab[11]['itemlink_type'] = 'PluginFusioninventoryAgent';
+
       return $tab;
+   }
+
+   static function getDefaultSearchRequest() {
+      return array('sort'  => 3,
+                   'order' => 'DESC');
    }
 
 }

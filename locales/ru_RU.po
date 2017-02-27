@@ -5,21 +5,23 @@
 # Translators:
 # Alexey Petukhov <lexx015@gmail.com>, 2014
 # Evgeny Dedenev <jek@hotbox.ru>, 2014
+# Nikolay Petrov <techobsl@yandex.ru>, 2016
 # sayanvd <sayanvd@yandex.ru>, 2013
 # sayanvd <sayanvd@yandex.ru>, 2014
+# Sergey Morev <morev.sergey.a@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - plugin FusionInventory\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-12-18 01:16+0100\n"
-"PO-Revision-Date: 2014-12-18 05:56+0000\n"
-"Last-Translator: sayanvd <sayanvd@yandex.ru>\n"
-"Language-Team: Russian (Russia) (http://www.transifex.com/projects/p/FusionInventory/language/ru_RU/)\n"
+"PO-Revision-Date: 2016-03-24 12:30+0000\n"
+"Last-Translator: Nikolay Petrov <techobsl@yandex.ru>\n"
+"Language-Team: Russian (Russia) (http://www.transifex.com/ddurieux/FusionInventory/language/ru_RU/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: ru_RU\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
 
 #: hook.php:51 hook.php:231 hook.php:238 hook.php:257 hook.php:264
 #: hook.php:275 hook.php:283 hook.php:294 hook.php:315 hook.php:322
@@ -66,7 +68,7 @@ msgstr "Компания"
 #: hook.php:132 inc/agent.class.php:130 inc/agent.class.php:222
 #: inc/agent.class.php:428 inc/agent.class.php:1191
 msgid "Useragent"
-msgstr "Useragent"
+msgstr "Агент ПК"
 
 #: hook.php:139 inc/agent.class.php:136 inc/agent.class.php:461
 #: inc/agent.class.php:1196 inc/config.class.php:468 inc/config.class.php:486
@@ -97,7 +99,7 @@ msgstr "Развёртывание"
 
 #: hook.php:172
 msgid "WakeOnLan"
-msgstr "WakeOnLan"
+msgstr "Пробуждение по сети"
 
 #: hook.php:179
 msgid "Local inventory"
@@ -153,6 +155,7 @@ msgid_plural "Locks"
 msgstr[0] "Блокировка"
 msgstr[1] "Блокировок"
 msgstr[2] "Блокировки"
+msgstr[3] "Блокировки"
 
 #: hook.php:898 inc/deploygroup.class.php:94
 msgid "Target a task"
@@ -187,6 +190,7 @@ msgid_plural "Tasks"
 msgstr[0] "Задача"
 msgstr[1] "Задач"
 msgstr[2] "Задачи"
+msgstr[3] "Задачи"
 
 #: hook.php:1049 inc/deploygroup.class.php:138 inc/deploypackage.class.php:56
 msgid "Package"
@@ -253,7 +257,7 @@ msgstr "Несовместимая версия GLPI, требуется 0.85"
 
 #: setup.php:508
 msgid "fileinfo extension (PHP) is required..."
-msgstr "требуется расширение fileinfo (PHP)  ..."
+msgstr "требуется модуль fileinfo (PHP)  ..."
 
 #: setup.php:521
 #, php-format
@@ -361,7 +365,7 @@ msgstr "Идентификатор устройства"
 
 #: inc/agent.class.php:108 inc/agent.class.php:384
 msgid "Computer link"
-msgstr "Ссылка на компьютер"
+msgstr "Связать с компьютером"
 
 #: inc/agent.class.php:142 inc/agent.class.php:149 inc/agent.class.php:418
 #: inc/agent.class.php:452 inc/config.class.php:600 inc/config.class.php:610
@@ -395,7 +399,7 @@ msgstr "Статус агента"
 
 #: inc/agent.class.php:815
 msgid "Force inventory"
-msgstr "Форсировать инвентаризацию"
+msgstr "Принудительная инвентаризация"
 
 #: inc/agent.class.php:1130
 msgid "Informations for agent configuration"
@@ -458,7 +462,7 @@ msgstr "Рекурсивный"
 
 #: inc/collect_file.class.php:93 inc/collect_file.class.php:194
 msgid "Regex"
-msgstr "Regex"
+msgstr "Регулярное выражение"
 
 #: inc/collect_file.class.php:94 inc/collect_file.class.php:200
 #: inc/collect_file_content.class.php:189
@@ -499,6 +503,7 @@ msgid_plural "Filters"
 msgstr[0] "Фильтр"
 msgstr[1] "Фильтр"
 msgstr[2] "Фильтры"
+msgstr[3] "Фильтры"
 
 #: inc/collect_file.class.php:179
 msgid "Base folder"
@@ -705,7 +710,7 @@ msgid "Inventory frequency (in hours)"
 msgstr "Интервал инвентаризации (в часах)"
 
 #: inc/config.class.php:310
-msgid "Delete tasks logs after"
+msgid "Delete tasks after"
 msgstr "Удалять задачи спустя"
 
 #: inc/config.class.php:327
@@ -775,7 +780,7 @@ msgstr "Версия SNMP"
 
 #: inc/configsecurity.class.php:94
 msgid "Community"
-msgstr "Community"
+msgstr "Объединение"
 
 #: inc/configsecurity.class.php:107
 msgid "Encryption protocol for authentication "
@@ -872,7 +877,7 @@ msgstr "в"
 
 #: inc/deployaction.class.php:340
 msgid "exec"
-msgstr "exec"
+msgstr "выполнение"
 
 #: inc/deployaction.class.php:353
 msgid "path"
@@ -1036,7 +1041,7 @@ msgstr "Сбой при записи файла на диск"
 
 #: inc/deployfile.class.php:722
 msgid "PHP extension stopped the file upload"
-msgstr "Расширение PHP  остановило загрузку файлов"
+msgstr "Мудуль PHP остановил загрузку файлов"
 
 #: inc/deployfile.class.php:752 inc/deployfile.class.php:800
 msgid "File saved!"
@@ -1111,6 +1116,7 @@ msgid_plural "The following tasks are running with this package"
 msgstr[0] "Следующая задача выполняется с этим пакетом"
 msgstr[1] "Следующие задачи выполняются с этим пакетом"
 msgstr[2] "Следующие задачи выполняются с этим пакетом"
+msgstr[3] "Следующие задачи выполняются с этим пакетом"
 
 #: inc/deploypackage.class.php:395
 msgid "Audits"
@@ -1312,11 +1318,11 @@ msgstr "Ограничить поиск в заданной организаци
 
 #: inc/inventoryruleimport.class.php:181
 msgid "FusionInventory link"
-msgstr "Ссылка FusionInventory"
+msgstr "Связать с FusionInventory"
 
 #: inc/inventoryruleimport.class.php:194
 msgid "Link"
-msgstr "Ссылка"
+msgstr "Связь"
 
 #: inc/inventoryruleimport.class.php:195
 msgid "Import denied (no log)"
@@ -2306,7 +2312,7 @@ msgstr "Инв. SNMP"
 
 #: inc/menu.class.php:197
 msgid ""
-"The server needs to kown the URL the agents use to access the server. Please"
+"The server needs to know the URL the agents use to access the server. Please"
 " configure it in the General Configuration page."
 msgstr "Сервер должен знать какой URL используют агенты для доступа к нему. Пожалуйста, настройте его на странице Основных настроек."
 

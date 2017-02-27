@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -301,11 +301,12 @@ function pluginFusioninventoryInstall($version, $migrationname='Migration') {
                          array('mode' => 2, 'allowmode' => 3, 'logs_lifetime' => 30));
       Crontask::Register('PluginFusioninventoryNetworkPortLog', 'cleannetworkportlogs', (3600 * 24),
                          array('mode'=>2, 'allowmode'=>3, 'logs_lifetime'=>30));
-      CronTask::Register('PluginFusioninventoryTaskjob', 'updatedynamictasks', '60',
-                         array('mode' => 2, 'allowmode' => 3, 'logs_lifetime'=> 30, 'state' => 0));
       Crontask::Register('PluginFusioninventoryAgent', 'cleanoldagents', (3600 * 24),
                          array('mode' => 2, 'allowmode' => 3, 'logs_lifetime' => 30,
                                'comment'=>'Clean agents not contacted since xxx days'));
+      Crontask::Register('PluginFusioninventoryAgentWakeup', 'wakeupAgents', 120,
+                         array('mode'=>2, 'allowmode'=>3, 'logs_lifetime'=>30,
+                               'comment'=>'Wake agents ups'));
 
    /*
     * Create rules

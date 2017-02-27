@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -129,7 +129,7 @@ class PluginFusioninventoryStateDiscovery extends CommonDBTM {
 
       // Display the pager
       Html::printPager($start, $number, $CFG_GLPI['root_doc'].
-              "/plugins/fusioninventory/front/stateinventory.php", '');
+              "/plugins/fusioninventory/front/statediscovery.php", '');
 
       echo "<table class='tab_cadre_fixe'>";
 
@@ -162,7 +162,11 @@ class PluginFusioninventoryStateDiscovery extends CommonDBTM {
          echo "<tr class='tab_bg_1'>";
          echo "<td>".$data['uniqid']."</td>";
          $pfTaskjob->getFromDB($data['plugin_fusioninventory_taskjobs_id']);
-         echo "<td>".$pfTaskjob->getLink()."</td>";
+         echo "<td>";
+         $link = $pfTaskjob->getLink();
+         $link = str_replace('.form', '', $link);
+         echo $link;
+         echo "</td>";
          $pfAgent->getFromDB($data['plugin_fusioninventory_agents_id']);
          echo "<td>".$pfAgent->getLink(1)."</td>";
          $nb_found = 0;

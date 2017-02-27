@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    Alexandre Delaunay
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -193,7 +193,7 @@ class PluginFusioninventoryDeployFile extends CommonDBTM {
          echo Search::showNewLine(Search::HTML_OUTPUT, ($i%2));
          if ($pfDeployPackage->can($pfDeployPackage->getID(), UPDATE)) {
             echo "<td class='control'>";
-            echo "<input type='checkbox' name='file_entries[]' value='$i' />";
+            Html::showCheckbox(array('name' => 'file_entries[]', 'value' => 0));
             echo "</td>";
          }
          echo "<td class='filename'>";
@@ -226,7 +226,7 @@ class PluginFusioninventoryDeployFile extends CommonDBTM {
             echo "<a title='".__('p2p', 'fusioninventory').", "
             .__("retention", 'fusioninventory')." : ".
                $file_p2p_retention_duration." ".
-               __("days", 'fusioninventory')."' class='more'>";
+               __("Minute(s)", 'fusioninventory')."' class='more'>";
                echo  "<img src='".$pics_path.
                      "p2p.png' />";
                echo "<sup>".$file_p2p_retention_duration."</sup>";
@@ -423,26 +423,23 @@ class PluginFusioninventoryDeployFile extends CommonDBTM {
       echo "<tr>";
       echo "<th>".__("Uncompress", 'fusioninventory')."<img style='float:right' ".
          "src='".$CFG_GLPI["root_doc"]."/plugins/fusioninventory//pics/uncompress.png' /></th>";
-      $uncompress_check = $uncompress==1?"checked=checked":"";
-      echo "<td><input type='checkbox' name='uncompress' {$uncompress_check} /></td>";
+      echo "<td>";
+      Html::showCheckbox(array('name' => 'uncompress', 'checked' => $uncompress));
+      echo "</td>";
       echo "</tr><tr>";
       echo "<th>".__("P2P", 'fusioninventory').
               "<img style='float:right' src='".$CFG_GLPI["root_doc"].
               "/plugins/fusioninventory//pics/p2p.png' /></th>";
 
-      $p2p_check = $p2p==1?"checked=checked":"";
-      echo "<td><input type='checkbox' name='p2p' $p2p_check /></td>";
-      echo "</tr><tr>";
-      echo "<th>".__("retention days", 'fusioninventory')."</th>";
       echo "<td>";
-      /*
-       * TODO: use task periodicity input to propose days, months and years
-       */
-      Dropdown::showNumber('p2p-retention-duration', array(
-             'value' => $p2p_retention_duration,
-             'min'   => 0,
-             'max'   => 400)
-      );
+      Html::showCheckbox(array('name' => 'p2p', 'checked' => $p2p));
+      echo "</td>";
+      echo "</tr><tr>";
+      echo "<th>".__("retention", 'fusioninventory').
+                  " - ".__("Minute(s)", 'fusioninventory')."</th>";
+      echo "<td>";
+
+      echo "<input type='number' name='p2p-retention-duration' value='$p2p_retention_duration' />";
       echo "</td>";
       echo "</tr><tr>";
       echo "<td>";
@@ -616,29 +613,34 @@ class PluginFusioninventoryDeployFile extends CommonDBTM {
          return FALSE;
       }
 
+      $shasToRemove = array();
+
       //get current order json
       $datas = json_decode(PluginFusioninventoryDeployOrder::getJson($params['orders_id']), TRUE);
 
       $files = $datas['jobs']['associatedFiles'];
       //remove selected checks
-      foreach ($params['file_entries'] as $index) {
-         //get sha512
-         $sha512 = $datas['jobs']['associatedFiles'][$index];
+      foreach ($params['file_entries'] as $index => $checked) {
+         if ($checked >= "1" || $checked == "on") {
+            //get sha512
+            $sha512 = $datas['jobs']['associatedFiles'][$index];
 
-         //remove file
-         // I've commented the following piece of code because
-         // if you remove the first line in the files list,
-         // PHP will transform these table as a json dictionnary instead of json list.
-         unset($files[$index]);
-         //array_splice($datas['jobs']['associatedFiles'], $index, 1);
-         unset($datas['associatedFiles'][$sha512]);
+            //remove file
+            unset($files[$index]);
+            //array_splice($datas['jobs']['associatedFiles'], $index, 1);
+            unset($datas['associatedFiles'][$sha512]);
 
-         //remove file in repo
-         //self::removeFileInRepo($sha512, $params['orders_id']);
+            $shasToRemove[] = $sha512;
+         }
       }
       $datas['jobs']['associatedFiles'] = array_values($files);
       //update order
       PluginFusioninventoryDeployOrder::updateOrderJson($params['orders_id'], $datas);
+         
+      //remove files in repo
+      foreach ($shasToRemove as $sha512) {
+         self::removeFileInRepo($sha512);
+      }
    }
 
 
@@ -675,9 +677,9 @@ class PluginFusioninventoryDeployFile extends CommonDBTM {
       unset($datas['associatedFiles'][$sha512]);
 
       //update values
-      $file['p2p']                    = isset($params['p2p']) ? 1 : 0;
+      $file['p2p']                    = isset($params['p2p']) ? $params['p2p'] : 0;
       $file['p2p-retention-duration'] = $params['p2p-retention-duration'];
-      $file['uncompress']             = isset($params['uncompress']) ? 1 : 0;
+      $file['uncompress']             = isset($params['uncompress']) ? $params['uncompress'] : 0;
 
       //add modified entry
       $datas['associatedFiles'][$sha512] = $file;
@@ -733,18 +735,18 @@ class PluginFusioninventoryDeployFile extends CommonDBTM {
 
          //prepare file data for insertion in repo
          $data = array(
-            'file_tmp_name' => $file_tmp_name,
-            'mime_type' => $_FILES['file']['type'],
-            'filesize' => $_FILES['file']['size'],
-            'filename' => $filename,
-            'p2p' => isset($params['p2p']) ? 1 : 0,
-            'uncompress' => isset($params['uncompress']) ? 1 : 0,
+            'file_tmp_name'          => $file_tmp_name,
+            'mime_type'              => $_FILES['file']['type'],
+            'filesize'               => $_FILES['file']['size'],
+            'filename'               => $filename,
+            'p2p'                    => isset($params['p2p']) ? $params['p2p'] : 0,
+            'uncompress'             => isset($params['uncompress']) ? $params['uncompress'] : 0,
             'p2p-retention-duration' => (
                is_numeric($params['p2p-retention-duration'])
                ? $params['p2p-retention-duration']
                : 0
             ),
-            'orders_id' => $params['orders_id']
+            'orders_id'              => $params['orders_id']
          );
 
          //Add file in repo
@@ -781,18 +783,18 @@ class PluginFusioninventoryDeployFile extends CommonDBTM {
 
          //prepare file data for insertion in repo
          $data = array(
-            'file_tmp_name' => $file_path,
-            'mime_type' => $mime_type,
-            'filesize' => $filesize,
-            'filename' => $filename,
-            'p2p' => isset($params['p2p']) ? 1 : 0,
-            'uncompress' => isset($params['uncompress']) ? 1 : 0,
+            'file_tmp_name'          => $file_path,
+            'mime_type'              => $mime_type,
+            'filesize'               => $filesize,
+            'filename'               => $filename,
+            'p2p'                    => isset($params['p2p']) ? 1 : 0,
+            'uncompress'             => isset($params['uncompress']) ? 1 : 0,
             'p2p-retention-duration' => (
                is_numeric($params['p2p-retention-duration'])
                ? $params['p2p-retention-duration']
                : 0
             ),
-            'orders_id' => $params['orders_id']
+            'orders_id'              => $params['orders_id']
          );
 
          //Add file in repo
@@ -949,32 +951,47 @@ class PluginFusioninventoryDeployFile extends CommonDBTM {
 
 
 
-   static function removeFileInRepo($sha512, $orders_id) {
+   static function removeFileInRepo($sha512) {
 
       $repoPath = GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/repository/";
       $manifestsPath = GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/";
 
       $order = new PluginFusioninventoryDeployOrder;
-      $rows = $order->find("id != '$orders_id'
-            AND json LIKE '%".substr($sha512, 0, 6 )."%'
-            AND json LIKE '%$sha512%'"
-      );
+      $rows = $order->find("json LIKE '%$sha512%'");
       if (count($rows) > 0) {
-         //file found in other order, do not remove part in repo
+         //file found in other orders, do not remove part in repo
          return FALSE;
       }
 
-      //get current order json
-      $datas = json_decode(PluginFusioninventoryDeployOrder::getJson($orders_id), TRUE);
-      $multiparts = $datas['associatedFiles'][$sha512]['multiparts'];
+      //get sha512 parts in manifest
+      $multiparts = file($manifestsPath.$sha512);
 
       //parse all files part
       foreach ($multiparts as $part_sha512) {
+         $firstdir = $repoPath.substr($part_sha512, 0, 1)."/";
          $dir = $repoPath.self::getDirBySha512($part_sha512).'/';
 
          //delete file parts
-         unlink($dir.$part_sha512);
+         unlink(trim($dir.$part_sha512));
+
+         //delete folders if empty
+         if (is_dir($dir)) {
+            $count_second_folder = count(scandir($dir)) - 2;
+            if ($count_second_folder === 0) {
+               rmdir($dir);
+            }
+         }
+         if (is_dir($firstdir)) {
+            $count_first_folder = count(scandir($firstdir)) - 2; // -2 for . and ..
+            if ($count_first_folder === 0) {
+               rmdir($firstdir);
+            }
+         }
+  
       }
+
+      //remove manifest
+      unlink($manifestsPath.$sha512);
 
       return TRUE;
    }
@@ -1066,6 +1083,75 @@ class PluginFusioninventoryDeployFile extends CommonDBTM {
          return $filesize;
       } else {
          return "N/A";
+      }
+   }
+
+
+   function numberUnusedFiles(){
+
+      echo "<table width='950' class='tab_cadre_fixe'>";
+
+      echo "<tr>";
+      echo "<th>";
+      echo __('Unused file', 'fusioninventory');
+      echo "</th>";
+      echo "<th>";
+      echo __('Size', 'fusioninventory');
+      echo "</th>";
+      echo "</tr>";
+
+      $a_files = $this->find();
+      foreach ($a_files as $data) {
+         $cnt = countElementsInTable('glpi_plugin_fusioninventory_deployorders',
+                 '`json` LIKE \'%"'.$data['sha512'].'"%\'');
+         if ($cnt == 0) {
+            echo "<tr class='tab_bg_1'>";
+            echo "<td>";
+            echo $data['name'];
+            echo "</td>";
+            echo "<td>";
+            echo round($data['filesize'] / 1000000, 1)." ".__('Mio');
+            echo "</td>";
+            echo "</tr>";
+         }
+      }
+      echo "</table>";
+   }
+
+
+
+   function deleteUnusedFiles(){
+
+      $manifests_path =
+         GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/";
+      $parts_path =
+         GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/repository/";
+
+      $a_files = $this->find();
+      foreach ($a_files as $data) {
+         $cnt = countElementsInTable('glpi_plugin_fusioninventory_deployorders',
+                 '`json` LIKE \'%"'.$data['sha512'].'"%\'');
+         if ($cnt == 0) {
+            $this->delete($data);
+
+            $handle = fopen($manifests_path.$data['sha512'], "r");
+            if ($handle) {
+               while(!feof($handle)){
+                  $buffer = trim(fgets($handle));
+                  if ($buffer != '') {
+                     $path =
+                        substr($buffer, 0, 1).
+                        "/".
+                        substr($buffer, 0, 2).
+                        "/".
+                        $buffer;
+                     unlink($parts_path.$path);
+                  }
+               }
+               fclose($handle);
+            }
+            unlink($manifests_path.$data['sha512']);
+         }
       }
    }
 

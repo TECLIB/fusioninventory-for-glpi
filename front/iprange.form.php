@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -102,17 +102,20 @@ if (isset ($_POST["add"])) {
       }
    }
    Html::back();
-} else if (isset ($_POST["delete"])) {
+} else if (isset ($_POST["purge"])) {
    if (isset($_POST['communication'])) {
       $task = new PluginFusioninventoryTask();
       $task->delete(array('id' => $_POST['task_id']), 1);
       $_SERVER['HTTP_REFERER'] = str_replace("&allowcreate=1", "", $_SERVER['HTTP_REFERER']);
       Html::back();
    } else {
-      Session::checkRight('plugin_fusioninventory_"iprange', PURGE);
+      Session::checkRight('plugin_fusioninventory_iprange', PURGE);
 
-      $iprange->delete($_POST);
-      Html::redirect(Toolbox::getItemTypeSearchURL('PluginFusioninventoryIPRange'));
+      if ($iprange->delete($_POST, 1)) {
+         Html::redirect(Toolbox::getItemTypeSearchURL('PluginFusioninventoryIPRange'));
+      } else {
+         Html::back();
+      }
    }
 }
 

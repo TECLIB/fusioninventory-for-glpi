@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -184,7 +184,7 @@ class ComputerPeripheral extends RestoreDatabase_TestCase {
               'is_global'           => '0',
               'is_deleted'          => '0',
               'is_template'         => '0',
-              'is_dynamic'          => '0'
+              'is_dynamic'          => '1'
           ),
           2 => array(
               'name' => 'H5321 gw Mobile Broadband Device',
@@ -192,11 +192,11 @@ class ComputerPeripheral extends RestoreDatabase_TestCase {
               'serial'              => '187A047919938CM0',
               'peripheraltypes_id'  => '0',
               'peripheralmodels_id' => '0',
-              'manufacturers_id'    => '7',
+              'manufacturers_id'    => '8',
               'is_global'           => '0',
               'is_deleted'          => '0',
               'is_template'         => '0',
-              'is_dynamic'          => '0'
+              'is_dynamic'          => '1'
           ),
           3 => array(
               'name' => 'Périphérique d’entrée USB',
@@ -204,11 +204,11 @@ class ComputerPeripheral extends RestoreDatabase_TestCase {
               'serial'              => 'STM32_EMOTION2',
               'peripheraltypes_id'  => '0',
               'peripheralmodels_id' => '0',
-              'manufacturers_id'    => '8',
+              'manufacturers_id'    => '9',
               'is_global'           => '0',
               'is_deleted'          => '0',
               'is_template'         => '0',
-              'is_dynamic'          => '0'
+              'is_dynamic'          => '1'
           )
       );
 

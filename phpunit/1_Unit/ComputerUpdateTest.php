@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -191,7 +191,8 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
             Array(
                     'name'              => 'ThinkPad Display 1280x800',
                     'serial'            => 'UBYVUTFYEIUI',
-                    'manufacturers_id'  => 'Lenovo'
+                    'manufacturers_id'  => 'Lenovo',
+                    'is_dynamic'        => 1
                 )
       );
 
@@ -199,7 +200,8 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
             Array(
                     'name'      => 'HP Deskjet 5700 Series',
                     'serial'    => 'MY47L1W1JHEB6',
-                    'have_usb'  => 1
+                    'have_usb'  => 1,
+                    'is_dynamic' => 1
                 )
       );
 
@@ -263,7 +265,7 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
       $computer         = new Computer();
       $pfFormatconvert  = new PluginFusioninventoryFormatconvert();
 
-      $a_inventory = $pfFormatconvert->replaceids($a_inventory);
+      $a_inventory = $pfFormatconvert->replaceids($a_inventory, 'Computer', 0);
 
       $serialized = gzcompress(serialize($a_inventory));
       $a_inventory['fusioninventorycomputer']['serialized_inventory'] =
@@ -1012,7 +1014,7 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
           'groups_id'         => '0',
           'states_id'         => '0',
           'ticket_tco'        => '0.0000',
-          'is_dynamic'        => '0',
+          'is_dynamic'        => '1',
       );
 
       $this->assertEquals($a_reference, $monitor->fields);
@@ -1075,7 +1077,7 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
           'groups_id'            => '0',
           'states_id'            => '0',
           'ticket_tco'           => '0.0000',
-          'is_dynamic'           => '0',
+          'is_dynamic'           => '1',
       );
 
       $this->assertEquals($a_reference, $printer->fields);
@@ -1160,7 +1162,7 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
       $pfFormatconvert  = new PluginFusioninventoryFormatconvert();
       $software         = new Software();
 
-      $a_inventory = $pfFormatconvert->replaceids($a_inventory);
+      $a_inventory = $pfFormatconvert->replaceids($a_inventory, 'Computer', 0);
 
       $serialized = gzcompress(serialize($a_inventory));
       $a_inventory['fusioninventorycomputer']['serialized_inventory'] =

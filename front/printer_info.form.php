@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -72,6 +72,12 @@ if ((isset($_POST['update'])) && (isset($_POST['id']))) {
 
    $plugin_fusioninventory_printer->update($_POST);
 
+} else if ((isset($_POST["update_cartridge"])) && (isset($_POST['id']))) {
+   Session::checkRight('plugin_fusioninventory_printer', UPDATE);
+   $cartridge = new PluginFusioninventoryPrinterCartridge();
+   if ($cartridge->getFromDB($_POST['id'])) {
+      $cartridge->update($_POST);
+   }
 }
 
 $arg = "";

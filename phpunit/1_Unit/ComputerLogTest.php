@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    FusionInventory
-   Copyright (C) 2010-2014 by the FusionInventory Development Team.
+   Copyright (C) 2010-2016 by the FusionInventory Development Team.
 
    http://www.fusioninventory.org/   http://forge.fusioninventory.org/
    ------------------------------------------------------------------------
@@ -30,7 +30,7 @@
    @package   FusionInventory
    @author    David Durieux
    @co-author
-   @copyright Copyright (c) 2010-2014 FusionInventory team
+   @copyright Copyright (c) 2010-2016 FusionInventory team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      http://www.fusioninventory.org/
@@ -235,7 +235,7 @@ class ComputerLog extends RestoreDatabase_TestCase {
                 )
           );
 
-      $this->a_inventory = $pfFormatconvert->replaceids($this->a_inventory);
+      $this->a_inventory = $pfFormatconvert->replaceids($this->a_inventory, 'Computer', 0);
 
       $serialized = gzcompress(serialize($this->a_inventory));
       $this->a_inventory['fusioninventorycomputer']['serialized_inventory'] =
