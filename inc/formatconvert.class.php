@@ -315,7 +315,7 @@ class PluginFusioninventoryFormatconvert {
                                        array('inventory' => $a_inventory,
                                              'source'    => $array));
       if (is_array($plugin_values)) {
-         $a_inventory = array_merge($a_inventory, $plugin_values);         
+         $a_inventory = array_merge($a_inventory, $plugin_values);
       }
 
       // * BIOS
@@ -433,6 +433,9 @@ class PluginFusioninventoryFormatconvert {
       if (isset($array['BIOS']['BMANUFACTURER'])) {
          $a_inventory['fusioninventorycomputer']['bios_manufacturers_id'] = $array['BIOS']['BMANUFACTURER'];
       }
+      //TECLIB - historical : the hostid used to be found under HARDWARE in our
+      //own version of fusioninventory-agent
+      //this has been replaced by OPERATINGSYSTEM/HOSTID
       if (isset($array['HARDWARE']['HOSTID'])) {
          $a_inventory['fusioninventorycomputer']['hostid'] = $array['HARDWARE']['HOSTID'];
       }
@@ -450,6 +453,10 @@ class PluginFusioninventoryFormatconvert {
                     'VERSION'        => 'operatingsystemversions_id',
                     'SERVICE_PACK'   => 'operatingsystemservicepacks_id',
                     'ARCH'           => 'plugin_fusioninventory_computerarchs_id'));
+
+        if (isset($array['OPERATINGSYSTEM']['HOSTID'])) {
+           $a_inventory['fusioninventorycomputer']['hostid'] = $array['OPERATINGSYSTEM']['HOSTID'];
+        }
 
          if (!isset($array['OPERATINGSYSTEM']['VERSION'])
                  && isset($array['OPERATINGSYSTEM']['KERNEL_VERSION'])) {
