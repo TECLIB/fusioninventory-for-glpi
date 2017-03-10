@@ -91,46 +91,48 @@ class PluginFusioninventoryConfig extends CommonDBTM {
    function initConfigModule($getOnly=FALSE) {
 
       $input = array();
-      $input['version']                = PLUGIN_FUSIONINVENTORY_VERSION;
-      $input['ssl_only']               = '0';
-      $input['delete_task']            = '20';
-      $input['inventory_frequence']    = '24';
-      $input['agent_port']             = '62354';
-      $input['extradebug']             = '0';
+      $input['version']                      = PLUGIN_FUSIONINVENTORY_VERSION;
+      $input['ssl_only']                     = '0';
+      $input['delete_task']                  = '20';
+      $input['inventory_frequence']          = '24';
+      $input['agent_port']                   = '62354';
+      $input['extradebug']                   = '0';
       $pfSetup = new PluginFusioninventorySetup();
       $users_id = $pfSetup->createFusionInventoryUser();
-      $input['users_id']               = $users_id;
-      $input['agents_old_days']        = '0';
-      $input['agents_action']          = 0;
-      $input['agents_status']          = 0;
-      $input['wakeup_agent_max']       = '10';
+      $input['users_id']                     = $users_id;
+      $input['agents_old_days']              = '0';
+      $input['agents_action']                = 0;
+      $input['agents_status']                = 0;
+      $input['wakeup_agent_max']             = '10';
 
-      $input['import_software']        = 1;
-      $input['import_volume']          = 1;
-      $input['import_antivirus']       = 1;
-      $input['import_registry']        = 1;
-      $input['import_process']         = 1;
-      $input['import_vm']              = 1;
-      $input['component_processor']    = 1;
-      $input['component_memory']       = 1;
-      $input['component_harddrive']    = 1;
-      $input['component_networkcard']  = 1;
-      $input['component_graphiccard']  = 1;
-      $input['component_soundcard']    = 1;
-      $input['component_drive']        = 1;
-      $input['component_networkdrive'] = 1;
-      $input['component_control']      = 1;
-      $input['states_id_default']      = 0;
-      $input['location']               = 0;
-      $input['group']                  = 0;
-      $input['create_vm']              = 0;
+      $input['import_software']              = 1;
+      $input['import_volume']                = 1;
+      $input['import_antivirus']             = 1;
+      $input['import_registry']              = 1;
+      $input['import_process']               = 1;
+      $input['import_vm']                    = 1;
+      $input['component_processor']          = 1;
+      $input['component_memory']             = 1;
+      $input['component_harddrive']          = 1;
+      $input['component_networkcard']        = 1;
+      $input['component_graphiccard']        = 1;
+      $input['component_soundcard']          = 1;
+      $input['component_drive']              = 1;
+      $input['component_networkdrive']       = 1;
+      $input['component_control']            = 1;
+      $input['component_removablemedia']     = 0;
+      $input['states_id_default']            = 0;
+      $input['location']                     = 0;
+      $input['group']                        = 0;
+      $input['create_vm']                    = 0;
       $input['component_networkcardvirtual'] = 1;
-      $input['otherserial']            = 0;
+      $input['otherserial']                  = 0;
+      $input['component_battery']            = 1;
 
-      $input['threads_networkdiscovery'] = 20;
-      $input['threads_networkinventory'] = 10;
-      $input['timeout_networkdiscovery'] = 1;
-      $input['timeout_networkinventory'] = 15;
+      $input['threads_networkdiscovery']     = 20;
+      $input['threads_networkinventory']     = 10;
+      $input['timeout_networkdiscovery']     = 1;
+      $input['timeout_networkinventory']     = 15;
 
       //deploy config variables
       $input['server_upload_path'] =
@@ -144,9 +146,9 @@ class PluginFusioninventoryConfig extends CommonDBTM {
                      )
                   )
                );
-      $input['alert_winpath'] = 1;
+      $input['alert_winpath']    = 1;
       $input['server_as_mirror'] = 1;
-      $input['manage_osname'] = 1;
+      $input['manage_osname']    = 1;
 
       if (!$getOnly) {
          $this->addValues($input);
