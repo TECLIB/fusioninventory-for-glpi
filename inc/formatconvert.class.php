@@ -904,9 +904,11 @@ class PluginFusioninventoryFormatconvert {
                $isNetworkDriveOrFS = true;
             }
             if ($pfConfig->getValue("component_drive") == '0'
-                OR ($pfConfig->getValue("component_networkdrive") == '0' AND $isNetworkDriveOrFS)
-                OR ($pfConfig->getValue("component_removablemedia") == '0' AND $isRemovableMedia)) {
-
+                OR ($pfConfig->getValue("component_networkdrive") == '0'
+                  AND $isNetworkDriveOrFS)
+                OR ($pfConfig->getValue("component_removablemedia") == '0'
+                  AND $isRemovableMedia)) {
+               continue;
             } else {
                if ($pfConfig->getValue('import_volume') == 1) {
                   $array_tmp = $thisc->addValues($a_drives,
