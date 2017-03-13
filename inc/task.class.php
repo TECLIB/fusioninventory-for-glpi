@@ -1570,8 +1570,8 @@ class PluginFusioninventoryTask extends PluginFusioninventoryTaskView {
       echo "Agent".SEP;
       echo "Computer name".SEP;
       echo "Date".SEP;
-      echo "Error".SPE;
-      echo "Status".NL;
+      echo "Status".SEP;
+      echo "Last Message".NL;
 
       $agent_obj = new PluginFusioninventoryAgent();
       $computer  = new Computer();
@@ -1612,7 +1612,8 @@ class PluginFusioninventoryTask extends PluginFusioninventoryTaskView {
                      echo NL;
                   } else foreach ($agent as $exec_id => $exec) {
                      echo $exec['last_log_date'].SEP;
-                     echo $exec['state'].NL;
+                     echo $exec['state'].SEP;
+                     echo $exec['last_log'].NL;
                      $log_cpt++;
 
                      if ($_SESSION['fi_include_old_jobs'] != -1
