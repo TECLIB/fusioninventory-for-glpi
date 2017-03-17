@@ -62,7 +62,13 @@ if (isset($_GET['action']) && isset($_GET['machineid'])) {
          $agent = $pfAgent->InfosByKey(Toolbox::addslashes_deep($_GET['machineid']));
          if (isset($agent['id'])) {
             if (isset($_GET['host'])) {
-               $results = $pfCredentialip->find("`ip`='".$_GET['host']."'");
+               $sql     = "`ip`='".$_GET['host']."'";
+               $sql    .= getEntitiesRestrictRequest(" AND",
+                                                     'glpi_plugin_fusioninventory_credentialips',
+                                                     'entities_id',
+                                                     $agent['entities_id'],
+                                                     true);
+               $results = $pfCredentialip->find($sql);
                if (count($results) == 1) {
                   $credentialip = current($results);
                   if ($credentialip['plugin_fusioninventory_credentials_id'] &&
