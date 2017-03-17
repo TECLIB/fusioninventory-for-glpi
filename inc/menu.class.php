@@ -387,7 +387,7 @@ class PluginFusioninventoryMenu extends CommonGLPI {
 
       if (Session::haveRight('plugin_fusioninventory_credentialip', READ)) {
          $a_menu[] = array(
-            'name' => __('Remote devices to inventory (VMware)', 'fusioninventory'),
+            'name' => __('Remote system to inventory', 'fusioninventory'),
             'pic'  => $CFG_GLPI['root_doc'].
                                  "/plugins/fusioninventory/pics/menu_credentialips.png",
             'link' => Toolbox::getItemTypeSearchURL('PluginFusioninventoryCredentialip')
@@ -406,7 +406,7 @@ class PluginFusioninventoryMenu extends CommonGLPI {
 
       if (Session::haveRight('plugin_fusioninventory_credential', READ)) {
          $a_menu[] = array(
-            'name' => __('Authentication for remote devices (VMware)', 'fusioninventory'),
+            'name' => __('Credentials for remote system inventory', 'fusioninventory'),
             'pic'  => $CFG_GLPI['root_doc'].
                                  "/plugins/fusioninventory/pics/menu_authentification.png",
             'link' => Toolbox::getItemTypeSearchURL('PluginFusioninventoryCredential')

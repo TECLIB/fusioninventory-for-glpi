@@ -753,6 +753,7 @@ class PluginFusioninventoryToolbox {
    * @return boolean true if handle by FusionInventory
    */
    static function isAFusionInventoryDevice($item) {
+      $table = '';
       switch ($item->getType()) {
          case 'Computer':
             $table = 'glpi_plugin_fusioninventory_inventorycomputercomputers';

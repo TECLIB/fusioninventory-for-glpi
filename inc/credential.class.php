@@ -89,7 +89,7 @@ class PluginFusioninventoryCredential extends CommonDropdown {
     * @return string name of this type
     */
    static function getTypeName($nb=0) {
-      return __('Authentication for remote devices (VMware)', 'fusioninventory');
+      return __('Authentication for remote systems', 'fusioninventory');
    }
 
 
@@ -144,17 +144,12 @@ class PluginFusioninventoryCredential extends CommonDropdown {
          $label = self::getLabelByItemtype($this->fields['itemtype']);
          if ($label) {
             echo $label;
-            echo "<input type='hidden' name='itemtype' value='".$this->fields['itemtype']."'";
+            Html::hidden('itemtype', ['value' => $this->fields['itemtype']]);
          }
       } else {
-         //Add criteria : display dropdown
-         $options = self::getCredentialsItemTypes();
-         $options[''] = Dropdown::EMPTY_VALUE ;
-         asort($options);
-         Dropdown::showFromArray('itemtype', $options);
+         Dropdown::showFromArray('itemtype', self::getCredentialsItemTypes());
       }
    }
-
 
 
    /**
@@ -188,7 +183,7 @@ class PluginFusioninventoryCredential extends CommonDropdown {
 
       $tab = array();
 
-      $tab['common'] = __('Authentication for remote devices (VMware)', 'fusioninventory');
+      $tab['common'] = __('Authentication for remote systems', 'fusioninventory');
 
       $tab[1]['table']     = $this->getTable();
       $tab[1]['field']     = 'name';
@@ -203,7 +198,7 @@ class PluginFusioninventoryCredential extends CommonDropdown {
       $tab[3]['table']           = $this->getTable();
       $tab[3]['field']           = 'itemtype';
       $tab[3]['name']            = __('Type');
-      $tab[3]['massiveaction']   = FALSE;
+      $tab[3]['massiveaction']   = false;
 
       $tab[4]['table']  = $this->getTable();
       $tab[4]['field']  = 'username';
@@ -229,8 +224,9 @@ class PluginFusioninventoryCredential extends CommonDropdown {
 
       if (!$input['itemtype']) {
           Session::addMessageAfterRedirect(
-                  __('It\'s mandatory to select a type and at least one field'), TRUE, ERROR);
-         $input = array();
+                  __('It\'s mandatory to select a type and at least one field'),
+                  true, ERROR);
+         $input = [];
 
       }
       return $input;
@@ -265,15 +261,16 @@ class PluginFusioninventoryCredential extends CommonDropdown {
    /**
     * Get an itemtype label by the credential itemtype
     *
-    * @param string $credential_itemtype for example PluginFusioninventoryInventoryComputerESX
-    * @return string|false
+    * @param $credential_itemtype for example PluginFusioninventoryInventoryComputerESX
+    *
+    * @return the label associated with the itemtype, or false if no credential found
     */
    static function getLabelByItemtype($credential_itemtype) {
       $credentialtypes = self::findItemtypeType($credential_itemtype);
       if (!empty($credentialtypes)) {
          return $credentialtypes['name'];
       }
-      return FALSE;
+      return false;
    }
 
 
@@ -286,13 +283,24 @@ class PluginFusioninventoryCredential extends CommonDropdown {
     */
    static function findItemtypeType($credential_itemtype) {
 
-      $credential = array('itemtype' => 'PluginFusioninventoryInventoryComputerESX', //Credential itemtype
-                           'name'    => __('VMware host', 'fusioninventory'), //Label
-                           'targets' => array('Computer'));
-      if ($credential['itemtype'] == $credential_itemtype) {
-         return $credential;
+      $credentials = [
+                      ['itemtype'  => 'PluginFusioninventoryInventoryComputerESX',
+                       'name'      => __('VMware host', 'fusioninventory'),
+                       'targets'   => ['Computer']
+                      ], [
+                       'itemtype'  => 'PluginFusioninventoryInventoryComputerOracledb',
+                       'name'      => __('Oracle database', 'fusioninventory'),
+                       'targets'   => ['Computer']
+                      ]
+                     ];
+      $match = [];
+      foreach($credentials as $credential) {
+         if ($credential['itemtype'] == $credential_itemtype) {
+            $match = $credential;
+            break;
+         }
       }
-      return array();
+      return $match;
    }
 
 
@@ -303,8 +311,12 @@ class PluginFusioninventoryCredential extends CommonDropdown {
     * @return array
     */
    static function getCredentialsItemTypes() {
-     return array('PluginFusioninventoryInventoryComputerESX' =>
-                           __('VMware host', 'fusioninventory'));
+     return [
+             'PluginFusioninventoryInventoryComputerESX' =>
+                __('VMware host', 'fusioninventory'),
+             'PluginFusioninventoryInventoryComputerOracledb' =>
+                __('Oracle database', 'fusioninventory')
+            ];
    }
 
 
@@ -341,7 +353,7 @@ class PluginFusioninventoryCredential extends CommonDropdown {
    static function dropdownCredentials($params = array()) {
       global $CFG_GLPI;
 
-      $p = array();
+      $p = [];
       if ($params['id'] == -1) {
          $p['value']    = '';
          $p['itemtype'] = '';
@@ -359,14 +371,18 @@ class PluginFusioninventoryCredential extends CommonDropdown {
       }
 
       $types     = self::getCredentialsItemTypes();
-      $types[''] = Dropdown::EMPTY_VALUE ;
-      $rand      = Dropdown::showFromArray('plugin_fusioninventory_credentials_id', $types,
-                                           array('value' => $p['itemtype']));
-      $ajparams = array('itemtype' => '__VALUE__',
-                        'id'       => $p['id']);
+      $types[''] = Dropdown::EMPTY_VALUE;
+      asort($types);
+      $rand      = Dropdown::showFromArray('plugin_fusioninventory_credentials_id',
+                                           $types,
+                                           ['value' => $p['itemtype']]);
+      $params    = [
+                    'itemtype' => '__VALUE__',
+                    'id'       => $p['id']
+                   ];
       $url       = $CFG_GLPI["root_doc"]."/plugins/fusioninventory/ajax/dropdownCredentials.php";
       Ajax::updateItemOnSelectEvent("dropdown_plugin_fusioninventory_credentials_id$rand",
-                                  "span_credentials", $url, $ajparams);
+                                  "span_credentials", $url, $params);
 
       echo "&nbsp;<span name='span_credentials' id='span_credentials'>";
       if ($p['id']) {
@@ -388,17 +404,16 @@ class PluginFusioninventoryCredential extends CommonDropdown {
          return;
       }
 
-      // params
-      // Array([itemtype] => PluginFusioninventoryInventoryComputerESX [id] => 0)
-      if ($params['itemtype'] == 'PluginFusioninventoryInventoryComputerESX') {
-         $params['itemtype'] = 'PluginFusioninventoryCredential';
-      }
       $value = 0;
       if (isset($params['id'])) {
          $value = $params['id'];
       }
-      Dropdown::show($params['itemtype'], array('entity_sons' => TRUE,
-                                                'value'       => $value));
+
+      Dropdown::show('PluginFusioninventoryCredential',
+                     ['entity_sons' => true,
+                      'value'       => $value,
+                      'condition'   => "`itemtype`='".$params['itemtype']."'"
+                     ]);
    }
 
 
@@ -406,7 +421,7 @@ class PluginFusioninventoryCredential extends CommonDropdown {
    /**
     * Check if there's at least one credential itemetype
     *
-    * @return boolean
+    * @return true if there's at least one type, false otherwise
     */
    static function hasAlLeastOneType() {
       $types = self::getCredentialsItemTypes();
@@ -414,6 +429,16 @@ class PluginFusioninventoryCredential extends CommonDropdown {
    }
 
 
+
+   function title() {
+
+      $buttons = array();
+      if (Session::haveRight('plugin_fusioninventory_credential', READ)) {
+         $buttons["credentialip.php"] =
+                  __('Remote system to inventory', 'fusioninventory');
+
+      }
+   }
 
    /**
     * Display a specific header

@@ -59,7 +59,7 @@ if (isset($_GET['action']) && isset($_GET['machineid'])) {
          $pfCredentialip = new PluginFusioninventoryCredentialIp();
          $pfCredential   = new PluginFusioninventoryCredential();
 
-         $agent = $pfAgent->InfosByKey(Toolbox::addslashes_deep($_GET['machineid']));
+         $agent = $pfAgent->getByDeviceID(Toolbox::addslashes_deep($_GET['machineid']));
          if (isset($agent['id'])) {
             if (isset($_GET['host'])) {
                $sql     = "`ip`='".$_GET['host']."'";

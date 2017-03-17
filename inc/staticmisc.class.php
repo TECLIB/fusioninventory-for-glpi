@@ -172,10 +172,10 @@ class PluginFusioninventoryStaticmisc {
     */
    static function task_definitionselection_Computer_wakeonlan($title) {
 
-      $options = array();
-      $options['entity'] = $_SESSION['glpiactive_entity'];
+      $options                = [];
+      $options['entity']      = $_SESSION['glpiactive_entity'];
       $options['entity_sons'] = 1;
-      $options['name'] = 'definitionselectiontoadd';
+      $options['name']        = 'definitionselectiontoadd';
       $rand = Dropdown::show("Computer", $options);
       return $rand;
    }
@@ -190,7 +190,7 @@ class PluginFusioninventoryStaticmisc {
     * @return string unique html element id
     */
    static function task_definitionselection_PluginFusioninventoryDeployGroup_wakeonlan($title) {
-      $options = array();
+      $options                = array();
       $options['entity']      = $_SESSION['glpiactive_entity'];
       $options['entity_sons'] = 1;
       $options['name']        = 'definitionselectiontoadd';
@@ -269,8 +269,7 @@ class PluginFusioninventoryStaticmisc {
       $query.= getEntitiesRestrictRequest(' AND', 'a');
       $results = $DB->query($query);
 
-      $agents = array();
-      //$agents['.1'] = __('All');
+      $agents = [];
 
       while ($data = $DB->fetch_array($results)) {
          $agents[$data['id']] = $data['name'];
@@ -317,7 +316,6 @@ class PluginFusioninventoryStaticmisc {
                    ON `c`.`id` = `a`.`plugin_fusioninventory_credentials_id`
                 WHERE `c`.`itemtype`='PluginFusioninventoryInventoryComputerESX'";
       $query.= getEntitiesRestrictRequest(' AND', 'glpi_plugin_fusioninventory_credentialips');
-
       $results = $DB->query($query);
       $credentialips = array();
       while ($data = $DB->fetch_array($results)) {
