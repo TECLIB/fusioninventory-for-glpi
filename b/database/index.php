@@ -56,11 +56,8 @@ if (isset($_GET['action']) && isset($_GET['machineid'])) {
 
       case 'getJobs':
          $pfAgent        = new PluginFusioninventoryAgent();
-         $pfTask         = new PluginFusioninventoryTask();
-         $pfTaskjob      = new PluginFusioninventoryTaskjob();
-         $pfTaskjobstate = new PluginFusioninventoryTaskjobstate();
          $pfCredentialip = new PluginFusioninventoryCredentialIp();
-         $pfCredential = new PluginFusioninventoryCredential();
+         $pfCredential   = new PluginFusioninventoryCredential();
 
          $agent = $pfAgent->InfosByKey(Toolbox::addslashes_deep($_GET['machineid']));
          if (isset($agent['id'])) {
