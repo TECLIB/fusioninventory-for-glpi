@@ -1884,7 +1884,8 @@ function postItemForm($params) {
                return true;
             }
             $pfInventoryComputerComputer = new PluginFusioninventoryInventoryComputerComputer();
-            if (!empty($pfInventoryComputerComputer->hasAutomaticInventory($id))) {
+            $autoinventory = $pfInventoryComputerComputer->hasAutomaticInventory($id);
+            if (!empty($autoinventory)) {
                return true;
             } else {
                $pfAgent = new PluginFusioninventoryAgent();
