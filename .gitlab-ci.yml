@@ -6,8 +6,7 @@
   - pwd
   - git submodule update --init
   - ls -l
-  - '# detect last tag of repo, if this build is a tag, so we can upload archive at
-    the end'
+  - '# detect last tag of repo, if this build is a tag, so we can upload archive at the end'
   - VERSION=$(git describe --tags `git rev-list --tags --max-count=1`)
   - echo $VERSION
   - '# prepare filename'
