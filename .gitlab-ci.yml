@@ -1,4 +1,6 @@
 'copy to mirror only for tags':
+  before_script:
+  - sudo apt install git
   script:
   - pwd
   - git submodule update --init
