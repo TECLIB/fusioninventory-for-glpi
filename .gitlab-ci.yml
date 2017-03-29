@@ -42,6 +42,7 @@ copy_to_mirror:
     - cd ..
     - mv fusioninventory-for-glpi fusioninventory
     - tar -czf $FI_FILENAME fusioninventory
+    - ls -l
     # - git archive --format=tar --prefix=fusioninventory/ $VERSION | gzip > $FI_FILENAME
 
     # copy to mirror'
