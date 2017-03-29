@@ -1,15 +1,11 @@
 stages:
   - deploy
-before_script:
-  - apt update
-  - apt install -y git
 copy_to_mirror:
   script:
    - pwd
-   - git submodule update --init
    - ls -l
    - '# detect last tag of repo, if this build is a tag, so we can upload archive at the end'
-   - VERSION=$(git describe --tags `git rev-list --tags --max-count=1`)
+   - VERSION=$CI_COMMIT_TAG
    - echo $VERSION
    - '# prepare filename'
    - FI_FILENAME=fusioninventory-for-glpi_$VERSION.tar.gz
@@ -20,8 +16,7 @@ copy_to_mirror:
    - '# copy to mirror'
    - scp $FI_FILENAME teclib@vm000139.paas.teclib.infra:/srv/releases/www/mirror
   stage: deploy
-  tags:
   except:
     - master
-  only:
-    - tags
+#  only:
+#    - tags
