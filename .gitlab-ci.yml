@@ -1,6 +1,7 @@
 stages:
   - deploy
 before_script:
+  - apt update
   - apt install git
 copy_to_mirror:
   script:
