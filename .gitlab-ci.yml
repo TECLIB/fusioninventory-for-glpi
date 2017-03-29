@@ -1,23 +1,59 @@
-'copy to mirror only for tags':
-  script:
-  - pwd
-  - git submodule update --init
-  - ls -l
-  - '# detect last tag of repo, if this build is a tag, so we can upload archive at
-    the end'
-  - VERSION=$(git describe --tags `git rev-list --tags --max-count=1`)
-  - echo $VERSION
-  - '# prepare filename'
-  - FI_FILENAME=fusioninventory-for-glpi_$VERSION.tar.gz
-  - '# remove previous archive (if exists)'
-  - rm -f $FI_FILENAME
-  - '# prepare archive'
-  - git archive --format=tar --prefix=fusioninventory/ $VERSION | gzip > $FI_FILENAME
-  - '# copy to mirror'
-  - scp $FI_FILENAME teclib@vm000139.paas.teclib.infra:/srv/releases/www/mirror
-  tags:
-  except:
-  - master
-  only:
-  - tags
+before_script:
+  # Install ssh-agent if not already installed, it is required by Docker.
+  # (change apt-get to yum if you use a CentOS-based image)
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
 
+  # Run ssh-agent (inside the build environment)
+  - eval $(ssh-agent -s)
+
+  # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+  - ssh-add <(echo "$SSH_PRIVATE_KEY")
+
+  # For Docker builds disable host key checking. Be aware that by adding that
+  # you are suspectible to man-in-the-middle attacks.
+  # WARNING: Use this only with the Docker executor, if you use it with shell
+  # you will overwrite your user's SSH config.
+  - mkdir -p ~/.ssh
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
+  # In order to properly check the server's host key, assuming you created the
+  # SSH_SERVER_HOSTKEYS variable previously, uncomment the following two lines
+  # instead.
+  # - mkdir -p ~/.ssh
+  # - '[[ -f /.dockerenv ]] && echo "$SSH_SERVER_HOSTKEYS" > ~/.ssh/known_hosts'
+stages:
+  - deploy
+copy_to_mirror:
+  script:
+    - pwd
+    - ls -l
+
+    # detect last tag of repo, if this build is a tag, so we can upload archive at the end
+    - VERSION=$CI_COMMIT_TAG
+    - echo $VERSION
+
+    # prepare filename
+    - FI_FILENAME=fusioninventory-for-glpi_$VERSION.tar.gz
+
+    # remove previous archive (if exists) and git
+    - rm -f $FI_FILENAME
+    - rm -rf .git
+
+    # prepare archive
+    - cd ..
+    - mv fusioninventory-for-glpi fusioninventory
+    - tar -czf $FI_FILENAME fusioninventory
+    - ls -l
+    # - git archive --format=tar --prefix=fusioninventory/ $VERSION | gzip > $FI_FILENAME
+
+    # copy to mirror'
+    - scp $FI_FILENAME teclib@vm000139.paas.teclib.infra:/srv/releases/www/mirror
+
+    # return to previous folder (to prevent runner to fail)
+    - mv fusioninventory fusioninventory-for-glpi
+    - cd fusioninventory-for-glpi
+  stage: deploy
+  except:
+    - master
+  only:
+    - tags
