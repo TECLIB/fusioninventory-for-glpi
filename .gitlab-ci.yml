@@ -48,6 +48,10 @@ copy_to_mirror:
 
     # copy to mirror'
     - scp $FI_FILENAME teclib@vm000139.paas.teclib.infra:/srv/releases/www/mirror
+
+    # return to previous folder (to prevent runner to fail)
+    - mv fusioninventory fusioninventory-for-glpi
+    - cd fusioninventory-for-glpi
   stage: deploy
   except:
     - master
