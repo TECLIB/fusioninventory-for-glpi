@@ -55,5 +55,5 @@ copy_to_mirror:
   stage: deploy
   except:
     - master
-#  only:
-#    - tags
+  only:
+    - tags
