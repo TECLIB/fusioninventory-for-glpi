@@ -35,8 +35,9 @@ copy_to_mirror:
     # prepare filename
     - FI_FILENAME=fusioninventory-for-glpi_$VERSION.tar.gz
 
-    # remove previous archive (if exists)
+    # remove previous archive (if exists) and git
     - rm -f $FI_FILENAME
+    - rm -rf .git
 
     # prepare archive
     - cd ..
