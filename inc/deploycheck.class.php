@@ -237,7 +237,6 @@ class PluginFusioninventoryDeployCheck {
             default :
                break;
          }
-         $check['value'] = PluginFusioninventoryDeployFile::processFilesize($check['value']);
 
          echo Search::showNewLine(Search::HTML_OUTPUT, ($i%2));
          if ($pfDeployPackage->can($package_id, UPDATE)) {
