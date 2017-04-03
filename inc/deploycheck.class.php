@@ -225,7 +225,6 @@ class PluginFusioninventoryDeployCheck {
       echo "<table class='tab_cadrehov package_item_list' id='table_check_$rand'>";
       $i = 0;
       foreach ($datas['jobs']['checks'] as $check) {
-         Toolbox::logDebug($check);
          switch ($check['type']) {
             case 'freespaceGreater':
                $check['value'] = $check['value'] * 1024 * 1024;
@@ -238,6 +237,7 @@ class PluginFusioninventoryDeployCheck {
             default :
                break;
          }
+         $check['value'] = PluginFusioninventoryDeployFile::processFilesize($check['value']);
 
          echo Search::showNewLine(Search::HTML_OUTPUT, ($i%2));
          if ($pfDeployPackage->can($package_id, UPDATE)) {
@@ -260,7 +260,6 @@ class PluginFusioninventoryDeployCheck {
           $check_label."</a><br />";
          $type_values = self::getLabelsAndTypes($check['type'], false);
          echo $type_values['path_label'].': '.$check['path'];
-
          if (!empty($check['value']) && $check['value'] != NOT_AVAILABLE) {
             echo "&nbsp;&nbsp;&nbsp;<b>";
             switch ($check['type']) {
