@@ -316,7 +316,10 @@ class PluginFusioninventoryDeployCheck {
       /*
        * Build actions types list
        */
-      $checks_types = self::getTypes();
+      $checks_types = [];
+      foreach (self::getTypes() as $label => $data) {
+         $checks_types+= $data;
+      }
       array_unshift($checks_types, "---");
 
       /*
