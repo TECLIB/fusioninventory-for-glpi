@@ -53,7 +53,19 @@ if (isset($_REQUEST['move_item'])) { //ajax request
    );
 
    if (Session::haveRight('plugin_fusioninventory_package', UPDATE)) {
-      PluginFusioninventoryDeployPackage::alter_json('move_item', $_REQUEST);
+      $params = [
+                  'old_index' => filter_input(INPUT_POST, "old_index"),
+                  'new_index' => filter_input(INPUT_POST, "new_index"),
+                  'id'        => filter_input(INPUT_POST, "id")
+               ];
+      $itemtype = filter_input(INPUT_POST, "itemtype");
+      if (class_exists($itemtype)) {
+         $itemtype::move_item($params);
+      } else {
+         Toolbox::logDebug("package subtype not found : " . $params['itemtype']);
+         Html::displayErrorAndDie ("package subtype not found");
+      }
+
    } else {
       $json_response['success'] = FALSE;
       $json_response['reason'] = __('Package modification is forbidden by your profile.');
@@ -67,34 +79,40 @@ if ( !isset($_REQUEST['orders_id']) && !isset($_REQUEST['rand']) && !isset($_REQ
    exit;
 }
 
-if ( !is_numeric($_REQUEST['orders_id']) ) {
-   Toolbox::logDebug("Error: orders_id in request is not an integer");
-   Toolbox::logDebug(var_dump($_REQUEST['orders_id']) );
-   exit;
-}
+   $pfDeployPackage = new PluginFusioninventoryDeployPackage();
+   $pfDeployPackage->getFromDB($orders_id);
 
-$order = new PluginFusioninventoryDeployOrder();
+   //TODO: In the displayForm function, $_REQUEST is somewhat too much for the '$datas' parameter
+   // I think we could use only $order -- Kevin 'kiniou' Roy
+   $input = [
+             'index'       => filter_input(INPUT_POST, "index"),
+             'value'       => filter_input(INPUT_POST, "value"),
+             'packages_id' => filter_input(INPUT_POST, "packages_id"),
+             'orders_id'   => filter_input(INPUT_POST, "orders_id"),
+            ];
+   $itemtype = filter_input(INPUT_POST, "subtype");
+   switch (filter_input(INPUT_POST, "subtype")) {
+      case 'check':
+         PluginFusioninventoryDeployCheck::displayForm(
+                 $pfDeployPackage, $input, $rand, $mode);
+         break;
 
-$order->getFromDB($_REQUEST['orders_id']);
+      case 'file':
+         PluginFusioninventoryDeployFile::displayForm(
+                 $pfDeployPackage, $input, $rand, $mode);
+         break;
 
+      case 'action':
+         PluginFusioninventoryDeployAction::displayForm(
+                 $pfDeployPackage, $input, $rand, $mode);
+         break;
 
-//TODO: In the displayForm function, $_REQUEST is somewhat too much for the '$datas' parameter
-// I think we could use only $order -- Kevin 'kiniou' Roy
-switch ($_REQUEST['subtype']) {
-   case 'check':
-      PluginFusioninventoryDeployCheck::displayForm($order, $_REQUEST, $_REQUEST['rand'], $_POST['mode']);
-      break;
-   case 'file':
-      PluginFusioninventoryDeployFile::displayForm($order, $_REQUEST, $_REQUEST['rand'], $_POST['mode']);
-      break;
-   case 'action':
-      PluginFusioninventoryDeployAction::displayForm($order, $_REQUEST, $_REQUEST['rand'], $_POST['mode']);
-      break;
-   case 'package_json_debug':
-      if ( isset($order->fields['json']) ) {
-         PluginFusioninventoryDeployPackage::display_json_debug($order);
-      } else {
-         echo "{}";
-      }
-      break;
+      case 'package_json_debug':
+         if (isset($order->fields['json'])) {
+            $pfDeployPackage->displayJSONDebug();
+         } else {
+            echo "{}";
+         }
+         break;
+   }
 }
