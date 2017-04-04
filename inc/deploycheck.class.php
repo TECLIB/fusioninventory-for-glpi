@@ -50,9 +50,11 @@ class PluginFusioninventoryDeployCheck {
       return [
                __('Registry', 'fusioninventory') => [
                   'winkeyExists'       => __("Registry key exists", 'fusioninventory'),
+                  'winvalueExists'     => __("Registry value exists", 'fusioninventory'),
                   'winkeyMissing'      => __("Registry key missing", 'fusioninventory'),
-                  'winkeyEquals'       => __("Registry key value equals to", 'fusioninventory'),
-                  'winkeyType'         => __("Registry key type equals to", 'fusioninventory'),
+                  'winvalueMissing'    => __("Registry value missing", 'fusioninventory'),
+                  'winkeyEquals'       => __("Registry value equals to", 'fusioninventory'),
+                  'winvalueType'       => __("Type of registry value equals to", 'fusioninventory'),
          ],
                __('File') => [
                   'fileExists'         => __("File exists", 'fusioninventory'),
@@ -64,7 +66,7 @@ class PluginFusioninventoryDeployCheck {
                   'fileSHA512mismatch' => __("SHA-512 hash value mismatch", 'fusioninventory'),
                ],
              __('Other') => [
-            'freespaceGreater'   => __("Free space is greater than", 'fusioninventory')
+               'freespaceGreater'   => __("Free space is greater than", 'fusioninventory')
             ]
       ];
    }
@@ -363,7 +365,7 @@ class PluginFusioninventoryDeployCheck {
    static function getValues($type, $data, $mode) {
       $values = array(
          'name_value'  => "",
-         'name_label'  => __('Name'),
+         'name_label'  => __('Audit name'),
          'name_type'   => "input",
          'path_label'  => "",
          'path_value'  => "",
@@ -405,18 +407,24 @@ class PluginFusioninventoryDeployCheck {
       switch ($check_type) {
          case "winkeyExists":
          case "winkeyMissing":
-            $values['path_label']  = __("Key", 'fusioninventory').$mandatory_mark;
+            $values['path_label']  = __("Path to the key", 'fusioninventory').$mandatory_mark;
+            $values['value_label'] = FALSE;
+            break;
+
+         case "winvalueExists":
+         case "winvalueMissing":
+            $values['path_label']  = __("Path to the value", 'fusioninventory').$mandatory_mark;
             $values['value_label'] = FALSE;
             break;
 
          case "winkeyEquals":
-            $values['path_label']  = __("Key", 'fusioninventory').$mandatory_mark;
-            $values['value_label'] = __('Key value', 'fusioninventory');
+            $values['path_label']  = __("Path to the value", 'fusioninventory').$mandatory_mark;
+            $values['value_label'] = __('Value', 'fusioninventory');
             break;
 
-         case "winkeyType":
-            $values['path_label']  = __("Key", 'fusioninventory').$mandatory_mark;
-            $values['value_label'] = __('Key type', 'fusioninventory').$mandatory_mark;
+         case "winvalueType":
+            $values['path_label']  = __("Path to the value", 'fusioninventory').$mandatory_mark;
+            $values['value_label'] = __('Type of value', 'fusioninventory').$mandatory_mark;
             $values['value_type']  = 'registry_type';
             break;
 
@@ -484,7 +492,8 @@ class PluginFusioninventoryDeployCheck {
          return FALSE;
       }
       echo "<table class='package_item'>";
-      echo "<th>".__('Name')."</th>";
+      echo "<tr>";
+      echo "<th>".__('Audit name')."</th>";
       echo "<td><input type='text' name='name' id='check_name{$rand}' value=\"{$values['name_value']}\" /></td>";
       echo "</tr>";
       echo "<tr>";
