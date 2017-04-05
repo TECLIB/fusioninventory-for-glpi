@@ -132,15 +132,6 @@ class PluginFusioninventoryDeployCheck {
       }
    }
 
-   static function getUnitLabel() {
-      return array(
-         "B"  => __("B", 'fusioninventory'),
-         "KB" => __("KiB", 'fusioninventory'),
-         "MB" => __("MiB", 'fusioninventory'),
-         "GB" => __("GiB", 'fusioninventory')
-      );
-   }
-
    static function getRegistryTypes() {
       return ['REG_BINARY'              => 'REG_BINARY',
               'REG_DWORD'               => 'REG_DWORD',
