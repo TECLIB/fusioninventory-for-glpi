@@ -1846,57 +1846,53 @@ class PluginFusioninventoryFormatconvert {
             if ((array)$value === $value) {
                $array[$key] = $this->replaceids($value, $itemtype, $items_id);
             } else {
-               if (!PluginFusioninventoryLock::isFieldLocked($a_lockable, $key)) {
-                  if (!is_numeric($key)
-                          && ($key == "manufacturers_id"
-                              || $key == 'bios_manufacturers_id')) {
-                     $manufacturer = new Manufacturer();
-                     $array[$key]  = $manufacturer->processName($value);
-                     if ($key == 'bios_manufacturers_id') {
-                        $this->foreignkey_itemtype[$key] =
-                                 getItemTypeForTable(getTableNameForForeignKeyField('manufacturers_id'));
-                     } else {
-                        if (isset($CFG_GLPI['plugin_fusioninventory_computermanufacturer'][$value])) {
-                           $CFG_GLPI['plugin_fusioninventory_computermanufacturer'][$value] = $array[$key];
-                        }
+               if (!is_numeric($key)
+                       && ($key == "manufacturers_id"
+                           || $key == 'bios_manufacturers_id')) {
+                  $manufacturer = new Manufacturer();
+                  $array[$key]  = $manufacturer->processName($value);
+                  if ($key == 'bios_manufacturers_id') {
+                     $this->foreignkey_itemtype[$key] =
+                              getItemTypeForTable(getTableNameForForeignKeyField('manufacturers_id'));
+                  } else {
+                     if (isset($CFG_GLPI['plugin_fusioninventory_computermanufacturer'][$value])) {
+                        $CFG_GLPI['plugin_fusioninventory_computermanufacturer'][$value] = $array[$key];
                      }
                   }
-                  if (!is_numeric($key)) {
-                     if ($key == "bios_manufacturers_id") {
-                        $array[$key] = Dropdown::importExternal($this->foreignkey_itemtype['manufacturers_id'],
-                                                                $value);
-                     } else if ($key == "locations_id") {
-                        $array[$key] = Dropdown::importExternal('Location',
-                                                                $value,
-                                                                $_SESSION["plugin_fusioninventory_entity"]);
-                     } else if (isset($this->foreignkey_itemtype[$key])) {
+               }
+               if (!is_numeric($key)) {
+                  if ($key == "bios_manufacturers_id") {
+                     $array[$key] = Dropdown::importExternal($this->foreignkey_itemtype['manufacturers_id'],
+                                                             $value);
+                  } else if ($key == "locations_id") {
+                     $array[$key] = Dropdown::importExternal('Location',
+                                                             $value,
+                                                             $_SESSION["plugin_fusioninventory_entity"]);
+                  } else if (isset($this->foreignkey_itemtype[$key])) {
+                     $array[$key] = Dropdown::importExternal($this->foreignkey_itemtype[$key],
+                                                             $value,
+                                                             $_SESSION["plugin_fusioninventory_entity"]);
+                  } else if (isForeignKeyField($key)
+                          && $key != "users_id") {
+                     $this->foreignkey_itemtype[$key] =
+                                 getItemTypeForTable(getTableNameForForeignKeyField($key));
+                     if ($key == 'computermodels_id') {
+                        if (isset($CFG_GLPI['plugin_fusioninventory_computermanufacturer'])) {
+                           $manufacturer = current($CFG_GLPI['plugin_fusioninventory_computermanufacturer']);
+                           $array[$key] = Dropdown::importExternal($this->foreignkey_itemtype[$key],
+                                                                   $value,
+                                                                   $_SESSION["plugin_fusioninventory_entity"],
+                                                                   array('manufacturer' => $manufacturer));
+                        } else {
+                           $array[$key] = 0;
+                        }
+                     } else {
+                        $table = getTableForItemType($this->foreignkey_itemtype[$key]);
                         $array[$key] = Dropdown::importExternal($this->foreignkey_itemtype[$key],
                                                                 $value,
                                                                 $_SESSION["plugin_fusioninventory_entity"]);
-                     } else if (isForeignKeyField($key)
-                             && $key != "users_id") {
-                        $this->foreignkey_itemtype[$key] =
-                                    getItemTypeForTable(getTableNameForForeignKeyField($key));
-                        if ($key == 'computermodels_id') {
-                           if (isset($CFG_GLPI['plugin_fusioninventory_computermanufacturer'])) {
-                              $manufacturer = current($CFG_GLPI['plugin_fusioninventory_computermanufacturer']);
-                              $array[$key] = Dropdown::importExternal($this->foreignkey_itemtype[$key],
-                                                                      $value,
-                                                                      $_SESSION["plugin_fusioninventory_entity"],
-                                                                      array('manufacturer' => $manufacturer));
-                           } else {
-                              $array[$key] = 0;
-                           }
-                        } else {
-                           $table = getTableForItemType($this->foreignkey_itemtype[$key]);
-                           $array[$key] = Dropdown::importExternal($this->foreignkey_itemtype[$key],
-                                                                   $value,
-                                                                   $_SESSION["plugin_fusioninventory_entity"]);
-                        }
                      }
                   }
-               } else {
-                  unset($array[$key]);
                }
             }
          }
