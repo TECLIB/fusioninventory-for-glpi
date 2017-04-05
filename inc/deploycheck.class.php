@@ -481,7 +481,8 @@ class PluginFusioninventoryDeployCheck {
    }
 
    static function displayAjaxValues($config, $request_data, $rand, $mode) {
-
+      global $CFG_GLPI;
+      
       $pfDeployPackage = new PluginFusioninventoryDeployPackage();
       $pfDeployOrder = new PluginFusioninventoryDeployOrder();
 
@@ -511,11 +512,6 @@ class PluginFusioninventoryDeployCheck {
       }
 
       echo "<table class='package_item'>";
-      if ($values['warning_message']) {
-         echo "<tr>";
-         echo "<td></td><td><span class='red'>".$values['warning_message']."</span></td>";
-         echo "</tr>";
-      }
 
       echo "<tr>";
       echo "<th>".__('Audit label')."</th>";
@@ -616,6 +612,21 @@ class PluginFusioninventoryDeployCheck {
       echo "</tr>";
 
       echo "<tr><td></td><td>";
+
+       if ($values['warning_message']) {
+          echo "<tr>";
+          echo "<td></td>";
+          echo "<td>";
+          echo "<img src='".$CFG_GLPI['root_doc']."/pics/warning_min.png'>";
+          echo "<span class='red'><i>".$values['warning_message']."</i></span></td>";
+          echo "</tr>";
+       }
+
+       echo "<tr>";
+       echo "<td>";
+       echo "</td>";
+       echo "<td>";
+
       if ($pfDeployPackage->can($pfDeployPackage->getID(), UPDATE)) {
          if ($mode === 'edit') {
             echo "<input type='submit' name='save_item' value=\"".
