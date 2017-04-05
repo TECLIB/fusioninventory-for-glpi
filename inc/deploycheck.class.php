@@ -371,16 +371,17 @@ class PluginFusioninventoryDeployCheck {
 
    static function getValues($type, $data, $mode) {
       $values = array(
-         'name_value'  => "",
-         'name_label'  => __('Audit label'),
-         'name_type'   => "input",
-         'path_label'  => "",
-         'path_value'  => "",
-         'path_comment'=> "",
-         'value_type'  => "input",
-         'value_label' => "",
-         'value'       => "",
-         'return'      => "error"
+         'warning_message' => false,
+         'name_value'      => "",
+         'name_label'      => __('Audit label'),
+         'name_type'       => "input",
+         'path_label'      => "",
+         'path_value'      => "",
+         'path_comment'    => "",
+         'value_type'      => "input",
+         'value_label'     => "",
+         'value'           => "",
+         'return'          => "error"
       );
 
       if ( $mode === 'edit' ) {
@@ -407,6 +408,7 @@ class PluginFusioninventoryDeployCheck {
    static function getLabelsAndTypes($check_type, $mandatory = false) {
       $values = [];
       if ($mandatory) {
+         //TODO replace for GLPI 9.2 by a fontawsome icon
          $mandatory_mark = "&nbsp;<span class='red'>*</span>";
       } else {
          $mandatory_mark = '';
@@ -418,26 +420,30 @@ class PluginFusioninventoryDeployCheck {
             $values['path_label']   = __("Path to the key", 'fusioninventory').$mandatory_mark;
             $values['value_label']  = FALSE;
             $values['path_comment'] = __('Example of registry key').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\\';
+            $values['warning_message'] = __('Fusioninventory-Agent 2.3.20 or higher recommended');
             break;
 
          case "winvalueExists":
          case "winvalueMissing":
-            $values['path_label']   = __("Path to the value", 'fusioninventory').$mandatory_mark;
-            $values['value_label']  = FALSE;
-            $values['path_comment'] = __('Example of registry value').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\server';
+            $values['path_label']      = __("Path to the value", 'fusioninventory').$mandatory_mark;
+            $values['value_label']     = FALSE;
+            $values['path_comment']    = __('Example of registry value').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\server';
+            $values['warning_message'] = __('Fusioninventory-Agent 2.3.20 or higher mandatory');
             break;
 
          case "winkeyEquals":
             $values['path_label']   = __("Path to the value", 'fusioninventory').$mandatory_mark;
             $values['value_label']  = __('Value', 'fusioninventory');
             $values['path_comment'] = __('Example of registry value').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\server';
+            $values['warning_message'] = __('Fusioninventory-Agent 2.3.20 or higher recommended');
             break;
 
          case "winvalueType":
-            $values['path_label']   = __("Path to the value", 'fusioninventory').$mandatory_mark;
-            $values['value_label']  = __('Type of value', 'fusioninventory').$mandatory_mark;
-            $values['value_type']   = 'registry_type';
-            $values['path_comment'] = __('Example of registry value').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\server';
+            $values['path_label']      = __("Path to the value", 'fusioninventory').$mandatory_mark;
+            $values['value_label']     = __('Type of value', 'fusioninventory').$mandatory_mark;
+            $values['value_type']      = 'registry_type';
+            $values['path_comment']    = __('Example of registry value').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\server';
+            $values['warning_message'] = __('Fusioninventory-Agent 2.3.20 or higher mandatory');
             break;
 
          case "fileExists":
@@ -505,6 +511,12 @@ class PluginFusioninventoryDeployCheck {
       }
 
       echo "<table class='package_item'>";
+      if ($values['warning_message']) {
+         echo "<tr>";
+         echo "<td></td><td><span class='red'>".$values['warning_message']."</span></td>";
+         echo "</tr>";
+      }
+
       echo "<tr>";
       echo "<th>".__('Audit label')."</th>";
       echo "<td><input type='text' name='name' id='check_name{$rand}' value=\"{$values['name_value']}\" /></td>";
