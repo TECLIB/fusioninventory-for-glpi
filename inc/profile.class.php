@@ -312,6 +312,10 @@ class PluginFusioninventoryProfile extends Profile {
                 'label'     =>  __('Equipment ignored on import', 'fusioninventory'),
                 'field'     => 'plugin_fusioninventory_ignoredimportdevice'
           ),
+          array('itemtype'  => 'PluginFusioninventoryTaskpostactionRule',
+                'label'     => __('Tasks post actions', 'fusioninventory'),
+                'field'     => 'plugin_fusioninventory_taskpostactionrule'
+         )          
       );
       return $rights;
    }

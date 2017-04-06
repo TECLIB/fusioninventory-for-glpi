@@ -268,7 +268,6 @@ function plugin_fusioninventory_getAddSearchOptions($itemtype) {
 
       $sopt += PluginFusioninventoryCollect::getSearchOptionsToAdd();
 
-
       $sopt[5197]['table']         = 'glpi_plugin_fusioninventory_agents';
       $sopt[5197]['field']         = 'last_contact';
       $sopt[5197]['linkfield']     = '';

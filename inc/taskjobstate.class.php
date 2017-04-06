@@ -452,20 +452,20 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
    function changeStatusFinish($taskjobstates_id, $items_id, $itemtype, $error=0, $message='') {
 
       $pfTaskjoblog = new PluginFusioninventoryTaskjoblog();
-      $pfTaskjob = new PluginFusioninventoryTaskjob();
+      $pfTaskjob    = new PluginFusioninventoryTaskjob();
 
       $this->getFromDB($taskjobstates_id);
-      $input = array();
-      $input['id'] = $this->fields['id'];
+      $input          = [];
+      $input['id']    = $this->fields['id'];
       $input['state'] = self::FINISHED;
 
       $log_input = array();
       if ($error == "1") {
          $log_input['state'] = PluginFusioninventoryTaskjoblog::TASK_ERROR;
-         $input['state'] = self::IN_ERROR;
+         $input['state']     = self::IN_ERROR;
       } else {
          $log_input['state'] = PluginFusioninventoryTaskjoblog::TASK_OK;
-         $input['state'] = self::FINISHED;
+         $input['state']     = self::FINISHED;
       }
 
       $this->update($input);
@@ -478,6 +478,10 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
       $pfTaskjoblog->add($log_input);
 
       $pfTaskjob->getFromDB($this->fields['plugin_fusioninventory_taskjobs_id']);
+
+      // launch taskpostaction
+      $postaction_input = array_merge($input, $log_input);
+      PluginFusioninventoryTaskpostactionRuleCollection::launchProcess($postaction_input, $this);
    }
 
 
