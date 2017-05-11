@@ -168,4 +168,3 @@ class PluginFusioninventoryIgnoredimportdevice extends CommonDBTM {
 
 }
 
-?>

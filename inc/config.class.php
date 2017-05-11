@@ -912,4 +912,3 @@ class PluginFusioninventoryConfig extends CommonDBTM {
    }
 }
 
-?>

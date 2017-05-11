@@ -17,7 +17,6 @@ function load_mysql_file($dbuser='', $dbhost='', $dbdefault='', $dbpassword='', 
 
    $cmd = $result . " " . $dbdefault . " < ". $file ." 2>&1";
 
-
    $returncode = 0;
    $output = array();
    exec(
@@ -25,7 +24,7 @@ function load_mysql_file($dbuser='', $dbhost='', $dbdefault='', $dbpassword='', 
       $output,
       $returncode
    );
-   array_unshift($output,"Output of '{$cmd}'");
+   array_unshift($output, "Output of '{$cmd}'");
    return array(
       'returncode'=>$returncode,
       'output' => $output
@@ -113,7 +112,6 @@ function drop_database($dbuser='', $dbhost='', $dbdefault='', $dbpassword='') {
 
    $cmd = 'echo "DROP DATABASE IF EXISTS \`'.$dbdefault .'\`; CREATE DATABASE \`'.$dbdefault.'\`" | ' . $cmd ." 2>&1";
 
-
    $returncode = 0;
    $output = array();
    exec(
@@ -121,7 +119,7 @@ function drop_database($dbuser='', $dbhost='', $dbdefault='', $dbpassword='') {
       $output,
       $returncode
    );
-   array_unshift($output,"Output of '{$cmd}'");
+   array_unshift($output, "Output of '{$cmd}'");
    return array(
       'returncode'=>$returncode,
       'output' => $output

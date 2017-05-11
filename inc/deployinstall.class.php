@@ -76,7 +76,7 @@ class PluginFusioninventoryDeployinstall extends PluginFusioninventoryDeployComm
     */
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
 
-      switch(get_class($item)) {
+      switch (get_class($item)) {
 
          case 'PluginFusioninventoryDeployPackage':
             return __('Package actions', 'fusioninventory');
@@ -95,7 +95,7 @@ class PluginFusioninventoryDeployinstall extends PluginFusioninventoryDeployComm
     * @return boolean
     */
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
-      switch(get_class($item)) {
+      switch (get_class($item)) {
 
          case 'PluginFusioninventoryDeployPackage':
             $item->displayOrderTypeForm();
@@ -106,4 +106,3 @@ class PluginFusioninventoryDeployinstall extends PluginFusioninventoryDeployComm
    }
 }
 
-?>

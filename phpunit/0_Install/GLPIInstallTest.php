@@ -44,9 +44,9 @@ class GLPIInstallTest extends PHPUnit_Framework_TestCase {
          "php -f ".GLPI_ROOT. "/tools/cliupdate.php -- --upgrade",
          $output, $returncode
       );
-      $this->assertEquals(0,$returncode,
+      $this->assertEquals(0, $returncode,
          "Error when update GLPI in CLI mode\n".
-         implode("\n",$output)
+         implode("\n", $output)
       );
 
       $this->assertEquals( 0, $result['returncode'],

@@ -260,7 +260,6 @@ class ComputerPrinter extends Common_TestCase {
       $input['value'] = '1';
       $ruleaction->add($input);
 
-
       // Add dictionnary rule for ignore import for printer p3
       $rulecollection = new RuleDictionnaryPrinterCollection();
       $rule = $rulecollection->getRuleClass();
@@ -428,4 +427,3 @@ class ComputerPrinter extends Common_TestCase {
 
 }
 
-?>

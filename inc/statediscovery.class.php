@@ -89,8 +89,8 @@ class PluginFusioninventoryStateDiscovery extends CommonDBTM {
                     || $field == 'nb_import') {
 
                 $input[$field] = $data[$process_id][$field] + $value;
-             } else {
-                $input[$field] = $value;
+            } else {
+               $input[$field] = $value;
             }
          }
          $this->update($input);
@@ -156,7 +156,6 @@ class PluginFusioninventoryStateDiscovery extends CommonDBTM {
          WHERE `method` = 'networkdiscovery'
          GROUP BY `uniqid`
          ORDER BY `uniqid` DESC ";
-
 
       $resultcount = $DB->query($querycount);
       $number = $DB->numrows($resultcount);
@@ -295,4 +294,3 @@ class PluginFusioninventoryStateDiscovery extends CommonDBTM {
    }
 }
 
-?>

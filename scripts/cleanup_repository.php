@@ -49,7 +49,7 @@ define ( 'REPOSITORY_PATH',
 class MyRecursiveFilterIterator extends RecursiveFilterIterator {
 
    public function accept() {
-      return !preg_match('/^\./',  $this->current()->getFilename());
+      return !preg_match('/^\./', $this->current()->getFilename());
    }
 
 }
@@ -214,7 +214,7 @@ function unregisterInvalidManifests($logger, $dryrun, $invalid_manifests) {
       foreach ($data as $config) {
          $pfDeployFile->getFromDB($config['id']);
          $logger->info("Unregister file " . $pfDeployFile->fields['name']);
-         if(!$dryrun) {
+         if (!$dryrun) {
             $pfDeployFile->deleteFromDB();
          }
       }
@@ -299,6 +299,6 @@ $logger->debug($valid_manifests );
 removeInvalidManifests($logger, $dryrun, $invalid_manifests, $valid_manifests);
 unregisterInvalidManifests($logger, $dryrun, $invalid_manifests);
 
-$logger->info( 'Memory used : ' .number_format(memory_get_usage(true)/1024/1024,3) . 'MiB');
-$logger->info( 'Memory used (emalloc): ' .number_format(memory_get_usage()/1024/1024,3) . 'MiB');
+$logger->info( 'Memory used : ' .number_format(memory_get_usage(true)/1024/1024, 3) . 'MiB');
+$logger->info( 'Memory used (emalloc): ' .number_format(memory_get_usage()/1024/1024, 3) . 'MiB');
 

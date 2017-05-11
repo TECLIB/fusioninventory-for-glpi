@@ -85,7 +85,7 @@ class PluginFusioninventoryWakeonlan extends PluginFusioninventoryCommunication 
          $itemtype = key($definition);
          $items_id = current($definition);
 
-         switch($itemtype) {
+         switch ($itemtype) {
 
             case 'Computer':
                $a_computers_to_wake[] = $items_id;
@@ -174,14 +174,12 @@ class PluginFusioninventoryWakeonlan extends PluginFusioninventoryCommunication 
                }
             }
          }
-      }
-      /*
+      } /*
        * Case 3 : dynamic agent
        */
       else if (strstr($pfTaskjob->fields['action'], '".1"')) {
          $a_agentList = $this->getAgentsSubnet(count($a_computers_to_wake), $communication);
-      }
-      /*
+      } /*
        * Case 4 : dynamic agent same subnet
        */
       else if (in_array('.2', $a_actions)) {
@@ -244,9 +242,9 @@ class PluginFusioninventoryWakeonlan extends PluginFusioninventoryCommunication 
                   $a_input['date'] = date("Y-m-d H:i:s");
                   $pfTaskjoblog->add($a_input);
                   unset($a_input['state']);
-                  if ($communication == "push") {
-                     $_SESSION['glpi_plugin_fusioninventory']['agents'][$agent_id] = 1;
-                  }
+               if ($communication == "push") {
+                  $_SESSION['glpi_plugin_fusioninventory']['agents'][$agent_id] = 1;
+               }
             }
          }
       }
@@ -274,52 +272,52 @@ class PluginFusioninventoryWakeonlan extends PluginFusioninventoryCommunication 
       $sxml_option->addChild('NAME', 'WAKEONLAN');
 
       $changestate = 0;
-//      foreach ($taskjobstates as $jobstate) {
+      //      foreach ($taskjobstates as $jobstate) {
          $data = $jobstate->fields;
          $a_networkPort = $NetworkPort->find("`itemtype`='Computer' AND `items_id`='".
                                                 $data['items_id']."' ");
          $computerip = 0;
-         foreach ($a_networkPort as $datanetwork) {
-            //if ($datanetwork['ip'] != "127.0.0.1") {
-               if ($datanetwork['mac'] != '') {
-                  $computerip++;
-                  $sxml_param = $sxml_option->addChild('PARAM');
-                  $sxml_param->addAttribute('MAC', $datanetwork['mac']);
-                  //$sxml_param->addAttribute('IP', $datanetwork['ip']);
+      foreach ($a_networkPort as $datanetwork) {
+         //if ($datanetwork['ip'] != "127.0.0.1") {
+         if ($datanetwork['mac'] != '') {
+            $computerip++;
+            $sxml_param = $sxml_option->addChild('PARAM');
+            $sxml_param->addAttribute('MAC', $datanetwork['mac']);
+            //$sxml_param->addAttribute('IP', $datanetwork['ip']);
 
-                  if ($changestate == '0') {
-                     $pfTaskjobstate->changeStatus($data['id'], 1);
-                     $pfTaskjoblog->addTaskjoblog($data['id'],
-                                             '0',
-                                             'Computer',
-                                             '1',
-                                             '');
-                     $changestate = $pfTaskjobstate->fields['id'];
-                  } else {
-                     $pfTaskjobstate->changeStatusFinish($data['id'],
-                                                         $data['items_id'],
-                                                         $data['itemtype'],
-                                                         0,
-                                                         "Merged with ".$changestate);
-                  }
+            if ($changestate == '0') {
+               $pfTaskjobstate->changeStatus($data['id'], 1);
+               $pfTaskjoblog->addTaskjoblog($data['id'],
+                                       '0',
+                                       'Computer',
+                                       '1',
+                                       '');
+               $changestate = $pfTaskjobstate->fields['id'];
+            } else {
+               $pfTaskjobstate->changeStatusFinish($data['id'],
+                                                   $data['items_id'],
+                                                   $data['itemtype'],
+                                                   0,
+                                                   "Merged with ".$changestate);
+            }
 
-                  // Update taskjobstate (state = 3 : finish); Because we haven't return of agent on this action
-                  $pfTaskjobstate->changeStatusFinish($data['id'],
-                                                      $data['items_id'],
-                                                      $data['itemtype'],
-                                                      0,
-                                                      'WakeOnLan have not return state');
-               }
-            //}
-         }
-         if ($computerip == '0') {
+            // Update taskjobstate (state = 3 : finish); Because we haven't return of agent on this action
             $pfTaskjobstate->changeStatusFinish($data['id'],
-                                                $data['items_id'],
-                                                $data['itemtype'],
-                                                1,
-                                                "No IP found on the computer");
-
+                                             $data['items_id'],
+                                             $data['itemtype'],
+                                             0,
+                                             'WakeOnLan have not return state');
          }
+         //}
+      }
+      if ($computerip == '0') {
+         $pfTaskjobstate->changeStatusFinish($data['id'],
+                                          $data['items_id'],
+                                          $data['itemtype'],
+                                          1,
+                                          "No IP found on the computer");
+
+      }
       //}
       return $this->message;
    }
@@ -430,4 +428,3 @@ class PluginFusioninventoryWakeonlan extends PluginFusioninventoryCommunication 
    }
 }
 
-?>

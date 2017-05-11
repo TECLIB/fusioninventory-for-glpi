@@ -76,7 +76,6 @@ class SoftwareUpdateTest extends RestoreDatabase_TestCase {
          $input['value']         = 1;
          $ruleAction->add($input);
 
-
       // * Add rule rename software
          $input = array();
          $input['sub_type']   = 'RuleDictionnarySoftware';
@@ -269,7 +268,6 @@ class SoftwareUpdateTest extends RestoreDatabase_TestCase {
       return;
       // TODO: recode this test (and verify all the tests in this file)
 
-
       $_SESSION["plugin_fusioninventory_entity"] = 0;
       $_SESSION["glpiname"] = 'Plugin_FusionInventory';
 
@@ -405,8 +403,5 @@ class SoftwareUpdateTest extends RestoreDatabase_TestCase {
       );
       $this->assertEquals($a_reference, $a_return);
 
-
-
    }
 }
-?>

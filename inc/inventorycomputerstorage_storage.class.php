@@ -192,4 +192,3 @@ class PluginFusioninventoryInventoryComputerStorage_Storage extends CommonDBTM {
    }
 }
 
-?>

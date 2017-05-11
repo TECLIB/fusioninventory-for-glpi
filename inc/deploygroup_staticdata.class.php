@@ -108,9 +108,9 @@ class PluginFusioninventoryDeployGroup_Staticdata extends CommonDBRelation{
                                   "`itemtype`='Computer'
                                     AND `plugin_fusioninventory_deploygroups_id`='".$item->getID()."'");
          if ($_SESSION['glpishow_count_on_tabs']) {
-            $tabs[2] = self::createTabEntry(_n('Associated item','Associated items', $count), $count);
+            $tabs[2] = self::createTabEntry(_n('Associated item', 'Associated items', $count), $count);
          } else {
-            $tabs[2] = _n('Associated item','Associated items', $count);
+            $tabs[2] = _n('Associated item', 'Associated items', $count);
          }
          return $tabs;
       }
@@ -210,4 +210,3 @@ class PluginFusioninventoryDeployGroup_Staticdata extends CommonDBRelation{
    }
 }
 
-?>

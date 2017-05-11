@@ -110,7 +110,7 @@ class PluginFusioninventoryDeployCommon extends PluginFusioninventoryCommunicati
          $itemtype = key($action);
          $items_id = current($action);
 
-         switch($itemtype) {
+         switch ($itemtype) {
 
             case 'Computer':
                if ($this->definitionFiltered("Computer", $definitions_filter)) {
@@ -291,7 +291,7 @@ class PluginFusioninventoryDeployCommon extends PluginFusioninventoryCommunicati
                   );
 
                   if (count($jobstates_running) == 0) {
-                     # Push the agent, in the stack of agent to awake
+                     // Push the agent, in the stack of agent to awake
                      if ($communication == "push") {
                         $_SESSION['glpi_plugin_fusioninventory']['agents'][$agents_id] = 1;
                      }
@@ -386,4 +386,3 @@ class PluginFusioninventoryDeployCommon extends PluginFusioninventoryCommunicati
    }
 }
 
-?>

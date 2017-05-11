@@ -1002,7 +1002,6 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
 
       $this->assertEquals(1, count($a_dataMonit), "Must have 1 monitor created");
 
-
       $a_dataLink = getAllDatasFromTable("glpi_computers_items",
                                          "`itemtype`='Monitor'
                                             AND `computers_id`='1'");
@@ -1225,4 +1224,3 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
    }
 }
 
-?>

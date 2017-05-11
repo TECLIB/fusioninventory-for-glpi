@@ -243,4 +243,3 @@ class RestURLTest extends RestoreDatabase_TestCase {
    }
 
 }
-?>

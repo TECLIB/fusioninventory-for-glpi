@@ -75,7 +75,6 @@ abstract class Common_TestCase extends PHPUnit_Framework_TestCase {
 
       require (GLPI_ROOT . "/inc/includes.php");
 
-
       $plugin = new Plugin();
       $DB->connect();
       $plugin->getFromDBbyDir("fusioninventory");
@@ -99,7 +98,6 @@ abstract class Common_TestCase extends PHPUnit_Framework_TestCase {
       }
 
       include_once (GLPI_ROOT . "/inc/timer.class.php");
-
 
       // Security of PHP_SELF
       $_SERVER['PHP_SELF']=Html::cleanParametersURL($_SERVER['PHP_SELF']);
@@ -166,13 +164,12 @@ abstract class Common_TestCase extends PHPUnit_Framework_TestCase {
       //
       //      spl_autoload_register('glpiautoload');
 
-//      restore_error_handler();
+      //      restore_error_handler();
 
-//      error_reporting(E_ALL | E_STRICT);
-//      ini_set('display_errors', 'On');
+      //      error_reporting(E_ALL | E_STRICT);
+      //      ini_set('display_errors', 'On');
       ini_set("memory_limit", "-1");
       ini_set("max_execution_time", "0");
-
 
    }
 

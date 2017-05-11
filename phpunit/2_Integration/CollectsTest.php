@@ -63,9 +63,8 @@ class CollectsTest extends RestoreDatabase_TestCase {
          'is_recursive' => '0',
          'type'         => 'registry',
          'is_active'    => 1
-     );
+      );
       $collects_id = $pfCollect->add($input);
-
 
       $input = array(
          'name'                                 => 'Registry collection',
@@ -104,8 +103,7 @@ class CollectsTest extends RestoreDatabase_TestCase {
    /**
     * @test
     */
-   public function getSearchOptionsToAdd()
-   {
+   public function getSearchOptionsToAdd() {
       $pfCollect = new PluginFusioninventoryCollect();
       $sopts = $pfCollect->getSearchOptionsToAdd();
 
@@ -285,7 +283,6 @@ class CollectsTest extends RestoreDatabase_TestCase {
       $GLPIlog->testSQLlogs();
       $GLPIlog->testPHPlogs();
 
-
       // Get jobs
       $result = file_get_contents("http://localhost:8088/plugins/fusioninventory/b/collect/index.php?action=getJobs&machineid=pc01");
       $this->assertEquals($result, '{"jobs":[{"function":"getFromRegistry","path":"HKEY_LOCAL_MACHINE\/software\/Wow6432Node\/TeamViewer\/*","uuid":"'.$jobstate['uniqid'].'","_sid":"'.$registry_tm.'"},'
@@ -455,7 +452,6 @@ class CollectsTest extends RestoreDatabase_TestCase {
       $GLPIlog = new GLPIlogs();
       $GLPIlog->testSQLlogs();
       $GLPIlog->testPHPlogs();
-
 
       // Get jobs
       $result = file_get_contents("http://localhost:8088/plugins/fusioninventory/b/collect/index.php?action=getJobs&machineid=pc01");
@@ -633,7 +629,6 @@ class CollectsTest extends RestoreDatabase_TestCase {
       $GLPIlog->testSQLlogs();
       $GLPIlog->testPHPlogs();
 
-
       // Get jobs
       $result = file_get_contents("http://localhost:8088/plugins/fusioninventory/b/collect/index.php?action=getJobs&machineid=pc01");
       $this->assertEquals($result, '{"jobs":[{"function":"findFile","dir":"C:Users\totoDesktop","limit":"10","recursive":"1","filter":{"is_file":"1","is_dir":"0"},"uuid":"'.$jobstate['uniqid'].'","_sid":"'.$registry_desktop.'"},'
@@ -677,7 +672,6 @@ class CollectsTest extends RestoreDatabase_TestCase {
 
       $GLPIlog->testSQLlogs();
       $GLPIlog->testPHPlogs();
-
 
       // answer 2
       $params = array(
@@ -762,8 +756,7 @@ class CollectsTest extends RestoreDatabase_TestCase {
    /**
     * @test
     */
-   public function testFilesCleanComputer()
-   {
+   public function testFilesCleanComputer() {
       global $DB;
 
       $DB->connect();
@@ -782,7 +775,7 @@ class CollectsTest extends RestoreDatabase_TestCase {
          'is_recursive' => '0',
          'type'         => 'registry',
          'is_active'    => 1
-     );
+      );
       $collects_id = $pfCollect->add($input);
       $input = array(
          'name'                                 => 'PHP files',
@@ -821,8 +814,7 @@ class CollectsTest extends RestoreDatabase_TestCase {
    /**
     * @test
     */
-   public function testRegistryCleanComputer()
-   {
+   public function testRegistryCleanComputer() {
       global $DB;
 
       $DB->connect();
@@ -841,7 +833,7 @@ class CollectsTest extends RestoreDatabase_TestCase {
          'is_recursive' => '0',
          'type'         => 'registry',
          'is_active'    => 1
-     );
+      );
       $collects_id = $pfCollect->add($input);
       $input = array(
          'name'                                 => 'Registry collection',
@@ -878,8 +870,7 @@ class CollectsTest extends RestoreDatabase_TestCase {
    /**
     * @test
     */
-   public function testWmiCleanComputer()
-   {
+   public function testWmiCleanComputer() {
       global $DB;
 
       $DB->connect();
@@ -898,7 +889,7 @@ class CollectsTest extends RestoreDatabase_TestCase {
          'is_recursive' => '0',
          'type'         => 'registry',
          'is_active'    => 1
-     );
+      );
       $collects_id = $pfCollect->add($input);
       $input = array(
           'name'                                => 'WMI',
@@ -964,7 +955,7 @@ class CollectsTest extends RestoreDatabase_TestCase {
          'is_recursive' => '0',
          'type'         => 'registry',
          'is_active'    => 1
-     );
+      );
       $collects_id = $pfCollect->add($input);
       $input = array(
           'name'                                => 'WMI',
@@ -995,7 +986,7 @@ class CollectsTest extends RestoreDatabase_TestCase {
          'is_recursive' => '0',
          'type'         => 'registry',
          'is_active'    => 1
-     );
+      );
       $collects_id = $pfCollect->add($input);
       $input = array(
          'name'                                 => 'PHP files',
@@ -1030,7 +1021,7 @@ class CollectsTest extends RestoreDatabase_TestCase {
          'is_recursive' => '0',
          'type'         => 'registry',
          'is_active'    => 1
-     );
+      );
       $collects_id = $pfCollect->add($input);
       $input = array(
          'name'                                 => 'Registry collection',
@@ -1055,7 +1046,6 @@ class CollectsTest extends RestoreDatabase_TestCase {
       $pfCollect_Registry_Contents->getFromDB(1);
 
       $this->assertEquals(5, count($pfCollect_Registry_Contents->fields));
-
 
       //delete computer and check if it has been removed
       $computer->delete(array('id' => $computers_id));

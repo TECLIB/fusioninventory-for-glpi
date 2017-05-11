@@ -96,7 +96,7 @@ echo "</table>";
 Html::closeForm();
 
 $networkports_id = filter_input(INPUT_GET, "networkports_id");
-if($networkports_id != '') {
+if ($networkports_id != '') {
    echo PluginFusioninventoryNetworkPortLog::showHistory($networkports_id);
 }
 
@@ -104,4 +104,3 @@ Html::closeForm();
 
 Html::footer();
 
-?>

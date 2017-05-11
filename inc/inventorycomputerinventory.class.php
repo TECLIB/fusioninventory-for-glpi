@@ -150,60 +150,60 @@ class PluginFusioninventoryInventoryComputerInventory {
       // * Hacks
 
          // Hack to put OS in software
-         if (isset($arrayinventory['CONTENT']['HARDWARE']['OSNAME'])) {
-            $inputos = array();
-            if (isset($arrayinventory['CONTENT']['HARDWARE']['OSCOMMENTS'])) {
-               $inputos['COMMENTS'] = $arrayinventory['CONTENT']['HARDWARE']['OSCOMMENTS'];
-            }
-            $inputos['NAME']     = $arrayinventory['CONTENT']['HARDWARE']['OSNAME'];
-            if (isset($arrayinventory['CONTENT']['HARDWARE']['OSVERSION'])) {
-               $inputos['VERSION']  = $arrayinventory['CONTENT']['HARDWARE']['OSVERSION'];
-            }
-            if (isset($arrayinventory['CONTENT']['SOFTWARES']['VERSION'])) {
-               $temparray = $arrayinventory['CONTENT']['SOFTWARES'];
-               $arrayinventory['CONTENT']['SOFTWARES'] = array();
-               $arrayinventory['CONTENT']['SOFTWARES'][] = $temparray;
-            }
-            $arrayinventory['CONTENT']['SOFTWARES'][] = $inputos;
+      if (isset($arrayinventory['CONTENT']['HARDWARE']['OSNAME'])) {
+         $inputos = array();
+         if (isset($arrayinventory['CONTENT']['HARDWARE']['OSCOMMENTS'])) {
+            $inputos['COMMENTS'] = $arrayinventory['CONTENT']['HARDWARE']['OSCOMMENTS'];
          }
+         $inputos['NAME']     = $arrayinventory['CONTENT']['HARDWARE']['OSNAME'];
+         if (isset($arrayinventory['CONTENT']['HARDWARE']['OSVERSION'])) {
+            $inputos['VERSION']  = $arrayinventory['CONTENT']['HARDWARE']['OSVERSION'];
+         }
+         if (isset($arrayinventory['CONTENT']['SOFTWARES']['VERSION'])) {
+            $temparray = $arrayinventory['CONTENT']['SOFTWARES'];
+            $arrayinventory['CONTENT']['SOFTWARES'] = array();
+            $arrayinventory['CONTENT']['SOFTWARES'][] = $temparray;
+         }
+         $arrayinventory['CONTENT']['SOFTWARES'][] = $inputos;
+      }
 
          // Hack for USB Printer serial
-         if (isset($arrayinventory['CONTENT']['PRINTERS'])) {
-            foreach ($arrayinventory['CONTENT']['PRINTERS'] as $key=>$printer) {
-               if ((isset($printer['SERIAL']))
-                       AND (preg_match('/\/$/', $printer['SERIAL']))) {
-                  $arrayinventory['CONTENT']['PRINTERS'][$key]['SERIAL'] =
-                        preg_replace('/\/$/', '', $printer['SERIAL']);
-               }
+      if (isset($arrayinventory['CONTENT']['PRINTERS'])) {
+         foreach ($arrayinventory['CONTENT']['PRINTERS'] as $key=>$printer) {
+            if ((isset($printer['SERIAL']))
+                    AND (preg_match('/\/$/', $printer['SERIAL']))) {
+               $arrayinventory['CONTENT']['PRINTERS'][$key]['SERIAL'] =
+                     preg_replace('/\/$/', '', $printer['SERIAL']);
             }
          }
+      }
 
          // Hack to remove Memories with Flash types see ticket
          // http://forge.fusioninventory.org/issues/1337
-         if (isset($arrayinventory['CONTENT']['MEMORIES'])) {
-            foreach ($arrayinventory['CONTENT']['MEMORIES'] as $key=>$memory) {
-               if ((isset($memory['TYPE']))
-                       AND (preg_match('/Flash/', $memory['TYPE']))) {
+      if (isset($arrayinventory['CONTENT']['MEMORIES'])) {
+         foreach ($arrayinventory['CONTENT']['MEMORIES'] as $key=>$memory) {
+            if ((isset($memory['TYPE']))
+                    AND (preg_match('/Flash/', $memory['TYPE']))) {
 
-                  unset($arrayinventory['CONTENT']['MEMORIES'][$key]);
-               }
+               unset($arrayinventory['CONTENT']['MEMORIES'][$key]);
             }
          }
+      }
       // End hack
       $a_computerinventory = PluginFusioninventoryFormatconvert::computerInventoryTransformation(
                                              $arrayinventory['CONTENT']);
 
       // Get tag is defined and put it in fusioninventory_agent table
          $tagAgent = "";
-         if (isset($a_computerinventory['ACCOUNTINFO'])) {
-            if (isset($a_computerinventory['ACCOUNTINFO']['KEYNAME'])
-                    && $a_computerinventory['ACCOUNTINFO']['KEYNAME'] == 'TAG') {
-               if (isset($a_computerinventory['ACCOUNTINFO']['KEYVALUE'])
-                       && $a_computerinventory['ACCOUNTINFO']['KEYVALUE'] != '') {
-                  $tagAgent = $a_computerinventory['ACCOUNTINFO']['KEYVALUE'];
-               }
+      if (isset($a_computerinventory['ACCOUNTINFO'])) {
+         if (isset($a_computerinventory['ACCOUNTINFO']['KEYNAME'])
+              && $a_computerinventory['ACCOUNTINFO']['KEYNAME'] == 'TAG') {
+            if (isset($a_computerinventory['ACCOUNTINFO']['KEYVALUE'])
+                    && $a_computerinventory['ACCOUNTINFO']['KEYVALUE'] != '') {
+               $tagAgent = $a_computerinventory['ACCOUNTINFO']['KEYVALUE'];
             }
          }
+      }
          $pfAgent = new PluginFusioninventoryAgent();
          $input = array();
          $input['id'] = $_SESSION['plugin_fusioninventory_agents_id'];
@@ -224,97 +224,97 @@ class PluginFusioninventoryInventoryComputerInventory {
 
       // Global criterias
 
-         if ((isset($a_computerinventory['Computer']['serial']))
+      if ((isset($a_computerinventory['Computer']['serial']))
                  AND (!empty($a_computerinventory['Computer']['serial']))) {
-            $input['serial'] = $a_computerinventory['Computer']['serial'];
-         }
-         if ((isset($a_computerinventory['Computer']['uuid']))
+         $input['serial'] = $a_computerinventory['Computer']['serial'];
+      }
+      if ((isset($a_computerinventory['Computer']['uuid']))
                  AND (!empty($a_computerinventory['Computer']['uuid']))) {
-            $input['uuid'] = $a_computerinventory['Computer']['uuid'];
-         }
-         if (isset($this->device_id) && !empty($this->device_id)) {
-            $input['device_id'] = $this->device_id;
-         }
+         $input['uuid'] = $a_computerinventory['Computer']['uuid'];
+      }
+      if (isset($this->device_id) && !empty($this->device_id)) {
+         $input['device_id'] = $this->device_id;
+      }
 
-         foreach ($a_computerinventory['networkport'] as $network) {
-            if (((isset($network['virtualdev']))
-                    && ($network['virtualdev'] != 1))
-                    OR (!isset($network['virtualdev']))) {
-               if ((isset($network['mac'])) AND (!empty($network['mac']))) {
-                  $input['mac'][] = $network['mac'];
-               }
-               foreach ($network['ipaddress'] as $ip) {
-                  if ($ip != '127.0.0.1' && $ip != '::1') {
-                     $input['ip'][] = $ip;
-                  }
-               }
-               if ((isset($network['subnet'])) AND (!empty($network['subnet']))) {
-                  $input['subnet'][] = $network['subnet'];
+      foreach ($a_computerinventory['networkport'] as $network) {
+         if (((isset($network['virtualdev']))
+              && ($network['virtualdev'] != 1))
+              OR (!isset($network['virtualdev']))) {
+            if ((isset($network['mac'])) AND (!empty($network['mac']))) {
+               $input['mac'][] = $network['mac'];
+            }
+            foreach ($network['ipaddress'] as $ip) {
+               if ($ip != '127.0.0.1' && $ip != '::1') {
+                  $input['ip'][] = $ip;
                }
             }
+            if ((isset($network['subnet'])) AND (!empty($network['subnet']))) {
+               $input['subnet'][] = $network['subnet'];
+            }
          }
+      }
          // Case of virtualmachines
-         if (!isset($input['mac'])
+      if (!isset($input['mac'])
                  && !isset($input['ip'])) {
-            foreach ($a_computerinventory['networkport'] as $network) {
-               if ((isset($network['mac'])) AND (!empty($network['mac']))) {
-                  $input['mac'][] = $network['mac'];
-               }
-               foreach ($network['ipaddress'] as $ip) {
-                  if ($ip != '127.0.0.1' && $ip != '::1') {
-                     $input['ip'][] = $ip;
-                  }
-               }
-               if ((isset($network['subnet'])) AND (!empty($network['subnet']))) {
-                  $input['subnet'][] = $network['subnet'];
+         foreach ($a_computerinventory['networkport'] as $network) {
+            if ((isset($network['mac'])) AND (!empty($network['mac']))) {
+               $input['mac'][] = $network['mac'];
+            }
+            foreach ($network['ipaddress'] as $ip) {
+               if ($ip != '127.0.0.1' && $ip != '::1') {
+                  $input['ip'][] = $ip;
                }
             }
+            if ((isset($network['subnet'])) AND (!empty($network['subnet']))) {
+               $input['subnet'][] = $network['subnet'];
+            }
          }
+      }
 
-         if ((isset($a_computerinventory['Computer']['os_license_number']))
+      if ((isset($a_computerinventory['Computer']['os_license_number']))
                AND (!empty($a_computerinventory['Computer']['os_license_number']))) {
-            $input['mskey'] = $a_computerinventory['Computer']['os_license_number'];
-         }
-         if ((isset($a_computerinventory['Computer']['operatingsystems_id']))
+         $input['mskey'] = $a_computerinventory['Computer']['os_license_number'];
+      }
+      if ((isset($a_computerinventory['Computer']['operatingsystems_id']))
                AND (!empty($a_computerinventory['Computer']['operatingsystems_id']))) {
-            $input['osname'] = $a_computerinventory['Computer']['operatingsystems_id'];
-         }
-         if ((isset($a_computerinventory['fusioninventorycomputer']['oscomment']))
+         $input['osname'] = $a_computerinventory['Computer']['operatingsystems_id'];
+      }
+      if ((isset($a_computerinventory['fusioninventorycomputer']['oscomment']))
                AND (!empty($a_computerinventory['fusioninventorycomputer']['oscomment']))) {
-            $input['oscomment'] = $a_computerinventory['fusioninventorycomputer']['oscomment'];
-         }
-         if ((isset($a_computerinventory['Computer']['computermodels_id']))
+         $input['oscomment'] = $a_computerinventory['fusioninventorycomputer']['oscomment'];
+      }
+      if ((isset($a_computerinventory['Computer']['computermodels_id']))
                  AND (!empty($a_computerinventory['Computer']['computermodels_id']))) {
-            $input['model'] = $a_computerinventory['Computer']['computermodels_id'];
-         }
-         if ((isset($a_computerinventory['Computer']['domains_id']))
+         $input['model'] = $a_computerinventory['Computer']['computermodels_id'];
+      }
+      if ((isset($a_computerinventory['Computer']['domains_id']))
                  AND (!empty($a_computerinventory['Computer']['domains_id']))) {
-            $input['domains_id'] = $a_computerinventory['Computer']['domains_id'];
-         }
+         $input['domains_id'] = $a_computerinventory['Computer']['domains_id'];
+      }
 
          // TODO
-//         if (isset($arrayinventory['CONTENT']['STORAGES'])) {
-//            foreach ($arrayinventory['CONTENT']['STORAGES'] as $storage) {
-//               if ((isset($storage['SERIALNUMBER'])) AND (!empty($storage['SERIALNUMBER']))) {
-//                  $input['partitionserial'][] = $storage['SERIALNUMBER'];
-//               }
-//            }
-//         }
-//         if (isset($arrayinventory['CONTENT']['computerdisk'])) {
-//            foreach ($arrayinventory['CONTENT']['DRIVES'] as $drive) {
-//               if ((isset($drive['SERIAL'])) AND (!empty($drive['SERIAL']))) {
-//                  $input['hdserial'][] = $drive['SERIAL'];
-//               }
-//            }
-//         }
+      //         if (isset($arrayinventory['CONTENT']['STORAGES'])) {
+      //            foreach ($arrayinventory['CONTENT']['STORAGES'] as $storage) {
+      //               if ((isset($storage['SERIALNUMBER'])) AND (!empty($storage['SERIALNUMBER']))) {
+      //                  $input['partitionserial'][] = $storage['SERIALNUMBER'];
+      //               }
+      //            }
+      //         }
+      //         if (isset($arrayinventory['CONTENT']['computerdisk'])) {
+      //            foreach ($arrayinventory['CONTENT']['DRIVES'] as $drive) {
+      //               if ((isset($drive['SERIAL'])) AND (!empty($drive['SERIAL']))) {
+      //                  $input['hdserial'][] = $drive['SERIAL'];
+      //               }
+      //            }
+      //         }
          $input['tag'] = $tagAgent;
 
-         if ((isset($a_computerinventory['Computer']['name']))
+      if ((isset($a_computerinventory['Computer']['name']))
                  AND ($a_computerinventory['Computer']['name'] != '')) {
-            $input['name'] = $a_computerinventory['Computer']['name'];
-         } else {
-            $input['name'] = '';
-         }
+         $input['name'] = $a_computerinventory['Computer']['name'];
+      } else {
+         $input['name'] = '';
+      }
          $input['itemtype'] = "Computer";
 
          // If transfer is disable, get entity and search only on this entity
@@ -322,40 +322,40 @@ class PluginFusioninventoryInventoryComputerInventory {
 
          // * entity rules
             $inputent = $input;
-            if ((isset($a_computerinventory['Computer']['domains_id']))
+      if ((isset($a_computerinventory['Computer']['domains_id']))
                     AND (!empty($a_computerinventory['Computer']['domains_id']))) {
-               $inputent['domain'] = $a_computerinventory['Computer']['domains_id'];
-            }
-            if (isset($inputent['serial'])) {
-               $inputent['serialnumber'] = $inputent['serial'];
-            }
+         $inputent['domain'] = $a_computerinventory['Computer']['domains_id'];
+      }
+      if (isset($inputent['serial'])) {
+         $inputent['serialnumber'] = $inputent['serial'];
+      }
             $ruleEntity = new PluginFusioninventoryInventoryRuleEntityCollection();
 
             // * Reload rules (required for unit tests)
             $ruleEntity->getCollectionPart();
 
             $dataEntity = $ruleEntity->processAllRules($inputent, array());
-            if (isset($dataEntity['_ignore_import'])) {
-               return;
-            }
+      if (isset($dataEntity['_ignore_import'])) {
+         return;
+      }
 
-            if (isset($dataEntity['entities_id'])
+      if (isset($dataEntity['entities_id'])
                     && $dataEntity['entities_id'] >= 0) {
-               $_SESSION["plugin_fusioninventory_entity"] = $dataEntity['entities_id'];
-               $input['entities_id'] = $dataEntity['entities_id'];
+         $_SESSION["plugin_fusioninventory_entity"] = $dataEntity['entities_id'];
+         $input['entities_id'] = $dataEntity['entities_id'];
 
-            } else if (isset($dataEntity['entities_id'])
+      } else if (isset($dataEntity['entities_id'])
                     && $dataEntity['entities_id'] == -1) {
-               $input['entities_id'] = 0;
-               $_SESSION["plugin_fusioninventory_entity"] = -1;
-            } else {
-               $input['entities_id'] = 0;
-               $_SESSION["plugin_fusioninventory_entity"] = 0;
-            }
+         $input['entities_id'] = 0;
+         $_SESSION["plugin_fusioninventory_entity"] = -1;
+      } else {
+         $input['entities_id'] = 0;
+         $_SESSION["plugin_fusioninventory_entity"] = 0;
+      }
 
-            if (isset($dataEntity['locations_id'])) {
-               $_SESSION['plugin_fusioninventory_locations_id'] = $dataEntity['locations_id'];
-            }
+      if (isset($dataEntity['locations_id'])) {
+         $_SESSION['plugin_fusioninventory_locations_id'] = $dataEntity['locations_id'];
+      }
          // End entity rules
       $_SESSION['plugin_fusioninventory_classrulepassed'] =
                      "PluginFusioninventoryInventoryComputerInventory";
@@ -392,7 +392,7 @@ class PluginFusioninventoryInventoryComputerInventory {
          if ((isset($a_computerinventory['Computer']['domains_id']))
                     AND (!empty($a_computerinventory['Computer']['domains_id']))) {
                $inputdb['domain'] = $a_computerinventory['Computer']['domains_id'];
-            }
+         }
          if (isset($a_computerinventory['Computer']['serial'])) {
             $inputdb['serial'] = $a_computerinventory['Computer']['serial'];
          }
@@ -530,7 +530,7 @@ class PluginFusioninventoryInventoryComputerInventory {
                $a_computerinventory['Computer']['locations_id'] =
                                  $_SESSION['plugin_fusioninventory_locations_id'];
                unset($_SESSION['plugin_fusioninventory_locations_id']);
-            }
+         }
 
          $serialized = gzcompress(serialize($a_computerinventory));
          $a_computerinventory['fusioninventorycomputer']['serialized_inventory'] =
@@ -709,4 +709,3 @@ class PluginFusioninventoryInventoryComputerInventory {
    }
 }
 
-?>

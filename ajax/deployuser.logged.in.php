@@ -57,4 +57,3 @@ if (!isset($_SESSION["glpiname"])) {
 
 echo json_encode($loggedin);
 
-?>

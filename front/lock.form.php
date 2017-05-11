@@ -68,4 +68,3 @@ if (isset($_POST["unlock_field_fusioninventory"])) {
 
 Html::footer();
 
-?>

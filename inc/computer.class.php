@@ -114,14 +114,14 @@ class PluginFusioninventoryComputer extends Computer {
             $actions['PluginFusioninventoryComputer'.MassiveAction::CLASS_ACTION_SEPARATOR.'add']
                = _x('button', 'Add');
             $actions['PluginFusioninventoryComputer'.MassiveAction::CLASS_ACTION_SEPARATOR.'deleteitem']
-               = _x('button','Delete permanently');
+               = _x('button', 'Delete permanently');
       } else {
          if ($_POST['custom_action'] == 'add_to_group') {
             $actions['PluginFusioninventoryComputer'.MassiveAction::CLASS_ACTION_SEPARATOR.'add']
                = _x('button', 'Add');
-         } elseif ($_POST['custom_action'] == 'delete_from_group') {
+         } else if ($_POST['custom_action'] == 'delete_from_group') {
             $actions['PluginFusioninventoryComputer'.MassiveAction::CLASS_ACTION_SEPARATOR.'deleteitem']
-               = _x('button','Delete permanently');
+               = _x('button', 'Delete permanently');
          }
       }
       return $actions;
@@ -216,4 +216,3 @@ class PluginFusioninventoryComputer extends Computer {
 
 }
 
-?>

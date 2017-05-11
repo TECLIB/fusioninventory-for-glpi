@@ -166,7 +166,7 @@ class PluginFusioninventoryTimeslot extends CommonDBTM {
    function getTimeslotEntries($timeslot_ids = array(), $weekdays = null) {
 
       $condition = array(
-         "`plugin_fusioninventory_timeslots_id` in ('".implode("','",$timeslot_ids)."')",
+         "`plugin_fusioninventory_timeslots_id` in ('".implode("','", $timeslot_ids)."')",
       );
       if (!is_null($weekdays)) {
          $condition[] = "and `day` = '".$weekdays."'";
@@ -240,7 +240,7 @@ class PluginFusioninventoryTimeslot extends CommonDBTM {
          $datetime = new DateTime();
       }
       $dateday = new DateTime( $datetime->format("Y-m-d 0:0:0") );
-      $timeslot_cursor = date_create('@0')->add($dateday->diff($datetime,true))->getTimestamp();
+      $timeslot_cursor = date_create('@0')->add($dateday->diff($datetime, true))->getTimestamp();
       return $timeslot_cursor;
    }
 
@@ -260,7 +260,7 @@ class PluginFusioninventoryTimeslot extends CommonDBTM {
 
       echo "<tr class='tab_bg_1'>";
       //TRANS: %1$s is a string, %2$s a second one without spaces between them : to change for RTL
-      echo "<td>".sprintf(__('%1$s%2$s'),__('Name'),
+      echo "<td>".sprintf(__('%1$s%2$s'), __('Name'),
                           (isset($options['withtemplate']) && $options['withtemplate']?"*":"")).
            "</td>";
       echo "<td>";
@@ -284,4 +284,3 @@ class PluginFusioninventoryTimeslot extends CommonDBTM {
    }
 }
 
-?>

@@ -179,7 +179,7 @@ class PluginFusioninventoryLock extends CommonDBTM{
          $typeright = "networking";
       }
       if (Session::haveRight($typeright, UPDATE)) {
-        $can = 1;
+         $can = 1;
       }
 
       $tableName = getTableForItemType($p_itemtype);
@@ -359,7 +359,7 @@ class PluginFusioninventoryLock extends CommonDBTM{
          $typeright = "networking";
       }
       if (Session::haveRight($typeright, UPDATE)) {
-        $can = 1;
+         $can = 1;
       }
 
       $tableName = getTableForItemType($itemtype);
@@ -574,7 +574,7 @@ class PluginFusioninventoryLock extends CommonDBTM{
                $pfl->delete($pfl->fields);
             }
          }
-      } elseif (count($p_fieldsToLock)) {    // no locks --> new locks
+      } else if (count($p_fieldsToLock)) {    // no locks --> new locks
          $input = array();
          $input['tablename']     = $tableName;
          $input['items_id']      = $p_items_id;
@@ -617,7 +617,7 @@ class PluginFusioninventoryLock extends CommonDBTM{
             $pfl->fields['tablefields'] = exportArrayToDB($p_fieldsToLock);
             $pfl->update($pfl->fields);
          }
-      } elseif (count($p_fieldsToLock)) {    // no locks --> new locks
+      } else if (count($p_fieldsToLock)) {    // no locks --> new locks
 
          $input = array();
          $input['tablename']     = $tableName;
@@ -970,4 +970,3 @@ class PluginFusioninventoryLock extends CommonDBTM{
    }
 }
 
-?>

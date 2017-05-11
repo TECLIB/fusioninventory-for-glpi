@@ -48,7 +48,7 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
     * Nortel
     */
 
-/*
+   /*
           <CONNECTIONS>
             <CDP>1</CDP>
             <CONNECTION>
@@ -56,13 +56,13 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
               <SYSMAC>00:24:b5:bd:c8:01</SYSMAC>
             </CONNECTION>
           </CONNECTIONS>
-*/
+   */
 
    /*
     * Cisco
     */
 
-/*
+   /*
           <CONNECTIONS>
             <CDP>1</CDP>
             <CONNECTION>
@@ -70,9 +70,9 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
               <IP>192.168.200.124</IP>
             </CONNECTION>
           </CONNECTIONS>
-*/
+   */
 
-/*
+   /*
           <CONNECTIONS>
             <CDP>1</CDP>
             <CONNECTION>
@@ -83,14 +83,14 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
               <SYSNAME>juniperswitch3</SYSNAME>
             </CONNECTION>
           </CONNECTIONS>
-*/
+   */
 
 
    /*
     * Procurve
     */
 
-/*
+   /*
           <CONNECTIONS>
             <CDP>1</CDP>
             <CONNECTION>
@@ -98,9 +98,9 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
               <IP>10.226.164.55</IP>
             </CONNECTION>
           </CONNECTIONS>
-*/
+   */
 
-/*
+   /*
           <CONNECTIONS>
             <CDP>1</CDP>
             <CONNECTION>
@@ -111,7 +111,7 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
               <SYSNAME>0x78acc0146cc0</SYSNAME>
             </CONNECTION>
           </CONNECTIONS>
-*/
+   */
 
 
 
@@ -179,7 +179,6 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
       $this->assertEquals(2,
                           count($a_networkports),
                           'May have 2 network ports ('.print_r($a_networkports, TRUE).')');
-
 
       $a_ref = array(
           'id'                => 1,
@@ -259,7 +258,6 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
                           count($a_networkports),
                           'May have 2 network ports ('.print_r($a_networkports, TRUE).')');
 
-
       $a_ref = array(
           'id'                => 1,
           'networkports_id_1' => $networkports_id,
@@ -310,7 +308,6 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
           'entities_id' => 0
       ));
 
-
       $pfINetworkEquipmentLib->importConnectionLLDP($a_lldp, $networkports_id);
 
       $a_portslinks = getAllDatasFromTable('glpi_networkports_networkports');
@@ -324,7 +321,6 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
       $this->assertEquals(2,
                           count($a_networkports),
                           'May have 2 network ports ('.print_r($a_networkports, TRUE).')');
-
 
       $a_ref = array(
           'id'                => 1,
@@ -431,7 +427,6 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
                           count($a_networkports),
                           'May have 3 network ports ('.print_r($a_networkports, TRUE).')');
 
-
       $a_ref = array(
           'id'                => 1,
           'networkports_id_1' => $networkports_id,
@@ -511,7 +506,6 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
           'name' => '192.168.200.124'
       ));
 
-
       $pfINetworkEquipmentLib->importConnectionLLDP($a_lldp, $networkports_id);
 
       $a_portslinks = getAllDatasFromTable('glpi_networkports_networkports');
@@ -531,7 +525,6 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
       $this->assertEquals(1,
                           count($a_unknowns),
                           'May have only one unknown device ('.print_r($a_unknowns, TRUE).')');
-
 
       $a_networkport_ref = array(
           'id'                 => '3',
@@ -553,7 +546,6 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
                           $networkport->fields,
                           'New unknown port created');
 
-
       $a_ref = array(
           'id'                => 1,
           'networkports_id_1' => $networkports_id,
@@ -563,7 +555,6 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
       $this->assertEquals($a_ref,
                           current($a_portslinks),
                           'Link port');
-
 
    }
 
@@ -604,7 +595,6 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
           'items_id'    => $networkequipments_id,
           'entities_id' => 0
       ));
-
 
       $pfINetworkEquipmentLib->importConnectionLLDP($a_lldp, $networkports_id);
 
@@ -703,7 +693,6 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
                           count($a_networkports),
                           'May have 2 network ports ('.print_r($a_networkports, TRUE).')');
 
-
       $a_ref = array(
           'id'                => 1,
           'networkports_id_1' => $networkports_id,
@@ -745,4 +734,3 @@ class NetworkEquipmentLLDPTest extends Common_TestCase {
    }
 
 }
-?>

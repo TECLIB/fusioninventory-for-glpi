@@ -68,7 +68,6 @@ function pluginFusioninventoryInstall($version, $migrationname='Migration') {
 
    $migration->displayMessage("Installation of plugin FusionInventory");
 
-
    // Get informations of plugin
 
    /*
@@ -128,10 +127,9 @@ function pluginFusioninventoryInstall($version, $migrationname='Migration') {
          $sql = "SELECT * FROM `glpi_networkports`
             WHERE `itemtype`='5153'";
          $result=$DB->query($sql);
-         while ($data=$DB->fetch_array($result)) {
-            $networkPort->delete(array('id'=>$data['id']), 1);
-         }
-
+   while ($data=$DB->fetch_array($result)) {
+      $networkPort->delete(array('id'=>$data['id']), 1);
+   }
 
    /*
     * Remove old rules
@@ -139,87 +137,86 @@ function pluginFusioninventoryInstall($version, $migrationname='Migration') {
       $migration->displayMessage("Clean rules from old installation of the plugin");
       $Rule = new Rule();
       $a_rules = $Rule->find("`sub_type`='PluginFusioninventoryInventoryRuleImport'");
-      foreach ($a_rules as $data) {
-         $Rule->delete($data);
-      }
+   foreach ($a_rules as $data) {
+      $Rule->delete($data);
+   }
       $a_rules = $Rule->find("`sub_type`='PluginFusinvinventoryRuleEntity'");
-      foreach ($a_rules as $data) {
-         $Rule->delete($data);
-      }
+   foreach ($a_rules as $data) {
+      $Rule->delete($data);
+   }
 
       $a_rules = $Rule->find("`sub_type`='PluginFusinvinventoryRuleLocation'");
-      foreach ($a_rules as $data) {
-         $Rule->delete($data);
-      }
-
+   foreach ($a_rules as $data) {
+      $Rule->delete($data);
+   }
 
    /*
     * Create DB structure
     */
       $migration->displayMessage("Creation tables in database");
       $DB_file = GLPI_ROOT ."/plugins/fusioninventory/install/mysql/plugin_fusioninventory-empty.sql";
-      if (!$DB->runFile($DB_file)) {
-         $migration->displayMessage("Error on creation tables in database");
-      }
-      if (!$DB->runFile(GLPI_ROOT ."/plugins/fusioninventory/install/mysql/usbid.sql")) {
-         $migration->displayMessage("Error on creation table usbid in database");
-      }
-      if (!$DB->runFile(GLPI_ROOT ."/plugins/fusioninventory/install/mysql/pciid.sql")) {
-         $migration->displayMessage("Error on creation table pciid in database");
-      }
-      if (!$DB->runFile(GLPI_ROOT ."/plugins/fusioninventory/install/mysql/oui.sql")) {
-         $migration->displayMessage("Error on creation table oui in database");
-      }
+   if (!$DB->runFile($DB_file)) {
+      $migration->displayMessage("Error on creation tables in database");
+   }
+   if (!$DB->runFile(GLPI_ROOT ."/plugins/fusioninventory/install/mysql/usbid.sql")) {
+      $migration->displayMessage("Error on creation table usbid in database");
+   }
+   if (!$DB->runFile(GLPI_ROOT ."/plugins/fusioninventory/install/mysql/pciid.sql")) {
+      $migration->displayMessage("Error on creation table pciid in database");
+   }
+   if (!$DB->runFile(GLPI_ROOT ."/plugins/fusioninventory/install/mysql/oui.sql")) {
+      $migration->displayMessage("Error on creation table oui in database");
+   }
 
    /*
     * Creation of folders
     */
       $migration->displayMessage("Creation of folders");
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory');
-      }
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/tmp')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/tmp');
-      }
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml');
-      }
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml/computer')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml/computer');
-      }
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml/printer')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml/printer');
-      }
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml/networkequipment')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml/networkequipment');
-      }
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/upload')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/upload');
-      }
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/walks')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/walks');
-      }
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/tmpmodels')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/tmpmodels');
-      }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory');
+   }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/tmp')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/tmp');
+   }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml');
+   }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml/computer')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml/computer');
+   }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml/printer')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml/printer');
+   }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml/networkequipment')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/xml/networkequipment');
+   }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/upload')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/upload');
+   }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/walks')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/walks');
+   }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/tmpmodels')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/tmpmodels');
+   }
    /*
     * Deploy folders
     */
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files');
-      }
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/repository')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/repository');
-      }
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/manifests')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/manifests');
-      }
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/import')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/import');
-      }
-      if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/export')) {
-         mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/export');
-      }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files');
+   }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/repository')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/repository');
+   }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/manifests')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/manifests');
+   }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/import')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/import');
+   }
+   if (!is_dir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/export')) {
+      mkdir(GLPI_PLUGIN_DOC_DIR.'/fusioninventory/files/export');
+   }
 
    /*
     * Manage profiles
@@ -236,10 +233,9 @@ function pluginFusioninventoryInstall($version, $migrationname='Migration') {
          WHERE `itemtype`='PluginFusioninventoryUnmanaged'
             AND `glpi_plugin_fusioninventory_unmanageds`.`id` IS NULL ";
       $result=$DB->query($sql);
-      while ($data=$DB->fetch_array($result)) {
-         $networkPort->delete(array('id'=>$data['nid']), 1);
-      }
-
+   while ($data=$DB->fetch_array($result)) {
+      $networkPort->delete(array('id'=>$data['nid']), 1);
+   }
 
    /*
     * Add config
@@ -250,9 +246,6 @@ function pluginFusioninventoryInstall($version, $migrationname='Migration') {
 
       $configLogField = new PluginFusioninventoryConfigLogField();
       $configLogField->initConfig();
-
-
-
 
    /*
     * Register Agent TASKS
@@ -301,7 +294,6 @@ function pluginFusioninventoryInstall($version, $migrationname='Migration') {
       $input['exceptions'] = exportArrayToDB(array());
       $pfAgentmodule->add($input);
 
-
    /*
     * Add cron task
     */
@@ -329,13 +321,9 @@ function pluginFusioninventoryInstall($version, $migrationname='Migration') {
       $pfSetup = new PluginFusioninventorySetup();
       $pfSetup->initRules();
 
-
    /*
     * Add notification for configuration management
     */
-
-
-
 
    /*
     *  Import OCS locks
@@ -344,10 +332,8 @@ function pluginFusioninventoryInstall($version, $migrationname='Migration') {
       $pfLock = new PluginFusioninventoryLock();
       $pfLock->importFromOcs();
 
-
    CronTask::Register('PluginFusioninventoryTaskjobstate', 'cleantaskjob', (3600 * 24),
                       array('mode' => 2, 'allowmode' => 3, 'logs_lifetime' => 30));
-
 
    $pfNetworkporttype = new PluginFusioninventoryNetworkporttype();
    $pfNetworkporttype->init();
@@ -372,9 +358,7 @@ function pluginFusioninventoryInstall($version, $migrationname='Migration') {
               . "`agent_base_url`='".$agent_base_url."' WHERE id=1");
    }
 
-
    $mode_cli = (basename($_SERVER['SCRIPT_NAME']) == "cli_install.php");
 
 }
 
-?>

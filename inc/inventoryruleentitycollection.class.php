@@ -100,4 +100,3 @@ class PluginFusioninventoryInventoryRuleEntityCollection extends RuleCollection 
    }
 }
 
-?>

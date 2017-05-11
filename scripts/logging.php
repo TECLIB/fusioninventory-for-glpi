@@ -44,7 +44,7 @@ class Logging {
             $msg[] = $message;
          }
       }
-      return $loglevel['name'] . ': '. implode("\n",$msg);
+      return $loglevel['name'] . ': '. implode("\n", $msg);
    }
 
    function printlog($msg="", $loglevel) {
@@ -89,4 +89,3 @@ class Logging {
    }
 }
 
-?>

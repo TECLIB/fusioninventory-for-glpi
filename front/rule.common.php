@@ -176,22 +176,22 @@ Html::header(_n('Rule', 'Rules', 2), $_SERVER['PHP_SELF'], "admin", $rulecollect
              $rulecollection->menu_option);
 
    $tabs = array();
-   if ($rulecollection->showInheritedTab()) {
-      $tabs[0] = array(
-                   'title'  => __('Rules applied', 'fusioninventory').' : '.
-                                   Dropdown::getDropdownName('glpi_entities',
-                                                             $_SESSION['glpiactive_entity']),
-                   'url'    => $CFG_GLPI['root_doc']."/plugins/fusioninventory/ajax/rules.tabs.php",
-                   'params' => "target=".$_SERVER['PHP_SELF']."&glpi_tab=1&inherited=1&itemtype=".
-                                    get_class($rulecollection));
-   }
+if ($rulecollection->showInheritedTab()) {
+   $tabs[0] = array(
+             'title'  => __('Rules applied', 'fusioninventory').' : '.
+                             Dropdown::getDropdownName('glpi_entities',
+                                                       $_SESSION['glpiactive_entity']),
+             'url'    => $CFG_GLPI['root_doc']."/plugins/fusioninventory/ajax/rules.tabs.php",
+             'params' => "target=".$_SERVER['PHP_SELF']."&glpi_tab=1&inherited=1&itemtype=".
+                              get_class($rulecollection));
+}
 
    $title = _n('Rule', 'Rules', 2);
 
-   if ($rulecollection->isRuleRecursive()) {
-      $title = __('Local rules', 'fusioninventory').' : '.
-                     Dropdown::getDropdownName('glpi_entities', $_SESSION['glpiactive_entity']);
-   }
+if ($rulecollection->isRuleRecursive()) {
+   $title = __('Local rules', 'fusioninventory').' : '.
+               Dropdown::getDropdownName('glpi_entities', $_SESSION['glpiactive_entity']);
+}
    $tabs[1] = array('title'  => $title,
                    'url'    => $CFG_GLPI['root_doc']."/plugins/fusioninventory/ajax/rules.tabs.php",
                    'params' => "target=".$_SERVER['PHP_SELF']."&glpi_tab=0&inherited=0&itemtype=".
@@ -213,6 +213,5 @@ Html::header(_n('Rule', 'Rules', 2), $_SERVER['PHP_SELF'], "admin", $rulecollect
    echo "<div id='tabcontent'>&nbsp;</div>";
    echo "<script type='text/javascript'>loadDefaultTab();</script>";
 
-Html::footer();
+   Html::footer();
 
-?>

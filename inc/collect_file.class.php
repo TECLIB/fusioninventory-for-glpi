@@ -301,4 +301,3 @@ class PluginFusioninventoryCollect_File extends CommonDBTM {
    }
 }
 
-?>

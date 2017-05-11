@@ -180,7 +180,6 @@ class PluginFusioninventoryUnmanaged extends CommonDBTM {
       $tab[9]['name']      = __('Domain');
       $tab[9]['datatype']  = 'dropdown';
 
-
       $tab[10]['table']     = $this->getTable();
       $tab[10]['field']     = 'comment';
       $tab[10]['linkfield'] = 'comment';
@@ -366,7 +365,7 @@ class PluginFusioninventoryUnmanaged extends CommonDBTM {
       echo "<tr class='tab_bg_1'>";
       echo "<td align='center'>" . __('Name') . "&nbsp;:</td>";
       echo "<td align='center'>";
-      Html::autocompletionTextField($this,'name', array('size' => 35));
+      Html::autocompletionTextField($this, 'name', array('size' => 35));
       echo "</td>";
 
       if (Session::isMultiEntitiesMode()) {
@@ -402,7 +401,7 @@ class PluginFusioninventoryUnmanaged extends CommonDBTM {
       echo "<td align='center'>" . __('Alternate username') . "&nbsp;:</td>";
       echo "</td>";
       echo "<td align='center'>";
-      Html::autocompletionTextField($this,'contact', array('size' => 35));
+      Html::autocompletionTextField($this, 'contact', array('size' => 35));
       echo "</td>";
       echo "</tr>";
 
@@ -430,7 +429,7 @@ class PluginFusioninventoryUnmanaged extends CommonDBTM {
       echo "<td align='center'>" . __('Serial Number') . "&nbsp;:</td>";
       echo "</td>";
       echo "<td align='center'>";
-      Html::autocompletionTextField($this,'serial', array('size' => 35));
+      Html::autocompletionTextField($this, 'serial', array('size' => 35));
       echo "</td>";
       echo "</tr>";
 
@@ -442,7 +441,7 @@ class PluginFusioninventoryUnmanaged extends CommonDBTM {
       echo "<td align='center'>" . __('Inventory number') . "&nbsp;:</td>";
       echo "</td>";
       echo "<td align='center'>";
-      Html::autocompletionTextField($this,'otherserial', array('size' => 35));
+      Html::autocompletionTextField($this, 'otherserial', array('size' => 35));
       echo "</td>";
       echo "</tr>";
 
@@ -450,7 +449,7 @@ class PluginFusioninventoryUnmanaged extends CommonDBTM {
          echo "<tr class='tab_bg_1'>";
          echo "<td align='center'>" . __('IP') . " :</td>";
          echo "<td align='center'>";
-         Html::autocompletionTextField($this,'ip', array('size' => 35));
+         Html::autocompletionTextField($this, 'ip', array('size' => 35));
          echo "</td>";
 
          echo "<td colspan='2'></td>";
@@ -553,7 +552,7 @@ class PluginFusioninventoryUnmanaged extends CommonDBTM {
 
 
 
-// ************************* Hub Management ************************ //
+   // ************************* Hub Management ************************ //
 
    /**
     * Manage a hub (many mac on a port mean you have a hub)
@@ -597,7 +596,6 @@ class PluginFusioninventoryUnmanaged extends CommonDBTM {
       $h_input['id'] = $hub_id;
       $h_input['comment'] = "Port : ".$pfNetworkport->fields['networkports_id'];
       $this->update($h_input);
-
 
       // Get all ports connected to this hub
       $a_portglpi = array();
@@ -859,7 +857,7 @@ class PluginFusioninventoryUnmanaged extends CommonDBTM {
 
 
 
-// *************************** end hub management ****************************** //
+   // *************************** end hub management ****************************** //
 
    /**
     * Purge unmanaged devices
@@ -972,9 +970,9 @@ class PluginFusioninventoryUnmanaged extends CommonDBTM {
             $data["domain"] = $this->fields["domain"];
             $data["comment"] = $this->fields["comment"];
             $data["is_dynamic"] = 1;
-//            $data_Port = current($a_NetworkPorts);
-//            $data["ip"] = $data_Port["ip"];
-//            $data["mac"] = $data_Port["mac"];
+            //            $data_Port = current($a_NetworkPorts);
+            //            $data["ip"] = $data_Port["ip"];
+            //            $data["mac"] = $data_Port["mac"];
             $NetworkEquipment_id = $NetworkEquipment->add($data);
 
             foreach ($a_NetworkPorts as $data_Port) {
@@ -1101,4 +1099,3 @@ class PluginFusioninventoryUnmanaged extends CommonDBTM {
    }
 }
 
-?>

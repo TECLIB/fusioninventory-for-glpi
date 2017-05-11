@@ -232,7 +232,6 @@ class ComputerMonitor extends Common_TestCase {
                           countElementsInTable('glpi_computers_items', 'itemtype="Monitor"'),
                           'First computer (links) (3)');
 
-
       // * Retry first computer with monitor
       $a_computerinventory = $this->a_computer1;
       $pfiComputerLib->updateComputer($a_computerinventory,
@@ -253,4 +252,3 @@ class ComputerMonitor extends Common_TestCase {
                           'First computer (number id of links recreated) (4)');
    }
 }
-?>

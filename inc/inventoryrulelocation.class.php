@@ -181,10 +181,8 @@ class PluginFusioninventoryInventoryRuleLocation extends Rule {
       $criterias['tag']['field']     = 'name';
       $criterias['tag']['name']      = __('FusionInventory tag', 'fusioninventory');
 
-
       $criterias['domain']['field']     = 'name';
       $criterias['domain']['name']      = __('Domain');
-
 
       $criterias['subnet']['field']     = 'name';
       $criterias['subnet']['name']      = __('Subnet');
@@ -192,10 +190,8 @@ class PluginFusioninventoryInventoryRuleLocation extends Rule {
       $criterias['ip']['field']     = 'name';
       $criterias['ip']['name']      = __('Address')." ".__('IP');
 
-
       $criterias['name']['field']     = 'name';
       $criterias['name']['name']      = __('Computer\'s name');
-
 
       $criterias['serial']['field']     = 'name';
       $criterias['serial']['name']      = __('Serial number');
@@ -223,12 +219,12 @@ class PluginFusioninventoryInventoryRuleLocation extends Rule {
       $actions['locations_id']['table'] = 'glpi_locations';
       $actions['locations_id']['force_actions'] = array('assign', 'regex_result');
 
-/*
+      /*
       $actions['_affect_entity_by_tag']['name'] = __('Entity from TAG');
 
       $actions['_affect_entity_by_tag']['type'] = 'text';
       $actions['_affect_entity_by_tag']['force_actions'] = array('regex_result');
-*/
+      */
       $actions['_ignore_import']['name'] =
                      __('Ignore in FusionInventory import', 'fusioninventory');
 
@@ -314,7 +310,7 @@ class PluginFusioninventoryInventoryRuleLocation extends Rule {
          list ($subnet, $bits) = explode('/', $pattern);
          $subnet = ip2long($subnet);
          $mask = -1 << (32 - $bits);
-         $subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
+         $subnet &= $mask; // nb: in case the supplied subnet wasn't correctly aligned
 
          if (is_array($value)) {
             foreach ($value as $ip) {
@@ -343,7 +339,7 @@ class PluginFusioninventoryInventoryRuleLocation extends Rule {
          list ($subnet, $bits) = explode('/', $pattern);
          $subnet = ip2long($subnet);
          $mask = -1 << (32 - $bits);
-         $subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
+         $subnet &= $mask; // nb: in case the supplied subnet wasn't correctly aligned
 
          if (is_array($value)) {
             $resarray = TRUE;
@@ -369,4 +365,3 @@ class PluginFusioninventoryInventoryRuleLocation extends Rule {
    }
 }
 
-?>

@@ -201,4 +201,3 @@ class NetworkEquipmentUpdateDiscovery extends RestoreDatabase_TestCase {
    }
 
 }
-?>

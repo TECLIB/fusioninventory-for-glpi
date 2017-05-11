@@ -248,7 +248,7 @@ class PluginFusioninventoryTimeslotEntry extends CommonDBTM {
           $daysofweek[7] => array(),
       );
 
-      for ($day=1 ; $day <= 7; $day++) {
+      for ($day=1; $day <= 7; $day++) {
          $dbentries = getAllDatasFromTable(
                         'glpi_plugin_fusioninventory_timeslotentries',
                         "`plugin_fusioninventory_timeslots_id`='".$timeslots_id."'
@@ -415,4 +415,3 @@ class PluginFusioninventoryTimeslotEntry extends CommonDBTM {
    }
 }
 
-?>

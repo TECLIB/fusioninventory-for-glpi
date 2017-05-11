@@ -87,4 +87,3 @@ class PluginFusioninventoryInventoryComputerChemistry extends CommonDropdown {
    }
 }
 
-?>

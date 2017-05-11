@@ -73,7 +73,6 @@ class NetworkDiscoveryTest extends RestoreDatabase_TestCase {
       );
       $pfAgent->add($input);
 
-
       $input = array(
           'entities_id' => 0,
           'name'        => 'computer2'
@@ -90,7 +89,6 @@ class NetworkDiscoveryTest extends RestoreDatabase_TestCase {
       );
       $pfAgent->add($input);
 
-
       $input = array(
           'entities_id' => 0,
           'name'        => 'computer3'
@@ -106,7 +104,6 @@ class NetworkDiscoveryTest extends RestoreDatabase_TestCase {
           'computers_id'=> $computers_id
       );
       $pfAgent->add($input);
-
 
       // Add IPRange
       $input = array(
@@ -150,7 +147,6 @@ class NetworkDiscoveryTest extends RestoreDatabase_TestCase {
       );
       $pfTaskjob->add($input);
 
-
       // create task
       $input = array(
           'entities_id' => 0,
@@ -183,7 +179,7 @@ class NetworkDiscoveryTest extends RestoreDatabase_TestCase {
       $DB->connect();
 
       PluginFusioninventoryTask::cronTaskscheduler();
-      
+
       $pfTask = new PluginFusioninventoryTask();
 
       $data = $pfTask->getJoblogs(array(1));
@@ -217,4 +213,3 @@ class NetworkDiscoveryTest extends RestoreDatabase_TestCase {
    }
 
 }
-?>

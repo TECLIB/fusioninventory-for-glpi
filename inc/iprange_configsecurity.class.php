@@ -72,7 +72,7 @@ class PluginFusioninventoryIPRange_ConfigSecurity extends CommonDBRelation {
     *
     * @var string
     */
-   static public $take_entity_1 = true ;
+   static public $take_entity_1 = true;
 
    /**
     * Itemtype for the second part of relation
@@ -93,7 +93,7 @@ class PluginFusioninventoryIPRange_ConfigSecurity extends CommonDBRelation {
     *
     * @var string
     */
-   static public $take_entity_2 = false ;
+   static public $take_entity_2 = false;
 
 
 
@@ -243,4 +243,3 @@ class PluginFusioninventoryIPRange_ConfigSecurity extends CommonDBRelation {
    }
 }
 
-?>

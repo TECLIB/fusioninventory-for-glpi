@@ -48,4 +48,3 @@ include ("../../../inc/includes.php");
 
 $dropdown = new PluginFusioninventoryComputerOperatingSystem();
 include (GLPI_ROOT . "/front/dropdown.common.form.php");
-?>

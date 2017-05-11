@@ -83,78 +83,78 @@ class PluginFusioninventoryToolbox {
     */
    static function gzdecode($data, &$filename='', &$error='', $maxlength=NULL) {
        $len = strlen($data);
-       if ($len < 18 || strcmp(substr($data, 0, 2), "\x1f\x8b")) {
-           $error = "Not in GZIP format.";
-           return NULL;  // Not GZIP format (See RFC 1952)
-       }
+      if ($len < 18 || strcmp(substr($data, 0, 2), "\x1f\x8b")) {
+         $error = "Not in GZIP format.";
+         return NULL;  // Not GZIP format (See RFC 1952)
+      }
        $method = ord(substr($data, 2, 1));  // Compression method
        $flags  = ord(substr($data, 3, 1));  // Flags
-       if ($flags & 31 != $flags) {
-           $error = "Reserved bits not allowed.";
-           return NULL;
-       }
+      if ($flags & 31 != $flags) {
+         $error = "Reserved bits not allowed.";
+         return NULL;
+      }
        // NOTE: $mtime may be negative (PHP integer limitations)
-//       $a_mtime = unpack("V", substr($data, 4, 4));
-//       $mtime = $a_mtime[1];
+      //       $a_mtime = unpack("V", substr($data, 4, 4));
+      //       $mtime = $a_mtime[1];
        $headerlen = 10;
        $extralen  = 0;
        $extra     = "";
-       if ($flags & 4) {
-           // 2-byte length prefixed EXTRA data in header
-           if ($len - $headerlen - 2 < 8) {
-               return FALSE;  // invalid
-           }
-           $a_extralen = unpack("v", substr($data, 8, 2));
-           $extralen = $a_extralen[1];
-           if ($len - $headerlen - 2 - $extralen < 8) {
-               return FALSE;  // invalid
-           }
-           $extra = substr($data, 10, $extralen);
-           $headerlen += 2 + $extralen;
-       }
+      if ($flags & 4) {
+         // 2-byte length prefixed EXTRA data in header
+         if ($len - $headerlen - 2 < 8) {
+            return FALSE;  // invalid
+         }
+         $a_extralen = unpack("v", substr($data, 8, 2));
+         $extralen = $a_extralen[1];
+         if ($len - $headerlen - 2 - $extralen < 8) {
+            return FALSE;  // invalid
+         }
+         $extra = substr($data, 10, $extralen);
+         $headerlen += 2 + $extralen;
+      }
        $filenamelen = 0;
        $filename = "";
-       if ($flags & 8) {
-           // C-style string
-           if ($len - $headerlen - 1 < 8) {
-               return FALSE; // invalid
-           }
-           $filenamelen = strpos(substr($data, $headerlen), chr(0));
-           if ($filenamelen === FALSE || $len - $headerlen - $filenamelen - 1 < 8) {
-               return FALSE; // invalid
-           }
-           $filename = substr($data, $headerlen, $filenamelen);
-           $headerlen += $filenamelen + 1;
-       }
+      if ($flags & 8) {
+         // C-style string
+         if ($len - $headerlen - 1 < 8) {
+            return FALSE; // invalid
+         }
+         $filenamelen = strpos(substr($data, $headerlen), chr(0));
+         if ($filenamelen === FALSE || $len - $headerlen - $filenamelen - 1 < 8) {
+            return FALSE; // invalid
+         }
+         $filename = substr($data, $headerlen, $filenamelen);
+         $headerlen += $filenamelen + 1;
+      }
        $commentlen = 0;
        $comment = "";
-       if ($flags & 16) {
-           // C-style string COMMENT data in header
-           if ($len - $headerlen - 1 < 8) {
-               return FALSE;    // invalid
-           }
-           $commentlen = strpos(substr($data, $headerlen), chr(0));
-           if ($commentlen === FALSE || $len - $headerlen - $commentlen - 1 < 8) {
-               return FALSE;    // Invalid header format
-           }
-           $comment = substr($data, $headerlen, $commentlen);
-           $headerlen += $commentlen + 1;
-       }
+      if ($flags & 16) {
+         // C-style string COMMENT data in header
+         if ($len - $headerlen - 1 < 8) {
+            return FALSE;    // invalid
+         }
+         $commentlen = strpos(substr($data, $headerlen), chr(0));
+         if ($commentlen === FALSE || $len - $headerlen - $commentlen - 1 < 8) {
+            return FALSE;    // Invalid header format
+         }
+         $comment = substr($data, $headerlen, $commentlen);
+         $headerlen += $commentlen + 1;
+      }
        $headercrc = "";
-       if ($flags & 2) {
-           // 2-bytes (lowest order) of CRC32 on header present
-           if ($len - $headerlen - 2 < 8) {
-               return FALSE;    // invalid
-           }
-           $calccrc = crc32(substr($data, 0, $headerlen)) & 0xffff;
-           $a_headercrc = unpack("v", substr($data, $headerlen, 2));
-           $headercrc = $a_headercrc[1];
-           if ($headercrc != $calccrc) {
-               $error = "Header checksum failed.";
-               return FALSE;    // Bad header CRC
-           }
-           $headerlen += 2;
-       }
+      if ($flags & 2) {
+         // 2-bytes (lowest order) of CRC32 on header present
+         if ($len - $headerlen - 2 < 8) {
+            return FALSE;    // invalid
+         }
+         $calccrc = crc32(substr($data, 0, $headerlen)) & 0xffff;
+         $a_headercrc = unpack("v", substr($data, $headerlen, 2));
+         $headercrc = $a_headercrc[1];
+         if ($headercrc != $calccrc) {
+            $error = "Header checksum failed.";
+            return FALSE;    // Bad header CRC
+         }
+         $headerlen += 2;
+      }
        // GZIP FOOTER
        $a_datacrc = unpack("V", substr($data, -8, 4));
        $datacrc = sprintf('%u', $a_datacrc[1] & 0xFFFFFFFF);
@@ -162,31 +162,31 @@ class PluginFusioninventoryToolbox {
        $isize = $a_isize[1];
        // decompression:
        $bodylen = $len-$headerlen-8;
-       if ($bodylen < 1) {
-           // IMPLEMENTATION BUG!
-           return NULL;
-       }
+      if ($bodylen < 1) {
+         // IMPLEMENTATION BUG!
+         return NULL;
+      }
        $body = substr($data, $headerlen, $bodylen);
        $data = "";
-       if ($bodylen > 0) {
-           switch ($method) {
-           case 8:
+      if ($bodylen > 0) {
+         switch ($method) {
+            case 8:
                // Currently the only supported compression method:
                $data = gzinflate($body, $maxlength);
                break;
-           default:
+            default:
                $error = "Unknown compression method.";
                return FALSE;
-           }
-       }  // zero-byte body content is allowed
+         }
+      }  // zero-byte body content is allowed
        // Verifiy CRC32
        $crc   = sprintf("%u", crc32($data));
        $crcOK = $crc == $datacrc;
        $lenOK = $isize == strlen($data);
-       if (!$lenOK || !$crcOK) {
-           $error = ( $lenOK ? '' : 'Length check FAILED. ') . ( $crcOK ? '' : 'Checksum FAILED.');
-           return FALSE;
-       }
+      if (!$lenOK || !$crcOK) {
+         $error = ( $lenOK ? '' : 'Length check FAILED. ') . ( $crcOK ? '' : 'Checksum FAILED.');
+         return FALSE;
+      }
        return $data;
    }
 
@@ -231,9 +231,9 @@ class PluginFusioninventoryToolbox {
    function cleanXML($xml) {
       $nodes = array();
       foreach ($xml->children() as $key=>$value) {
-        if (!isset($nodes[$key])) {
-           $nodes[$key] = 0;
-        }
+         if (!isset($nodes[$key])) {
+            $nodes[$key] = 0;
+         }
          $nodes[$key]++;
       }
       foreach ($nodes as $key=>$nb) {
@@ -280,10 +280,10 @@ class PluginFusioninventoryToolbox {
          // 1. open and closing tags on same line - no change
          if (preg_match('/.+<\/\w[^>]*>$/', $token, $matches)) {
             $indent=0;
-         // 2. closing tag - outdent now
+            // 2. closing tag - outdent now
          } else if (preg_match('/^<\/\w/', $token, $matches)) {
             $pad = $pad-3;
-         // 3. opening tag - don't pad this one, only subsequent tags
+            // 3. opening tag - don't pad this one, only subsequent tags
          } else if (preg_match('/^<\w[^>]*[^\/]>.*$/', $token, $matches)) {
             $indent=3;
          } else {
@@ -351,7 +351,7 @@ class PluginFusioninventoryToolbox {
             $sxml_authentication->addAttribute('USERNAME',
                                                $pfConfigSecurity->fields['username']);
             if ($pfConfigSecurity->fields['authentication'] == '0') {
-//                  $sxml_authentication->addAttribute('AUTHPROTOCOL', '');
+               //                  $sxml_authentication->addAttribute('AUTHPROTOCOL', '');
             } else {
                $sxml_authentication->addAttribute('AUTHPROTOCOL',
                       $pfConfigSecurity->getSNMPAuthProtocol(
@@ -360,7 +360,7 @@ class PluginFusioninventoryToolbox {
             $sxml_authentication->addAttribute('AUTHPASSPHRASE',
                                                $pfConfigSecurity->fields['auth_passphrase']);
             if ($pfConfigSecurity->fields['encryption'] == '0') {
-//                  $sxml_authentication->addAttribute('PRIVPROTOCOL', '');
+               //                  $sxml_authentication->addAttribute('PRIVPROTOCOL', '');
             } else {
                $sxml_authentication->addAttribute('PRIVPROTOCOL',
                               $pfConfigSecurity->getSNMPEncryption(
@@ -481,10 +481,10 @@ class PluginFusioninventoryToolbox {
     */
    static function displaySerializedValues($array) {
 
-//      TODO: to fix in 0.85
-//      if ($_POST['glpi_tab'] == -1) { // tab all
-//         return;
-//      }
+      //      TODO: to fix in 0.85
+      //      if ($_POST['glpi_tab'] == -1) { // tab all
+      //         return;
+      //      }
 
       foreach ($array as $key=>$value) {
          echo "<tr class='tab_bg_1'>";
@@ -649,7 +649,7 @@ class PluginFusioninventoryToolbox {
       $values   = array();
 
       $p['step'] = $p['step'] * 60; // to have in seconds
-      for ($s=$p['begin'] ; $s<=$p['end'] ; $s+=$p['step']) {
+      for ($s=$p['begin']; $s<=$p['end']; $s+=$p['step']) {
          $values[$s] = PluginFusioninventoryToolbox::getHourMinute($s);
       }
       return Dropdown::showFromArray($name, $values, $p);
@@ -746,4 +746,3 @@ class PluginFusioninventoryToolbox {
    }
 }
 
-?>

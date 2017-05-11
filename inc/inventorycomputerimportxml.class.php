@@ -113,4 +113,3 @@ class PluginFusioninventoryInventoryComputerImportXML extends CommonDBTM  {
    }
 }
 
-?>

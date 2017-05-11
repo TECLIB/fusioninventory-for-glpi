@@ -162,40 +162,39 @@ class SoftwareVersionAddTest extends RestoreDatabase_TestCase {
        $soft_ids = array_keys($software->find());
        $csoftv_ids = array_keys($csv->find());
 
-
        // update with install_date
        $dates = array(
            array('06/02/2014', '27/01/2014'),
            array('10/05/2016', '27/11/2015'),
        );
-       foreach ($dates as $data_date) {
-          $arrayinventory['CONTENT']['SOFTWARES'][0]['INSTALLDATE'] = $data_date[0];
-          $arrayinventory['CONTENT']['SOFTWARES'][1]['INSTALLDATE'] = $data_date[1];
-          $pfici->sendCriteria('TESTAAAA', $arrayinventory);
-          $this->assertEquals($soft_ids, array_keys($software->find()));
-          $this->assertEquals($csoftv_ids, array_keys($csv->find()));
-          foreach ($software->find() as $soft) {
-              if ($soft['name'] == 'Cisco WebEx Meetings') {
-                  $csversion = current($csv->find("`softwareversions_id` = '".$soft['id']."'"));
-                  $this->assertEquals($data_date[0], $csversion['date_install']);
-              } else if ($soft['name'] == 'Adobe Systems Incorporated') {
-                  $csversion = current($csv->find("`softwareversions_id` = '".$soft['id']."'"));
-                  $this->assertEquals($data_date[1], $csversion['date_install']);
-              }
-          }
-       }
+      foreach ($dates as $data_date) {
+         $arrayinventory['CONTENT']['SOFTWARES'][0]['INSTALLDATE'] = $data_date[0];
+         $arrayinventory['CONTENT']['SOFTWARES'][1]['INSTALLDATE'] = $data_date[1];
+         $pfici->sendCriteria('TESTAAAA', $arrayinventory);
+         $this->assertEquals($soft_ids, array_keys($software->find()));
+         $this->assertEquals($csoftv_ids, array_keys($csv->find()));
+         foreach ($software->find() as $soft) {
+            if ($soft['name'] == 'Cisco WebEx Meetings') {
+               $csversion = current($csv->find("`softwareversions_id` = '".$soft['id']."'"));
+               $this->assertEquals($data_date[0], $csversion['date_install']);
+            } else if ($soft['name'] == 'Adobe Systems Incorporated') {
+               $csversion = current($csv->find("`softwareversions_id` = '".$soft['id']."'"));
+               $this->assertEquals($data_date[1], $csversion['date_install']);
+            }
+         }
+      }
 
        // remove an installdate
        unset($arrayinventory['CONTENT']['SOFTWARES'][0]['INSTALLDATE']);
        $pfici->sendCriteria('TESTAAAA', $arrayinventory);
        $this->assertEquals($soft_ids, array_keys($software->find()));
        $this->assertEquals($csoftv_ids, array_keys($csv->find()));
-       foreach ($software->find() as $soft) {
-          if ($soft['name'] == 'Cisco WebEx Meetings') {
-             $csversion = current($csv->find("`softwareversions_id` = '".$soft['id']."'"));
-             $this->assertEquals('', $csversion['date_install']);
-          }
-       }
+      foreach ($software->find() as $soft) {
+         if ($soft['name'] == 'Cisco WebEx Meetings') {
+            $csversion = current($csv->find("`softwareversions_id` = '".$soft['id']."'"));
+            $this->assertEquals('', $csversion['date_install']);
+         }
+      }
    }
 
 
@@ -269,4 +268,3 @@ class SoftwareVersionAddTest extends RestoreDatabase_TestCase {
    }
 
 }
-?>

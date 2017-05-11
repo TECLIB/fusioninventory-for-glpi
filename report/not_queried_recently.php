@@ -207,4 +207,3 @@ echo "</table>";
 
 Html::footer();
 
-?>

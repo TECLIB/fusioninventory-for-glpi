@@ -127,7 +127,6 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
       $computer = new Computer();
       $computer->getFromDB($agent['computers_id']);
 
-
       //If no configuration has been done in the plugin's configuration
       //then use location for mirrors as default
       //!!this should not happen!!
@@ -181,17 +180,17 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
             }
 
             $add_mirror = false;
-            if(is_array($entities)) {
-               if(in_array($computer->fields['entities_id'], $entities)) {
+            if (is_array($entities)) {
+               if (in_array($computer->fields['entities_id'], $entities)) {
                   $add_mirror = true;
                }
             } else {
-               if($computer->fields['entities_id'] == $result['entities_id']) {
+               if ($computer->fields['entities_id'] == $result['entities_id']) {
                   $add_mirror = true;
                }
             }
 
-            if(!in_array($result['url'], $mirrors) && $add_mirror) {
+            if (!in_array($result['url'], $mirrors) && $add_mirror) {
                $mirrors[] = $result['url'];
             }
          }
@@ -232,7 +231,7 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Name')."</td>";
       echo "<td align='center'>";
-      Html::autocompletionTextField($this,'name', array('size' => 40));
+      Html::autocompletionTextField($this, 'name', array('size' => 40));
       echo "</td>";
 
       echo "<td rowspan='3' class='middle right'>".__('Comments')."&nbsp;: </td>";
@@ -246,7 +245,7 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Mirror server address', 'fusioninventory')."&nbsp;:</td>";
       echo "<td align='center'>";
-      Html::autocompletionTextField($this,'url', array('size' => 40));
+      Html::autocompletionTextField($this, 'url', array('size' => 40));
       echo "</td></tr>";
 
       echo "<tr class='tab_bg_1'>";
@@ -362,7 +361,7 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
    static function showMassiveActionsSubForm(MassiveAction $ma) {
       if ($ma->getAction() == 'transfer') {
          Dropdown::show('Entity');
-         echo Html::submit(_x('button','Post'), ['name' => 'massiveaction']);
+         echo Html::submit(_x('button', 'Post'), ['name' => 'massiveaction']);
          return true;
       }
       return false;
@@ -404,4 +403,3 @@ class PluginFusioninventoryDeployMirror extends CommonDBTM {
    }
 }
 
-?>

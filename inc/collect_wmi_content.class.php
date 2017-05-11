@@ -182,7 +182,7 @@ class PluginFusioninventoryCollect_Wmi_Content extends CommonDBTM {
       foreach ($db_wmis as $id => $data) {
          $this->delete(array('id' => $id), true);
       }
-      foreach($wmi_data as $key => $value) {
+      foreach ($wmi_data as $key => $value) {
          $input = array(
             'computers_id' => $computers_id,
             'plugin_fusioninventory_collects_wmis_id' => $collects_wmis_id,
@@ -298,4 +298,3 @@ class PluginFusioninventoryCollect_Wmi_Content extends CommonDBTM {
    }
 }
 
-?>

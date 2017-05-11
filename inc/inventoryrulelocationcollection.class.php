@@ -103,4 +103,3 @@ class PluginFusioninventoryInventoryRuleLocationCollection extends RuleCollectio
    }
 }
 
-?>

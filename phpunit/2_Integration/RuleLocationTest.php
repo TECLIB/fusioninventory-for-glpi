@@ -166,4 +166,3 @@ class RuleLocationTest extends Common_TestCase {
    }
 
 }
-?>

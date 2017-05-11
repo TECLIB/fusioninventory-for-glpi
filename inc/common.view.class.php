@@ -76,7 +76,7 @@ class PluginFusioninventoryCommonView extends CommonDBTM {
    const MSG_ERROR = 2;
 
    /**
-    * Define default value for the base URLs 
+    * Define default value for the base URLs
     *
     * @var array
     */

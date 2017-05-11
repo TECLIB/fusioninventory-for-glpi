@@ -583,4 +583,3 @@ class PluginFusioninventoryProfile extends Profile {
    }
 }
 
-?>

@@ -62,4 +62,3 @@ if (!empty($id) AND $id > 0) {
     ));
 }
 
-?>

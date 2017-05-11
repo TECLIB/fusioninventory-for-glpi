@@ -195,7 +195,7 @@ class PluginFusioninventoryCommunicationNetworkDiscovery {
          $input['name'] = $arrayinventory['NETBIOSNAME'];
       } else if ((isset($arrayinventory['DNSHOSTNAME']))
               && (!empty($arrayinventory['DNSHOSTNAME']))) {
-         if (strpos($arrayinventory['DNSHOSTNAME'],'.') !== false) {
+         if (strpos($arrayinventory['DNSHOSTNAME'], '.') !== false) {
             $splitname = explode('.', $arrayinventory['DNSHOSTNAME']);
             $input['name'] = $splitname[0];
             if (!isset($arrayinventory['WORKGROUP'])) {
@@ -468,7 +468,6 @@ class PluginFusioninventoryCommunicationNetworkDiscovery {
                );
             }
 
-
             if (!in_array('contact', $a_lockable)
                     && isset($arrayinventory['USERSESSION'])) {
                $input['contact'] = $arrayinventory['USERSESSION'];
@@ -476,7 +475,7 @@ class PluginFusioninventoryCommunicationNetworkDiscovery {
             if (!in_array('domain', $a_lockable)) {
                if (isset($arrayinventory['WORKGROUP'])
                        && !empty($arrayinventory['WORKGROUP'])) {
-               $input['domain'] = Dropdown::importExternal("Domain",
+                  $input['domain'] = Dropdown::importExternal("Domain",
                                        $arrayinventory['WORKGROUP'], $arrayinventory['ENTITY']);
                }
             }
@@ -751,4 +750,3 @@ class PluginFusioninventoryCommunicationNetworkDiscovery {
 
 }
 
-?>

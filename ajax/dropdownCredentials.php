@@ -59,4 +59,3 @@ $params = array(
 );
 PluginFusioninventoryCredential::dropdownCredentialsForItemtype($params);
 
-?>

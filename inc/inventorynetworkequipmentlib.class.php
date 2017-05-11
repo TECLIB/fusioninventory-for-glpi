@@ -102,36 +102,35 @@ class PluginFusioninventoryInventoryNetworkEquipmentLib extends CommonDBTM {
                            $mac,
                            'Internal');
 
-
       // * NetworkEquipment fusion (ext)
          $db_networkequipment = array();
          $query = "SELECT *
             FROM `".  getTableForItemType("PluginFusioninventoryNetworkEquipment")."`
             WHERE `networkequipments_id` = '$items_id'";
          $result = $DB->query($query);
-         while ($data = $DB->fetch_assoc($result)) {
-            foreach ($data as $key=>$value) {
-               $db_networkequipment[$key] = Toolbox::addslashes_deep($value);
-            }
+      while ($data = $DB->fetch_assoc($result)) {
+         foreach ($data as $key=>$value) {
+            $db_networkequipment[$key] = Toolbox::addslashes_deep($value);
          }
-         if (count($db_networkequipment) == '0') { // Add
-            $a_inventory['PluginFusioninventoryNetworkEquipment']['networkequipments_id'] =
-               $items_id;
-            $pfNetworkEquipment->add($a_inventory['PluginFusioninventoryNetworkEquipment']);
-         } else { // Update
-            $idtmp = $db_networkequipment['id'];
-            unset($db_networkequipment['id']);
-            unset($db_networkequipment['networkequipments_id']);
-            unset($db_networkequipment['plugin_fusioninventory_configsecurities_id']);
+      }
+      if (count($db_networkequipment) == '0') { // Add
+         $a_inventory['PluginFusioninventoryNetworkEquipment']['networkequipments_id'] =
+         $items_id;
+         $pfNetworkEquipment->add($a_inventory['PluginFusioninventoryNetworkEquipment']);
+      } else { // Update
+         $idtmp = $db_networkequipment['id'];
+         unset($db_networkequipment['id']);
+         unset($db_networkequipment['networkequipments_id']);
+         unset($db_networkequipment['plugin_fusioninventory_configsecurities_id']);
 
-            $a_ret = PluginFusioninventoryToolbox::checkLock(
-                        $a_inventory['PluginFusioninventoryNetworkEquipment'],
-                        $db_networkequipment);
-            $a_inventory['PluginFusioninventoryNetworkEquipment'] = $a_ret[0];
-            $input = $a_inventory['PluginFusioninventoryNetworkEquipment'];
-            $input['id'] = $idtmp;
-            $pfNetworkEquipment->update($input);
-         }
+         $a_ret = PluginFusioninventoryToolbox::checkLock(
+                  $a_inventory['PluginFusioninventoryNetworkEquipment'],
+                  $db_networkequipment);
+         $a_inventory['PluginFusioninventoryNetworkEquipment'] = $a_ret[0];
+         $input = $a_inventory['PluginFusioninventoryNetworkEquipment'];
+         $input['id'] = $idtmp;
+         $pfNetworkEquipment->update($input);
+      }
 
       // * Ports
          $this->importPorts($a_inventory, $items_id);
@@ -731,4 +730,3 @@ class PluginFusioninventoryInventoryNetworkEquipmentLib extends CommonDBTM {
    }
 }
 
-?>

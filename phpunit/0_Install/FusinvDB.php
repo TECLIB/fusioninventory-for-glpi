@@ -45,7 +45,6 @@ class FusinvDB extends PHPUnit_Framework_Assert{
    public function checkInstall($pluginname='', $when='') {
       global $DB;
 
-
       if ($pluginname == '') {
          return;
       }
@@ -76,14 +75,14 @@ class FusinvDB extends PHPUnit_Framework_Assert{
          }
       }
 
-     // * Get tables from MySQL
-     $a_tables_db = array();
-     $a_tables = array();
-     // SHOW TABLES;
-     $query = "SHOW TABLES";
-     $result = $DB->query($query);
-     while ($data=$DB->fetch_array($result)) {
-        if ((strstr($data[0], "tracker")
+      // * Get tables from MySQL
+      $a_tables_db = array();
+      $a_tables = array();
+      // SHOW TABLES;
+      $query = "SHOW TABLES";
+      $result = $DB->query($query);
+      while ($data=$DB->fetch_array($result)) {
+         if ((strstr($data[0], "tracker")
                 OR strstr($data[0], 'fusioninventory')
                 OR strstr($data[0], 'fusinvinventory')
                 OR strstr($data[0], 'fusinvsnmp')
@@ -94,10 +93,10 @@ class FusinvDB extends PHPUnit_Framework_Assert{
             AND(!strstr($data[0], "glpi_plugin_fusioninventory_usbdevices"))
             AND(!strstr($data[0], "glpi_plugin_fusioninventory_usbvendors"))) {
 
-            $data[0] = str_replace(" COLLATE utf8_unicode_ci", "", $data[0]);
-            $data[0] = str_replace("( ", "(", $data[0]);
-            $data[0] = str_replace(" )", ")", $data[0]);
-            $a_tables[] = $data[0];
+             $data[0] = str_replace(" COLLATE utf8_unicode_ci", "", $data[0]);
+             $data[0] = str_replace("( ", "(", $data[0]);
+             $data[0] = str_replace(" )", ")", $data[0]);
+             $a_tables[] = $data[0];
          }
       }
 
@@ -198,12 +197,10 @@ class FusinvDB extends PHPUnit_Framework_Assert{
       $result = $DB->query($query);
       $this->assertEquals($DB->numrows($result), 0, 'ESX module may be renommed in InventoryComputerESX');
 
-
-//      $query = "SELECT `id` FROM `glpi_plugin_fusioninventory_agentmodules`
-//         WHERE `modulename`='DEPLOY'";
-//      $result = $DB->query($query);
-//      $this->assertEquals($DB->numrows($result), 1, 'DEPLOY module not registered');
-
+      //      $query = "SELECT `id` FROM `glpi_plugin_fusioninventory_agentmodules`
+      //         WHERE `modulename`='DEPLOY'";
+      //      $result = $DB->query($query);
+      //      $this->assertEquals($DB->numrows($result), 1, 'DEPLOY module not registered');
 
       /*
        * Verify in taskjob definition PluginFusinvsnmpIPRange not exist
@@ -230,9 +227,8 @@ class FusinvDB extends PHPUnit_Framework_Assert{
               'Cron cleannetworkportlogs not created');
       $this->assertTrue($crontask->getFromDBbyName('PluginFusioninventoryAgentWakeup', 'wakeupAgents'),
               'Cron wakeupAgents not created');
-     $this->assertTrue($crontask->getFromDBbyName('PluginFusioninventoryTask', 'cleanondemand'),
+      $this->assertTrue($crontask->getFromDBbyName('PluginFusioninventoryTask', 'cleanondemand'),
               'Cron cleanondemand not created');
-
 
       /*
        * Verify config fields added
@@ -293,7 +289,6 @@ class FusinvDB extends PHPUnit_Framework_Assert{
 
       // TODO : test glpi_displaypreferences, rules, bookmark...
 
-
       /*
        * Verify table glpi_plugin_fusioninventory_inventorycomputercriterias
        * have right 10 lines
@@ -303,7 +298,6 @@ class FusinvDB extends PHPUnit_Framework_Assert{
       $this->assertEquals($DB->numrows($result), 11, "Number of criteria not right in table".
               " glpi_plugin_fusioninventory_inventorycomputercriterias ".$when);
 
-
       /*
        * Verify table `glpi_plugin_fusioninventory_inventorycomputerstats` filed with data
        */
@@ -311,8 +305,6 @@ class FusinvDB extends PHPUnit_Framework_Assert{
       $result = $DB->query($query);
       $this->assertEquals($DB->numrows($result), 8760, "Must have table `glpi_plugin_fusioninventory_inventorycomputerstats` not empty");
 
-
    }
 }
 
-?>

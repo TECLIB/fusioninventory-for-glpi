@@ -200,7 +200,6 @@ class NetworkEquipmentUpdate extends RestoreDatabase_TestCase {
           '5005' => array('10001', '10002')
       );
 
-
       $pfiNetworkEquipmentLib = new PluginFusioninventoryInventoryNetworkEquipmentLib();
       $networkEquipment = new NetworkEquipment();
 
@@ -460,4 +459,3 @@ Compiled Fri 26-Mar-10 09:14 by prod_rel_team',
    }
 
 }
-?>

@@ -84,7 +84,6 @@ class RuleImportTest extends Common_TestCase {
          $input['value'] = '1';
          $ruleaction->add($input);
 
-
       // Add a rule to ignore import
       // Create rule for import into unknown devices
       $input = array();
@@ -124,7 +123,6 @@ class RuleImportTest extends Common_TestCase {
          $input['pattern']= 'Printer';
          $input['condition']=0;
          $rulecriteria->add($input);
-
 
          // Add action
          $ruleaction = new RuleAction();
@@ -262,4 +260,3 @@ class RuleImportTest extends Common_TestCase {
    }
 
 }
-?>

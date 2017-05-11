@@ -162,11 +162,11 @@ class PluginFusioninventoryEntity extends CommonDBTM {
             echo __('Inheritance of the parent entity')."&nbsp;:&nbsp;";
             $val = $this->getValueAncestor('transfers_id_auto', $entities_id);
 
-            if ($val == 0) {
-               echo __('No automatic transfer');
-            } else {
-               echo Dropdown::getDropdownName('glpi_transfers', $val);
-            }
+         if ($val == 0) {
+            echo __('No automatic transfer');
+         } else {
+            echo Dropdown::getDropdownName('glpi_transfers', $val);
+         }
             echo "</td>";
          // } else {
             // echo "<td colspan='4'>";
@@ -174,7 +174,6 @@ class PluginFusioninventoryEntity extends CommonDBTM {
          // }
          echo "</tr>";
       }
-
 
       echo "<tr>";
       echo "<td colspan='2'>";
@@ -201,7 +200,6 @@ class PluginFusioninventoryEntity extends CommonDBTM {
          echo "</td>";
          echo "</tr>";
       }
-
 
       $this->showFormButtons($options);
 
@@ -288,4 +286,3 @@ class PluginFusioninventoryEntity extends CommonDBTM {
 
 }
 
-?>

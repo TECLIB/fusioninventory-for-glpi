@@ -65,7 +65,6 @@ class PluginFusioninventoryPrinterLog extends CommonDBTM {
 
       $tab['common'] = __('History meter printer', 'fusioninventory');
 
-
       $tab[1]['table'] = "glpi_printers";
       $tab[1]['field'] = 'name';
       $tab[1]['linkfield'] = 'printers_id';
@@ -91,12 +90,12 @@ class PluginFusioninventoryPrinterLog extends CommonDBTM {
       $tab[19]['datatype'] = 'itemlink';
       $tab[19]['itemlink_type'] = 'PrinterType';
 
-//      $tab[2]['table'] = 'glpi_printermodels';
-//      $tab[2]['field'] = 'name';
-//      $tab[2]['linkfield'] = 'printermodels_id';
-//      $tab[2]['name'] = __('Model');
-//      $tab[2]['datatype']='itemptype';
-//
+      //      $tab[2]['table'] = 'glpi_printermodels';
+      //      $tab[2]['field'] = 'name';
+      //      $tab[2]['linkfield'] = 'printermodels_id';
+      //      $tab[2]['name'] = __('Model');
+      //      $tab[2]['datatype']='itemptype';
+      //
       $tab[18]['table'] = 'glpi_states';
       $tab[18]['field'] = 'name';
       $tab[18]['linkfield'] = 'states_id';
@@ -123,10 +122,10 @@ class PluginFusioninventoryPrinterLog extends CommonDBTM {
       $tab[3]['linkfield'] = 'manufacturers_id';
       $tab[3]['name'] = __('Manufacturer');
 
-//      $tab[5]['table'] = 'glpi_ipaddresses';
-//      $tab[5]['field'] = 'name';
-//      $tab[5]['linkfield'] = 'printers_id';
-//      $tab[5]['name'] = __('IP');
+      //      $tab[5]['table'] = 'glpi_ipaddresses';
+      //      $tab[5]['field'] = 'name';
+      //      $tab[5]['linkfield'] = 'printers_id';
+      //      $tab[5]['name'] = __('IP');
       $joinparams                = array('jointype' => 'itemtype_item',
                                          'specific_itemtype'  => 'Printer');
       $networkNameJoin = array('jointype'          => 'itemtype_item',
@@ -144,13 +143,10 @@ class PluginFusioninventoryPrinterLog extends CommonDBTM {
                                                                      'joinparams'
                                                                              => $networkNameJoin));
 
-
-
-
-//      $tab[4]['table'] = 'glpi_infocoms';
-//      $tab[4]['field'] = 'budget';
-//      $tab[4]['linkfield'] = '';
-//      $tab[4]['name'] = __('Budget');
+      //      $tab[4]['table'] = 'glpi_infocoms';
+      //      $tab[4]['field'] = 'budget';
+      //      $tab[4]['linkfield'] = '';
+      //      $tab[4]['name'] = __('Budget');
 
       $tab[6]['table'] = 'glpi_plugin_fusioninventory_printerlogs';
       $tab[6]['field'] = 'pages_total';
@@ -369,7 +365,7 @@ class PluginFusioninventoryPrinterLog extends CommonDBTM {
       echo "<th>".__('Date')." :</th>";
       echo "<th>".__('Meter', 'fusioninventory')." :</th></tr>";
 
-      for ($i=0 ; $i<$limit ; $i++) {
+      for ($i=0; $i<$limit; $i++) {
          echo "<tr class='tab_bg_1'>";
          echo "<td align='center'>";
          Html::showCheckbox(array('name' => "checked_$i", 'value' => 1));
@@ -453,7 +449,7 @@ class PluginFusioninventoryPrinterLog extends CommonDBTM {
                      $oPrinter->getField('name');
             }
          }
-      } elseif (isset($_SESSION['glpi_plugin_fusioninventory_graph_printerCompRemove'])) {
+      } else if (isset($_SESSION['glpi_plugin_fusioninventory_graph_printerCompRemove'])) {
          unset($_SESSION['glpi_plugin_fusioninventory_graph_printersComp'][$_SESSION['glpi_plugin_fusioninventory_graph_printerCompRemove']]);
       }
       $oPrinter = new Printer();
@@ -655,7 +651,7 @@ class PluginFusioninventoryPrinterLog extends CommonDBTM {
                $data = array();
                $date = '';
                while ($data = $DB->fetch_assoc($result)) {
-                  switch($timeUnit) {
+                  switch ($timeUnit) {
 
                      case 'day':
                         $split = explode(" ", $data['date']);
@@ -758,7 +754,7 @@ class PluginFusioninventoryPrinterLog extends CommonDBTM {
     }
     ";
 
-   echo '   function exampleData() {
+      echo '   function exampleData() {
       return '.json_encode($a_graph).'
    }
 
@@ -768,4 +764,3 @@ class PluginFusioninventoryPrinterLog extends CommonDBTM {
    }
 }
 
-?>

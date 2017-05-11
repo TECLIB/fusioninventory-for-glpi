@@ -149,7 +149,7 @@ class PluginFusioninventoryCredential extends CommonDropdown {
       } else {
          //Add criteria : display dropdown
          $options = self::getCredentialsItemTypes();
-         $options[''] = Dropdown::EMPTY_VALUE ;
+         $options[''] = Dropdown::EMPTY_VALUE;
          asort($options);
          Dropdown::showFromArray('itemtype', $options);
       }
@@ -303,7 +303,7 @@ class PluginFusioninventoryCredential extends CommonDropdown {
     * @return array
     */
    static function getCredentialsItemTypes() {
-     return array('PluginFusioninventoryInventoryComputerESX' =>
+      return array('PluginFusioninventoryInventoryComputerESX' =>
                            __('VMware host', 'fusioninventory'));
    }
 
@@ -359,7 +359,7 @@ class PluginFusioninventoryCredential extends CommonDropdown {
       }
 
       $types     = self::getCredentialsItemTypes();
-      $types[''] = Dropdown::EMPTY_VALUE ;
+      $types[''] = Dropdown::EMPTY_VALUE;
       $rand      = Dropdown::showFromArray('plugin_fusioninventory_credentials_id', $types,
                                            array('value' => $p['itemtype']));
       $ajparams = array('itemtype' => '__VALUE__',
@@ -428,4 +428,3 @@ class PluginFusioninventoryCredential extends CommonDropdown {
 
 }
 
-?>

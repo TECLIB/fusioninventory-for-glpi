@@ -133,4 +133,3 @@ $iprange->display(array('id' => $id));
 
 Html::footer();
 
-?>

@@ -179,11 +179,10 @@ class PluginFusioninventoryCollect_Registry_Content extends CommonDBTM {
          }
       }
 
-
       foreach ($db_registries as $id => $data) {
          $this->delete(array('id' => $id), true);
       }
-      foreach($registry_data as $key => $value) {
+      foreach ($registry_data as $key => $value) {
          if (preg_match("/^0x[0-9a-fA-F]{1,}$/", $value)) {
             $value = hexdec($value);
          }
@@ -309,4 +308,3 @@ class PluginFusioninventoryCollect_Registry_Content extends CommonDBTM {
    }
 }
 
-?>

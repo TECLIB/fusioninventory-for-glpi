@@ -72,19 +72,19 @@ if (isset($_GET['save'])) {
 
    Html::redirect(Toolbox::getItemTypeFormURL("PluginFusioninventoryDeployGroup")."?id=".$_GET['id']);
 
-} elseif (isset($_POST["add"])) {
+} else if (isset($_POST["add"])) {
    $group->check(-1, UPDATE, $_POST);
    $newID = $group->add($_POST);
    Html::redirect(Toolbox::getItemTypeFormURL("PluginFusioninventoryDeployGroup")."?id=".$newID);
 
 } else if (isset($_POST["delete"])) {
-//   $group->check($_POST['id'], DELETE);
+   //   $group->check($_POST['id'], DELETE);
    $ok = $group->delete($_POST);
 
    $group->redirectToList();
 
 } else if (isset($_POST["purge"])) {
-//   $group->check($_POST['id'], DELETE);
+   //   $group->check($_POST['id'], DELETE);
    $ok = $group->delete($_REQUEST, 1);
 
    $group->redirectToList();
@@ -117,4 +117,3 @@ if (isset($_GET['save'])) {
    Html::footer();
 }
 
-?>

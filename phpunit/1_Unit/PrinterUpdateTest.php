@@ -462,4 +462,3 @@ class PrinterUpdate extends RestoreDatabase_TestCase {
          'IP address');
    }
 }
-?>

@@ -180,7 +180,7 @@ class PluginFusioninventoryConfigLogField extends CommonDBTM {
       $days = array();
       $days[-1] = __('Never');
       $days[0]  = __('Always');
-      for ($i = 1 ; $i < 366 ; $i++) {
+      for ($i = 1; $i < 366; $i++) {
          $days[$i]  = "$i";
       }
 
@@ -219,7 +219,7 @@ class PluginFusioninventoryConfigLogField extends CommonDBTM {
       echo "<td colspan='1' class='center' height='30'>";
       if (Session::haveRight('plugin_fusioninventory_configuration', UPDATE)) {
          echo "<input type='submit' class=\"submit\" name='Clean_history' ".
-                 "value='"._x('button','Clean')."' >";
+                 "value='"._x('button', 'Clean')."' >";
       }
       echo "</td>";
       echo "</tr>";
@@ -248,4 +248,3 @@ class PluginFusioninventoryConfigLogField extends CommonDBTM {
    }
 }
 
-?>

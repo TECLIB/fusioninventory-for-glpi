@@ -99,7 +99,6 @@ class VirtualmachineTest extends RestoreDatabase_TestCase {
           'serialized_inventory'        => 'something'
       );
 
-
       $a_inventory['virtualmachine'][] = array(
           'ram'                      => '1024',
           'name'                     => 'Windows 7',
@@ -260,4 +259,3 @@ class VirtualmachineTest extends RestoreDatabase_TestCase {
 
 }
 
-?>

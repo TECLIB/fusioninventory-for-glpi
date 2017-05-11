@@ -86,7 +86,6 @@ class CollectRuleTest extends RestoreDatabase_TestCase {
       );
       $this->ruleactions_id = $ruleAction->add($input);
 
-
       // * computer model regex
       $input = array(
           'entities_id' => 0,
@@ -111,7 +110,6 @@ class CollectRuleTest extends RestoreDatabase_TestCase {
           'value'       => '#0'
       );
       $this->ruleactions_id = $ruleAction->add($input);
-
 
       // * user regex
       $input = array(
@@ -138,7 +136,6 @@ class CollectRuleTest extends RestoreDatabase_TestCase {
       );
       $this->ruleactions_id = $ruleAction->add($input);
 
-
       // * softwareversion regex
       $input = array(
           'entities_id' => 0,
@@ -163,7 +160,6 @@ class CollectRuleTest extends RestoreDatabase_TestCase {
           'value'       => '#0'
       );
       $this->ruleactions_id = $ruleAction->add($input);
-
 
       // * otherserial regex
       $input = array(
@@ -190,7 +186,6 @@ class CollectRuleTest extends RestoreDatabase_TestCase {
       );
       $this->ruleactions_id = $ruleAction->add($input);
 
-
       // * otherserial regex
       $input = array(
           'entities_id' => 0,
@@ -215,7 +210,6 @@ class CollectRuleTest extends RestoreDatabase_TestCase {
           'value'       => 'ttuujj'
       );
       $this->ruleactions_id = $ruleAction->add($input);
-
 
       // * create items
       $computerModel = new ComputerModel();
@@ -416,4 +410,3 @@ class CollectRuleTest extends RestoreDatabase_TestCase {
    }
 
 }
-?>

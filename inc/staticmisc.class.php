@@ -808,4 +808,3 @@ class PluginFusioninventoryStaticmisc {
    }
 }
 
-?>

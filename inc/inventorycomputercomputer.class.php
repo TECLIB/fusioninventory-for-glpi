@@ -285,11 +285,11 @@ class PluginFusioninventoryInventoryComputerComputer extends CommonDBTM {
             echo "/ ";
          }
          echo "<a href='".$CFG_GLPI['root_doc'].
-        "/plugins/fusioninventory/front/send_inventory.php".
-        "?itemtype=PluginFusioninventoryInventoryComputerComputer".
-        "&function=sendXML&items_id=computer/".$folder."/".$computers_id.
-        "&filename=Computer-".$computers_id.".xml'".
-        "target='_blank'>XML</a>";
+         "/plugins/fusioninventory/front/send_inventory.php".
+         "?itemtype=PluginFusioninventoryInventoryComputerComputer".
+         "&function=sendXML&items_id=computer/".$folder."/".$computers_id.
+         "&filename=Computer-".$computers_id.".xml'".
+         "target='_blank'>XML</a>";
       }
 
       echo "</td>";
@@ -339,4 +339,3 @@ class PluginFusioninventoryInventoryComputerComputer extends CommonDBTM {
    }
 }
 
-?>

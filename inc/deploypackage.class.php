@@ -166,7 +166,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
             return true;
 
          case 'duplicate':
-            echo Html::submit(_x('button','Post'), array('name' => 'massiveaction'));
+            echo Html::submit(_x('button', 'Post'), array('name' => 'massiveaction'));
             return true;
       }
       return parent::showMassiveActionsSubForm($ma);
@@ -190,7 +190,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
                if ($item->can($key, UPDATE)) {
                   $item->exportPackage($key);
                   $ma->itemDone($item->getType(), $key, MassiveAction::ACTION_OK);
-              }
+               }
             }
             break;
 
@@ -474,7 +474,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Name')."&nbsp;:</td>";
       echo "<td>";
-      Html::autocompletionTextField($this,'name', array('size' => 40));
+      Html::autocompletionTextField($this, 'name', array('size' => 40));
       echo "</td>";
 
       echo "<td>".__('Comments')."&nbsp;:</td>";
@@ -697,8 +697,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       //route to sub class
       $item_type = $params['itemtype'];
 
-      if (
-         in_array(
+      if (in_array(
             $item_type,
             array(
                'PluginFusioninventoryDeployCheck',
@@ -990,7 +989,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
 
       $error_json = json_last_error();
 
-      if (version_compare(PHP_VERSION, '5.5.0',"ge")) {
+      if (version_compare(PHP_VERSION, '5.5.0', "ge")) {
          $error_json_message = json_last_error_msg();
       } else {
          $error_json_message = "";
@@ -1061,7 +1060,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
 
       if ($item->getType() == __CLASS__) {
-         switch($tabnum) {
+         switch ($tabnum) {
 
             case 1:
                $item->showVisibility();
@@ -1120,7 +1119,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          $params  = array('type'  => '__VALUE__',
                           'right' => 'plugin_fusioninventory_selfpackage');
 
-         Ajax::updateItemOnSelectEvent("dropdown__type".$addrand,"visibility$rand",
+         Ajax::updateItemOnSelectEvent("dropdown__type".$addrand, "visibility$rand",
                                        $CFG_GLPI["root_doc"]."/ajax/visibility.php",
                                        $params);
 
@@ -1167,7 +1166,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
                echo "<tr class='tab_bg_1'>";
                if ($canedit) {
                   echo "<td>";
-                  Html::showMassiveActionCheckBox('PluginFusioninventoryDeployPackage_User',$data["id"]);
+                  Html::showMassiveActionCheckBox('PluginFusioninventoryDeployPackage_User', $data["id"]);
                   echo "</td>";
                }
                echo "<td>".__('User')."</td>";
@@ -1184,12 +1183,12 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
                echo "<tr class='tab_bg_1'>";
                if ($canedit) {
                   echo "<td>";
-                  Html::showMassiveActionCheckBox('PluginFusioninventoryDeployPackage_Group',$data["id"]);
+                  Html::showMassiveActionCheckBox('PluginFusioninventoryDeployPackage_Group', $data["id"]);
                   echo "</td>";
                }
                echo "<td>".__('Group')."</td>";
                echo "<td>";
-               $names     = Dropdown::getDropdownName('glpi_groups', $data['groups_id'],1);
+               $names     = Dropdown::getDropdownName('glpi_groups', $data['groups_id'], 1);
                $groupname = sprintf(__('%1$s %2$s'), $names["name"],
                                     Html::showToolTip($names["comment"], array('display' => false)));
                if ($data['entities_id'] >= 0) {
@@ -1215,12 +1214,12 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
                echo "<tr class='tab_bg_1'>";
                if ($canedit) {
                   echo "<td>";
-                  Html::showMassiveActionCheckBox('PluginFusioninventoryDeployPackage_Entity',$data["id"]);
+                  Html::showMassiveActionCheckBox('PluginFusioninventoryDeployPackage_Entity', $data["id"]);
                   echo "</td>";
                }
                echo "<td>".__('Entity')."</td>";
                echo "<td>";
-               $names      = Dropdown::getDropdownName('glpi_entities', $data['entities_id'],1);
+               $names      = Dropdown::getDropdownName('glpi_entities', $data['entities_id'], 1);
                $entityname = sprintf(__('%1$s %2$s'), $names["name"],
                                     Html::showToolTip($names["comment"], array('display' => false)));
                if ($data['is_recursive']) {
@@ -1241,7 +1240,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
                echo "<tr class='tab_bg_1'>";
                if ($canedit) {
                   echo "<td>";
-                  Html::showMassiveActionCheckBox('PluginFusioninventoryDeployPackage_Profile',$data["id"]);
+                  Html::showMassiveActionCheckBox('PluginFusioninventoryDeployPackage_Profile', $data["id"]);
                   echo "</td>";
                }
                echo "<td>"._n('Profile', 'Profiles', 1)."</td>";
@@ -1310,7 +1309,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
               'agents_error'     => __('In error', 'fusioninventory'),
               'agents_success'   => __('Successful', 'fusioninventory'),
               'agents_running'   => __('Running', 'fusioninventory'),
-              'agents_prepared'  => __('Prepared' , 'fusioninventory'),
+              'agents_prepared'  => __('Prepared', 'fusioninventory'),
               'agents_cancelled' => __('Cancelled', 'fusioninventory')
              ];
    }
@@ -1596,7 +1595,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
             $tasks_id = $data['id'];
          }
       } else {
-      // case 2: if not exist, create a new task + taskjob
+         // case 2: if not exist, create a new task + taskjob
          $this->getFromDB($packages_id);
 
          //Add the new task
@@ -1823,4 +1822,3 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
    }
 }
 
-?>

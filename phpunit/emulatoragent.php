@@ -31,7 +31,6 @@ class emulatorAgent {
          echo "======== received ==========\n";
          print_r($reception);
 
-
       }
    }
 
@@ -69,4 +68,3 @@ class emulatorAgent {
 
 }
 
-?>

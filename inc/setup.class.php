@@ -118,18 +118,18 @@ class PluginFusioninventorySetup {
       $pfSetup = new PluginFusioninventorySetup();
 
       if (is_dir($dir)) {
-        $objects = scandir($dir);
-        foreach ($objects as $object) {
-          if ($object != "." && $object != "..") {
-            if (filetype($dir."/".$object) == "dir") {
-               $pfSetup->rrmdir($dir."/".$object);
-            } else {
-               unlink($dir."/".$object);
+         $objects = scandir($dir);
+         foreach ($objects as $object) {
+            if ($object != "." && $object != "..") {
+               if (filetype($dir."/".$object) == "dir") {
+                  $pfSetup->rrmdir($dir."/".$object);
+               } else {
+                  unlink($dir."/".$object);
+               }
             }
-          }
-        }
-        reset($objects);
-        rmdir($dir);
+         }
+         reset($objects);
+         rmdir($dir);
       }
    }
 
@@ -937,7 +937,6 @@ class PluginFusioninventorySetup {
          'action'    => '_fusion2'
       );
 
-
       $ranking = 0;
       foreach ($rules as $rule) {
          $rulecollection = new PluginFusioninventoryInventoryRuleImportCollection();
@@ -1002,4 +1001,3 @@ class PluginFusioninventorySetup {
    }
 }
 
-?>

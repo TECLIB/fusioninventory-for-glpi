@@ -100,4 +100,3 @@ if (!strpos($_SERVER['PHP_SELF'], "popup")) {
    Html::footer();
 }
 
-?>

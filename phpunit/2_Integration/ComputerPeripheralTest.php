@@ -46,7 +46,7 @@ class ComputerPeripheral extends RestoreDatabase_TestCase {
    function __construct() {
 
       $this->a_computer1_XML =
-"<REQUEST>
+      "<REQUEST>
    <CONTENT>
     <HARDWARE>
        <NAME>pc001</NAME>
@@ -247,4 +247,3 @@ class ComputerPeripheral extends RestoreDatabase_TestCase {
 
    }
 }
-?>

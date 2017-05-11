@@ -199,4 +199,3 @@ class PluginFusioninventoryCollect_Wmi extends CommonDBTM {
    }
 }
 
-?>

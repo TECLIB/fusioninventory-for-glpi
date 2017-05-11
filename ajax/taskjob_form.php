@@ -63,4 +63,3 @@ $params = array(
 );
 
 $pfTaskjob->ajaxGetForm($params);
-?>

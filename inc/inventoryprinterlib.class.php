@@ -100,29 +100,29 @@ class PluginFusioninventoryInventoryPrinterLib extends CommonDBTM {
             FROM `".  getTableForItemType("PluginFusioninventoryPrinter")."`
             WHERE `printers_id` = '$printers_id'";
          $result = $DB->query($query);
-         while ($data = $DB->fetch_assoc($result)) {
-            foreach ($data as $key=>$value) {
-               $db_printer[$key] = Toolbox::addslashes_deep($value);
-            }
+      while ($data = $DB->fetch_assoc($result)) {
+         foreach ($data as $key=>$value) {
+            $db_printer[$key] = Toolbox::addslashes_deep($value);
          }
-         if (count($db_printer) == '0') { // Add
-            $a_inventory['PluginFusioninventoryPrinter']['printers_id'] =
-               $printers_id;
-            $pfPrinter->add($a_inventory['PluginFusioninventoryPrinter']);
-         } else { // Update
-            $idtmp = $db_printer['id'];
-            unset($db_printer['id']);
-            unset($db_printer['printers_id']);
-            unset($db_printer['plugin_fusioninventory_configsecurities_id']);
+      }
+      if (count($db_printer) == '0') { // Add
+         $a_inventory['PluginFusioninventoryPrinter']['printers_id'] =
+         $printers_id;
+         $pfPrinter->add($a_inventory['PluginFusioninventoryPrinter']);
+      } else { // Update
+         $idtmp = $db_printer['id'];
+         unset($db_printer['id']);
+         unset($db_printer['printers_id']);
+         unset($db_printer['plugin_fusioninventory_configsecurities_id']);
 
-            $a_ret = PluginFusioninventoryToolbox::checkLock(
-                        $a_inventory['PluginFusioninventoryPrinter'],
-                        $db_printer);
-            $a_inventory['PluginFusioninventoryPrinter'] = $a_ret[0];
-            $input = $a_inventory['PluginFusioninventoryPrinter'];
-            $input['id'] = $idtmp;
-            $pfPrinter->update($input);
-         }
+         $a_ret = PluginFusioninventoryToolbox::checkLock(
+                  $a_inventory['PluginFusioninventoryPrinter'],
+                  $db_printer);
+         $a_inventory['PluginFusioninventoryPrinter'] = $a_ret[0];
+         $input = $a_inventory['PluginFusioninventoryPrinter'];
+         $input['id'] = $idtmp;
+         $pfPrinter->update($input);
+      }
 
       // * Ports
          $this->importPorts($a_inventory, $printers_id);
@@ -245,4 +245,3 @@ class PluginFusioninventoryInventoryPrinterLib extends CommonDBTM {
    }
 }
 
-?>

@@ -59,4 +59,3 @@ $pfTask = new PluginFusioninventoryTask();
 
 $pfTask->ajaxGetJobLogs(filter_input(INPUT_GET, "task_id"));
 
-?>

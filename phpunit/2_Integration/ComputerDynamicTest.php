@@ -332,4 +332,3 @@ class ComputerDynamic extends RestoreDatabase_TestCase {
                            deleted a processor from inventory');
    }
 }
-?>

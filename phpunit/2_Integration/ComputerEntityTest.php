@@ -73,7 +73,6 @@ class ComputerEntity extends RestoreDatabase_TestCase {
           'transfers_id_auto' => 1
       ));
 
-
       $a_inventory = array();
       $a_inventory['CONTENT']['HARDWARE'] = array(
           'NAME' => 'pc1'
@@ -171,7 +170,6 @@ class ComputerEntity extends RestoreDatabase_TestCase {
           'SSN' => 'xxyyzz'
       );
 
-
       $pfiComputerInv->import("pc-2013-02-13", "", $a_inventory); // Update
 
       $computer->getFromDB(1);
@@ -225,7 +223,6 @@ class ComputerEntity extends RestoreDatabase_TestCase {
       $a_inventory['CONTENT']['BIOS'] = array(
           'SSN' => 'xxyyzz'
       );
-
 
       $pfiComputerInv->import("pc-2013-02-13", "", $a_inventory); // Update
 
@@ -308,7 +305,6 @@ class ComputerEntity extends RestoreDatabase_TestCase {
          $input['value'] = '1';
          $ruleaction->add($input);
 
-
       $a_inventory = array();
       $a_inventory['CONTENT']['HARDWARE'] = array(
           'NAME' => 'pc1'
@@ -345,4 +341,3 @@ class ComputerEntity extends RestoreDatabase_TestCase {
    }
 
 }
-?>

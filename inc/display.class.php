@@ -206,4 +206,3 @@ class PluginFusioninventoryDisplay extends CommonDBTM {
    }
 }
 
-?>

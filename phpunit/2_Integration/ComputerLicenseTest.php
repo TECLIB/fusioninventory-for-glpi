@@ -165,8 +165,7 @@ class ComputerLicenseTest extends RestoreDatabase_TestCase {
    /**
     * @test
     */
-   public function testCleanComputer()
-   {
+   public function testCleanComputer() {
       global $DB;
 
       $DB->connect();

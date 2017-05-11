@@ -247,7 +247,7 @@ td:not(#foo) > input[type=radio]:checked + label {
 
 .monitoring-logs .task_block > h3 {
    color: #659900;
-   cursor: pointer; 
+   cursor: pointer;
    background: url(../../../pics/expand.gif) no-repeat left center;
    padding-left: 20px;
 }
@@ -775,7 +775,7 @@ table.runs td.comment {
    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
    -moz-box-shadow: 0 0 1px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.3) inset;
    -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.3) inset;
-   box-shadow: 0 0 1px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.3) inset;    
+   box-shadow: 0 0 1px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.3) inset;
    border-width: 1px;
    border-style: solid;
    border-color: #d69e31 #e3a037 #d5982d #e3a037
@@ -798,7 +798,7 @@ table.runs td.comment {
 */
 .lockfield {
    background-image: url('../../../plugins/fusioninventory/pics/lock.png');
-   background-repeat: no-repeat; 
+   background-repeat: no-repeat;
    background-position: right;
 }
 

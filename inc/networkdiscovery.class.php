@@ -225,7 +225,7 @@ class PluginFusioninventoryNetworkdiscovery extends PluginFusioninventoryCommuni
          if ($taskvalid == "0") {
             $pfTaskjob->reinitializeTaskjobs($pfTaskjob->fields['plugin_fusioninventory_tasks_id']);
          }
-      // *** Add jobstate
+         // *** Add jobstate
       } else if (count($a_agentlist) == 0) {
          $a_input = array();
          $a_input['plugin_fusioninventory_taskjobs_id'] = $taskjobs_id;
@@ -270,7 +270,7 @@ class PluginFusioninventoryNetworkdiscovery extends PluginFusioninventoryCommuni
             $a_input['uniqid'] = $uniqid;
             $a_input['execution_id'] = $task->fields['execution_id'];
 
-//            $nbIpAgent = $numberIpByAgent;
+            //            $nbIpAgent = $numberIpByAgent;
             $nbIpadded = 0;
             foreach ($a_iprangelist as $iprange_id) {
                if ($ip_id == $iprange_id) {
@@ -396,4 +396,3 @@ class PluginFusioninventoryNetworkdiscovery extends PluginFusioninventoryCommuni
    }
 }
 
-?>

@@ -120,8 +120,7 @@ class PluginFusioninventoryCommunicationRest {
                }
                $class= PluginFusioninventoryStaticmisc::getStaticMiscClass($method['module']);
 
-               if (
-                     (isset($method['task']) && strtolower($method['task']) == strtolower($task))
+               if ((isset($method['task']) && strtolower($method['task']) == strtolower($task))
                   && (isset($method['use_rest']) && $method['use_rest'])
                   && method_exists($class, self::getMethodForParameters($task))
                   && $pfAgentModule->isAgentCanDo($taskname, $a_agent['id'])
@@ -154,13 +153,13 @@ class PluginFusioninventoryCommunicationRest {
     * @return false
     */
    static function getJobsByAgent($params = array()) {
-//      $jobs = array();
-//      $methods = PluginFusioninventoryStaticmisc::getmethods();
-//      if (isset($params['task'])) {
-//         foreach (array_keys($params['task']) as $task) {
-//
-//         }
-//      }
+      //      $jobs = array();
+      //      $methods = PluginFusioninventoryStaticmisc::getmethods();
+      //      if (isset($params['task'])) {
+      //         foreach (array_keys($params['task']) as $task) {
+      //
+      //         }
+      //      }
       return FALSE;
    }
 
@@ -240,7 +239,7 @@ class PluginFusioninventoryCommunicationRest {
          $taskjoblog->getFromDBByQuery(
             "WHERE `plugin_fusioninventory_taskjobstates_id`=". $jobstate['id']
          );
-         switch($p['code']) {
+         switch ($p['code']) {
 
             case 'running':
                $taskjoblog->addTaskjoblog(
@@ -318,4 +317,3 @@ class PluginFusioninventoryCommunicationRest {
    }
 }
 
-?>

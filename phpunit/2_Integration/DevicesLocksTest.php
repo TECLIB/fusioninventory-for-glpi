@@ -368,4 +368,3 @@ class DevicesLocks extends RestoreDatabase_TestCase {
 
    }
 }
-?>

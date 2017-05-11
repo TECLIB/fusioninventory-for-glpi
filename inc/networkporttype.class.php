@@ -383,7 +383,6 @@ class PluginFusioninventoryNetworkporttype extends CommonDBTM {
 
       if (Session::haveRight('plugin_fusioninventory_configuration', UPDATE)) {
 
-
          echo "<td class='right'>";
 
          if (count($a_notimports) > 0) {
@@ -430,4 +429,3 @@ class PluginFusioninventoryNetworkporttype extends CommonDBTM {
    }
 }
 
-?>

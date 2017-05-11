@@ -61,7 +61,7 @@ include_once(GLPI_ROOT."/inc/includes.php");
 include_once( GLPI_ROOT . "/plugins/fusioninventory/lib/autoload.php");
 
 define("PLUGIN_FUSIONINVENTORY_ROOT",
-   implode(DIRECTORY_SEPARATOR , array(GLPI_ROOT,'plugins', 'fusioninventory', 'inc'))
+   implode(DIRECTORY_SEPARATOR, array(GLPI_ROOT,'plugins', 'fusioninventory', 'inc'))
 );
 
 define("PLUGIN_FUSIONINVENTORY_REPOSITORY_DIR",
@@ -274,7 +274,6 @@ function plugin_init_fusioninventory() {
 
       $CFG_GLPI["networkport_types"][] = 'PluginFusioninventoryUnmanaged';
 
-
       /**
        * Load the relevant javascript/css files only on pages that need them.
        */
@@ -344,7 +343,6 @@ function plugin_init_fusioninventory() {
             'NetworkPort'             => 'plugin_item_add_fusioninventory'
           );
 
-
       $PLUGIN_HOOKS['pre_item_update']['fusioninventory'] = array(
             'Plugin' => 'plugin_pre_item_update_fusioninventory'
           );
@@ -357,7 +355,6 @@ function plugin_init_fusioninventory() {
                                     'Phone'            => 'plugin_item_update_fusioninventory',
                                     'NetworkPort'      => 'plugin_item_update_fusioninventory',
                                     'PluginFusioninventoryLock' => array('PluginFusioninventoryLock', 'deleteLock'));
-
 
       $PLUGIN_HOOKS['pre_item_purge']['fusioninventory'] = array(
             'Computer'                 =>'plugin_pre_item_purge_fusioninventory',
@@ -374,7 +371,6 @@ function plugin_init_fusioninventory() {
                  'NetworkEquipment'                   => 'plugin_item_purge_fusinvsnmp',
                  'Printer'                            => 'plugin_item_purge_fusinvsnmp');
       $PLUGIN_HOOKS['item_purge']['fusioninventory'] = $p;
-
 
       $PLUGIN_HOOKS['item_transfer']['fusioninventory'] = 'plugin_item_transfer_fusioninventory';
 
@@ -593,4 +589,3 @@ function plugin_fusioninventory_footer($baseroot) {
       echo "</table>";
       echo "</div>";
 }
-?>

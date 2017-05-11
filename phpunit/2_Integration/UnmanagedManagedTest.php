@@ -115,7 +115,6 @@ class UnmanagedManagedTest extends Common_TestCase {
       $a_inventory['vlans'] = array();
       $a_inventory['connection-lldp'] = array();
 
-
       $pfiNetworkEquipmentLib = new PluginFusioninventoryInventoryNetworkEquipmentLib();
       $networkEquipment = new NetworkEquipment();
 
@@ -231,4 +230,3 @@ class UnmanagedManagedTest extends Common_TestCase {
    }
 
 }
-?>

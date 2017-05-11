@@ -114,7 +114,7 @@ class PluginFusioninventoryNetworkPortLog extends CommonDBTM {
                           '".date("Y-m-d H:i:s")."');";
          $DB->query($query);
       }
-    }
+   }
 
 
 
@@ -146,7 +146,7 @@ class PluginFusioninventoryNetworkPortLog extends CommonDBTM {
       $maps = $mapping->find();
       $listName = array();
       foreach ($maps as $mapfields) {
-      # TODO: untested
+         // TODO: untested
          $listName[$mapfields['itemtype']."-".$mapfields['name']]=
             $mapping->getTranslation($mapfields);
       }
@@ -267,7 +267,7 @@ class PluginFusioninventoryNetworkPortLog extends CommonDBTM {
                WHERE `plugin_fusioninventory_mappings_id`='".
                     $data['plugin_fusioninventory_mappings_id']."' ";
 
-            switch($data['days']) {
+            switch ($data['days']) {
 
                case '-1':
                   $DB->query($query_delete);
@@ -468,7 +468,7 @@ class PluginFusioninventoryNetworkPortLog extends CommonDBTM {
                }
                if ($ID_port == $data["networkports_id_source"]) {
                   if ($np->getFromDB($data["networkports_id_destination"])) {
-                  //if (isset($np->fields["items_id"])) {
+                     //if (isset($np->fields["items_id"])) {
                      $item = new $np->fields["itemtype"];
                      $item->getFromDB($np->fields["items_id"]);
                      $link1 = $item->getLink(1);
@@ -514,8 +514,8 @@ class PluginFusioninventoryNetworkPortLog extends CommonDBTM {
             } else {
                // Changes values
                $text .= "<td align='center' colspan='2'></td>";
-//               $text .= "<td align='center'>".
-//                      $FUSIONINVENTORY_MAPPING[NETWORKING_TYPE][$data["field"]]['name']."</td>";
+               //               $text .= "<td align='center'>".
+               //                      $FUSIONINVENTORY_MAPPING[NETWORKING_TYPE][$data["field"]]['name']."</td>";
                $mapping = new PluginFusioninventoryMapping();
                $mapfields = $mapping->get('NetworkEquipment', $data["field"]);
                if ($mapfields != FALSE) {
@@ -537,4 +537,3 @@ class PluginFusioninventoryNetworkPortLog extends CommonDBTM {
    }
 }
 
-?>

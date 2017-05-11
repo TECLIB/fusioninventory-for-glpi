@@ -118,7 +118,6 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
 
       $tab['common'] = __('Task');
 
-
       $tab[1]['table']          = $this->getTable();
       $tab[1]['field']          = 'name';
       $tab[1]['linkfield']      = '';
@@ -321,7 +320,7 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
        * ( I don't have time for this yet and this is why i can live with a simple mapping string
        * table)
        */
-      switch($moduletype) {
+      switch ($moduletype) {
 
          case 'actors':
             $moduletype_tmp = 'action';
@@ -513,7 +512,6 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
                     'actionselectadd'  => 'dropdown_actionselectiontoadd'.$rand,
                     'actiontypeid'     => $actiontypeid);
 
-
       Ajax::updateItemOnEvent('addAObject', 'show_ActionListEmpty',
                               $CFG_GLPI["root_doc"].
                                  "/plugins/fusioninventory/ajax/dropdownactionselection.php",
@@ -682,7 +680,7 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
     */
    function periodicityToTimestamp($periodicity_type, $periodicity_count) {
       $period = 0;
-      switch($periodicity_type) {
+      switch ($periodicity_type) {
 
          case 'minutes':
             $period = $periodicity_count * 60;
@@ -872,20 +870,20 @@ class PluginFusioninventoryTaskjob extends  PluginFusioninventoryTaskjobView {
                   $finish = TRUE;
                }
 
-               # No news from the agent since 4 hour. The agent is probably crached.
+               // No news from the agent since 4 hour. The agent is probably crached.
                //Let's cancel the task
                if ($finish) {
                      $a_statustmp = $pfTaskjobstate->find("`uniqid`='".$data['uniqid']."'
                               AND `plugin_fusioninventory_agents_id`='".
                                  $data['plugin_fusioninventory_agents_id']."'
                               AND (`state`='2' OR `state`='1') ");
-                     foreach ($a_statustmp as $datatmp) {
-                        $pfTaskjobstate->changeStatusFinish($datatmp['id'],
-                                                            0,
-                                                            '',
-                                                            1,
-                                                            "==agentcrashed==");
-                     }
+                  foreach ($a_statustmp as $datatmp) {
+                     $pfTaskjobstate->changeStatusFinish($datatmp['id'],
+                                                      0,
+                                                      '',
+                                                      1,
+                                                      "==agentcrashed==");
+                  }
                }
             } else if ($task['communication'] == 'push') {
                $a_valid = $pfTaskjoblog->find(
@@ -1470,7 +1468,6 @@ function new_subtype(id) {
          }
          echo "</ul>";
 
-
          echo "</td>";
          echo "</td>";
          echo "<td class='rowhandler control' title='".__('drag', 'fusioninventory').
@@ -1486,7 +1483,6 @@ function new_subtype(id) {
       echo "&nbsp;&nbsp;<img src='".$CFG_GLPI["root_doc"]."/pics/arrow-left.png' alt=''>";
       echo "<input type='submit' name='delete' value=\"".
          __('Delete', 'fusioninventory')."\" class='submit'>";
-
 
       /**
        * Initialize drag and drop on subtype lists
@@ -1563,4 +1559,3 @@ function new_subtype(id) {
    }
 }
 
-?>

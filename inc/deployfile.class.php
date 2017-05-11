@@ -280,7 +280,6 @@ class PluginFusioninventoryDeployFile extends CommonDBTM {
          echo "</div>";
          echo "</div>";
 
-
          //filesize
          if (!$fileregistry_error) {
             echo "<div class='size'>";
@@ -1094,7 +1093,6 @@ class PluginFusioninventoryDeployFile extends CommonDBTM {
          }
       }
 
-
       //remove manifest
       unlink(PLUGIN_FUSIONINVENTORY_MANIFESTS_DIR.$sha512);
 
@@ -1271,4 +1269,3 @@ class PluginFusioninventoryDeployFile extends CommonDBTM {
    }
 }
 
-?>

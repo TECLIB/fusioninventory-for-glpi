@@ -223,7 +223,7 @@ class PluginFusioninventoryCollect extends CommonDBTM {
       echo __('Name');
       echo "</td>";
       echo "<td>";
-      Html::autocompletionTextField($this,'name');
+      Html::autocompletionTextField($this, 'name');
       echo "</td>";
       echo "<td>".__('Type')."</td>";
       echo "<td>";
@@ -283,7 +283,7 @@ class PluginFusioninventoryCollect extends CommonDBTM {
          $itemtype = key($action);
          $items_id = current($action);
 
-         switch($itemtype) {
+         switch ($itemtype) {
 
             case 'Computer':
                $computers[] = $items_id;
@@ -423,7 +423,7 @@ class PluginFusioninventoryCollect extends CommonDBTM {
 
                         $c_input['plugin_fusioninventory_agents_id'] = $agents_id;
 
-                        # Push the agent, in the stack of agent to awake
+                        // Push the agent, in the stack of agent to awake
                         if ($communication == "push") {
                            $_SESSION['glpi_plugin_fusioninventory']['agents'][$agents_id] = 1;
                         }
@@ -454,7 +454,7 @@ class PluginFusioninventoryCollect extends CommonDBTM {
 
                         $c_input['plugin_fusioninventory_agents_id'] = $agents_id;
 
-                        # Push the agent, in the stack of agent to awake
+                        // Push the agent, in the stack of agent to awake
                         if ($communication == "push") {
                            $_SESSION['glpi_plugin_fusioninventory']['agents'][$agents_id] = 1;
                         }
@@ -485,7 +485,7 @@ class PluginFusioninventoryCollect extends CommonDBTM {
 
                         $c_input['plugin_fusioninventory_agents_id'] = $agents_id;
 
-                        # Push the agent, in the stack of agent to awake
+                        // Push the agent, in the stack of agent to awake
                         if ($communication == "push") {
                            $_SESSION['glpi_plugin_fusioninventory']['agents'][$agents_id] = 1;
                         }
@@ -499,7 +499,6 @@ class PluginFusioninventoryCollect extends CommonDBTM {
                         $joblog->add($c_input);
                      }
                      break;
-
 
                }
             }
@@ -625,4 +624,3 @@ class PluginFusioninventoryCollect extends CommonDBTM {
    }
 }
 
-?>

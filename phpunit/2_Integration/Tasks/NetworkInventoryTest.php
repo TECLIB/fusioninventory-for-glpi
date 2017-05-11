@@ -113,7 +113,6 @@ class NetworkInventoryTest extends RestoreDatabase_TestCase {
       );
       $pfNetworkEquipment->add($input);
 
-
       $input = array(
           'name'        => 'sw1',
           'entities_id' => 1
@@ -135,7 +134,6 @@ class NetworkInventoryTest extends RestoreDatabase_TestCase {
           'plugin_fusioninventory_configsecurities_id' => 2
       );
       $pfNetworkEquipment->add($input);
-
 
       $input = array(
           'name'        => 'sw2',
@@ -159,7 +157,6 @@ class NetworkInventoryTest extends RestoreDatabase_TestCase {
       );
       $pfNetworkEquipment->add($input);
 
-
       $input = array(
           'name'        => 'sw3/1.1',
           'entities_id' => 3
@@ -182,11 +179,7 @@ class NetworkInventoryTest extends RestoreDatabase_TestCase {
       );
       $pfNetworkEquipment->add($input);
 
-
       // Create Printers
-
-
-
 
       // Add IPRange
       $input = array(
@@ -221,7 +214,6 @@ class NetworkInventoryTest extends RestoreDatabase_TestCase {
           'actors'                          => '[{"PluginFusioninventoryAgent":"1"}]'
       );
       $pfTaskjob->add($input);
-
 
    }
 
@@ -297,7 +289,6 @@ class NetworkInventoryTest extends RestoreDatabase_TestCase {
       $computer      = new Computer();
       $pfAgent       = new PluginFusioninventoryAgent();
       $communication = new PluginFusioninventoryCommunication();
-
 
       // Create computers + agents
       $input = array(
@@ -376,7 +367,7 @@ class NetworkInventoryTest extends RestoreDatabase_TestCase {
       $communication->getTaskAgent(1);
       $message = $communication->getMessage();
       $json = json_encode($message);
-      $array = json_decode($json,TRUE);
+      $array = json_decode($json, TRUE);
 
       $ref = array(
          'OPTION' => array(
@@ -437,7 +428,6 @@ class NetworkInventoryTest extends RestoreDatabase_TestCase {
       $computer      = new Computer();
       $pfAgent       = new PluginFusioninventoryAgent();
       $communication = new PluginFusioninventoryCommunication();
-
 
       // Create computers + agents
       $input = array(
@@ -510,7 +500,7 @@ class NetworkInventoryTest extends RestoreDatabase_TestCase {
       $communication->getTaskAgent(1);
       $message = $communication->getMessage();
       $json = json_encode($message);
-      $array = json_decode($json,TRUE);
+      $array = json_decode($json, TRUE);
 
       $ref = array();
 
@@ -518,4 +508,3 @@ class NetworkInventoryTest extends RestoreDatabase_TestCase {
 
    }
 }
-?>

@@ -110,4 +110,3 @@ $pfInventoryComputerImportXML->showForm();
 
 Html::footer();
 
-?>

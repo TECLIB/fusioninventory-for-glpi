@@ -434,7 +434,7 @@ class PluginFusioninventoryAgent extends CommonDBTM {
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Name')." :</td>";
       echo "<td align='center'>";
-      Html::autocompletionTextField($this,'name', array('size' => 40));
+      Html::autocompletionTextField($this, 'name', array('size' => 40));
       echo "</td>";
       echo "<td>".__('Device_id', 'fusioninventory')."&nbsp;:</td>";
       echo "<td align='center'>";
@@ -741,13 +741,13 @@ class PluginFusioninventoryAgent extends CommonDBTM {
             $this->update($input);
          }
 
-//         // Clean up the agent list
-//         $oldAgent_deviceids = $this->find(
-//            // computer linked to the wrong agent
-//            "(`computers_id`='".$computers_id."' AND `device_id` <> '".$device_id."')");
-//         foreach ($oldAgent_deviceids as $oldAgent) {
-//            $this->delete($oldAgent);
-//         }
+         //         // Clean up the agent list
+         //         $oldAgent_deviceids = $this->find(
+         //            // computer linked to the wrong agent
+         //            "(`computers_id`='".$computers_id."' AND `device_id` <> '".$device_id."')");
+         //         foreach ($oldAgent_deviceids as $oldAgent) {
+         //            $this->delete($oldAgent);
+         //         }
          $oldAgents = $this->find(
             // the same device_id but linked on the wrong computer
             "(`device_id`='".$device_id."' AND `computers_id`<>'".$computers_id."')");
@@ -765,7 +765,7 @@ class PluginFusioninventoryAgent extends CommonDBTM {
             $this->delete($oldAgent);
          }
          return TRUE;
-      } else { # This is a new computer
+      } else { // This is a new computer
          // Link agent with computer
          $agent = $this->infoByKey($device_id);
          if (isset($agent['id'])) {
@@ -835,7 +835,7 @@ class PluginFusioninventoryAgent extends CommonDBTM {
 
       $agentStatus = $this->getStatus();
 
-      switch($agentStatus['message']) {
+      switch ($agentStatus['message']) {
 
          case 'executing scheduled tasks':
          case 'running':
@@ -1043,7 +1043,6 @@ class PluginFusioninventoryAgent extends CommonDBTM {
       $port = $config->getValue('agent_port');
       $url_addresses = array();
 
-
       if (isset($this->fields['id'])) {
          $computer = $this->getAssociatedComputer();
          if ($this->fields['agent_port'] != ''
@@ -1065,8 +1064,8 @@ class PluginFusioninventoryAgent extends CommonDBTM {
          }
       }
 
-      # Guess the machine name from the DEVICEID,
-      # useful when Windows domain != DNS domain
+      // Guess the machine name from the DEVICEID,
+      // useful when Windows domain != DNS domain
       $stack = array();
       if (preg_match('/(\S+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}$/',
                     $this->fields['name'],
@@ -1259,4 +1258,3 @@ class PluginFusioninventoryAgent extends CommonDBTM {
    }
 }
 
-?>

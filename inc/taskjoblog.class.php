@@ -1083,4 +1083,3 @@ function appear_array(id) {
    }
 }
 
-?>

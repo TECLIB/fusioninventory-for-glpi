@@ -133,7 +133,7 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
          "MB" => 1024 * 1024,
          "GB" => 1024 * 1024 * 1024
       );
-      if (array_key_exists($unit,$units)) {
+      if (array_key_exists($unit, $units)) {
          return $units[$unit];
       } else {
          return 1;
@@ -517,10 +517,10 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
                   if ($value >= self::getUnitSize('GB')) {
                      $value = $value / (self::getUnitSize('GB'));
                      $options['value'] = 'GB';
-                  } elseif ($value >= (self::getUnitSize('MB'))) {
+                  } else if ($value >= (self::getUnitSize('MB'))) {
                      $value = $value/ (self::getUnitSize('MB'));
                      $options['value'] = 'MB';
-                  }  elseif ($value >= (self::getUnitSize('KB'))) {
+                  } else if ($value >= (self::getUnitSize('KB'))) {
                      $value = $value/ (self::getUnitSize('KB'));
                      $options['value'] = 'KB';
                   } else {
@@ -759,4 +759,3 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
    }
 }
 
-?>

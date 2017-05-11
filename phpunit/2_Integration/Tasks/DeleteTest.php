@@ -63,7 +63,6 @@ class DeleteTest extends RestoreDatabase_TestCase {
       $pfTaskjoblog    = new PluginFusioninventoryTaskjoblog;
       $pfDeployGroup_Dynamicdata = new PluginFusioninventoryDeployGroup_Dynamicdata();
 
-
       // Create package
       $input = array(
           'entities_id' => 0,
@@ -112,14 +111,14 @@ class DeleteTest extends RestoreDatabase_TestCase {
           'plugin_fusioninventory_agents_id'   => 0,
           'specificity'                        => 0,
           'uniqid'                             => 0,
-         
+
       );
       self::$taskjobstates_id = $pfTaskjobState->add($input);
 
       //crfeate taskjoblogR
       $input = array(
-         'plugin_fusioninventory_taskjobstates_id' => self::$taskjobstates_id, 
-         'date '                                   => date('Y-m-d H:i:s'), 
+         'plugin_fusioninventory_taskjobstates_id' => self::$taskjobstates_id,
+         'date '                                   => date('Y-m-d H:i:s'),
          'items_id'                                => 0,
          'itemtype'                                => 'Computer',
          'state'                                   => PluginFusioninventoryTaskjoblog::TASK_RUNNING,
@@ -157,4 +156,3 @@ class DeleteTest extends RestoreDatabase_TestCase {
       $this->assertEquals(array(), $logs_found);
    }
 }
-?>

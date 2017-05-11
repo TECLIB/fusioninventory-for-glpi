@@ -147,7 +147,7 @@ class PluginFusioninventoryCollect_File_Content extends CommonDBTM {
     * @param integer $taskjobstates_id id of taskjobstate
     */
    function updateComputer($computers_id, $file_data, $collects_files_id) {
-      foreach($file_data as $key => $value) {
+      foreach ($file_data as $key => $value) {
          $input = array(
             'computers_id' => $computers_id,
             'plugin_fusioninventory_collects_files_id' => $collects_files_id,
@@ -265,4 +265,3 @@ class PluginFusioninventoryCollect_File_Content extends CommonDBTM {
 
 }
 
-?>

@@ -35,7 +35,6 @@ CREATE TABLE `glpi_plugin_fusioninventory_pcidevices` (
 
 ";
 
-
    $sql_insert_vendor = "INSERT INTO `glpi_plugin_fusioninventory_pcivendors`
       (`id`, `vendorid`, `name`) VALUES ";
    $sql_insert_device = "INSERT INTO `glpi_plugin_fusioninventory_pcidevices`
@@ -111,7 +110,6 @@ CREATE TABLE `glpi_plugin_fusioninventory_usbdevices` (
    $sql_insert_device = "INSERT INTO `glpi_plugin_fusioninventory_usbdevices`
       (`id`, `deviceid`, `name`, `plugin_fusioninventory_usbvendor_id`) VALUES ";
 
-
    $v = 0;
    $d = 0;
    while (!feof($usbFile)) {
@@ -183,4 +181,3 @@ CREATE TABLE `glpi_plugin_fusioninventory_ouis` (
    file_put_contents("../../install/mysql/oui.sql", utf8_encode($sql_creation.$sql_insert_oui));
 
 }
-?>

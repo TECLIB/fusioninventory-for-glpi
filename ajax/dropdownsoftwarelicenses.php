@@ -65,4 +65,3 @@ $options = array(
 
 $pfComputerLicenseInfo->dropdownSoftwareLicenses($options);
 
-?>

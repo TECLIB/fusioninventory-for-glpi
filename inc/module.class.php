@@ -119,4 +119,3 @@ class PluginFusioninventoryModule extends CommonDBTM {
    }
 }
 
-?>

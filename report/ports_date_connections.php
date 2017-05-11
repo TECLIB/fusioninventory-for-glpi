@@ -67,7 +67,7 @@ $_GET["start"] = $start;
 $_GET=getValues($_GET, $_POST);
 displaySearchForm();
 
-if(isset($_POST["dropdown_calendar"]) && isset($_POST["dropdown_sup_inf"])) {
+if (isset($_POST["dropdown_calendar"]) && isset($_POST["dropdown_sup_inf"])) {
 
    $date_search = '';
    if ($_POST['dropdown_sup_inf'] == 'sup') {
@@ -263,7 +263,7 @@ function getValues($get, $post) {
       foreach ($get["field"] as $index => $value) {
          $get["contains"][$index] = stripslashes($get["contains"][$index]);
          $get["contains"][$index] = htmlspecialchars_decode($get["contains"][$index]);
-         switch($value) {
+         switch ($value) {
             case 14:
                if (strpos( $get["contains"][$index], "=")==1) {
                   $get["dropdown_sup_inf"]="equal";
@@ -305,4 +305,3 @@ function resetSearch() {
    $_GET["dropdown_calendar"]=date("Y-m-d H:i");
 }
 
-?>

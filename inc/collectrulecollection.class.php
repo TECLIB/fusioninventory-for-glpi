@@ -98,4 +98,3 @@ class PluginFusioninventoryCollectRuleCollection extends RuleCollection {
    }
 }
 
-?>

@@ -181,4 +181,3 @@ class PluginFusioninventoryNetworkPortConnectionLog extends CommonDBTM {
    }
 }
 
-?>

@@ -159,10 +159,10 @@ class PluginFusioninventoryDeployGroup extends CommonDBTM {
          case 'add_to_static_group':
             Dropdown::show('PluginFusioninventoryDeployGroup',
                             array('condition' => "`type`='".PluginFusioninventoryDeployGroup::STATIC_GROUP."'"));
-            echo Html::submit(_x('button','Post'), array('name' => 'massiveaction'));
+            echo Html::submit(_x('button', 'Post'), array('name' => 'massiveaction'));
             return true;
          case 'duplicate':
-            echo Html::submit(_x('button','Post'), array('name' => 'massiveaction'));
+            echo Html::submit(_x('button', 'Post'), array('name' => 'massiveaction'));
             return true;
       }
       return parent::showMassiveActionsSubForm($ma);
@@ -281,7 +281,7 @@ class PluginFusioninventoryDeployGroup extends CommonDBTM {
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Name')."&nbsp;:</td>";
       echo "<td align='center'>";
-      Html::autocompletionTextField($this,'name', array('size' => 40));
+      Html::autocompletionTextField($this, 'name', array('size' => 40));
       echo "</td>";
 
       echo "<td rowspan='2'>".__('Comments')."&nbsp;:</td>";
@@ -524,4 +524,3 @@ class PluginFusioninventoryDeployGroup extends CommonDBTM {
    }
 }
 
-?>

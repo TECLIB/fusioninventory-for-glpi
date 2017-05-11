@@ -63,7 +63,7 @@ if (isset($_POST["add"])) {
    }
    Html::back();
 
-// delete a timeslot
+   // delete a timeslot
 } else if (isset($_POST["delete"])) {
    $pfTimeslot->check($_POST['id'], DELETE);
    $ok = $pfTimeslot->delete($_POST);
@@ -71,10 +71,10 @@ if (isset($_POST["add"])) {
 
 } else if (isset($_POST["purge"])) {
    $pfTimeslot->check($_POST['id'], PURGE);
-   $pfTimeslot->delete($_POST,1);
+   $pfTimeslot->delete($_POST, 1);
    $pfTimeslot->redirectToList();
 
-//update a timeslot
+   //update a timeslot
 } else if (isset($_POST["update"])) {
    $pfTimeslot->check($_POST['id'], UPDATE);
    $pfTimeslot->update($_POST);
@@ -91,4 +91,3 @@ if (isset($_POST["add"])) {
    $pfTimeslot->display(array('id' => $_GET["id"]));
    Html::footer();
 }
-?>

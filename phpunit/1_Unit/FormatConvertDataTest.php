@@ -282,7 +282,6 @@ Compiled Wed 11-Feb-15 11:46 by prod_rel_team</COMMENTS>
               'fc:99:47:13:d5:10'
           )
       );
-     $this->assertEquals($a_reference, $a_inventory['connection-mac'], "Must have 2 macs ".print_r($a_inventory['connection-mac'], true));
+      $this->assertEquals($a_reference, $a_inventory['connection-mac'], "Must have 2 macs ".print_r($a_inventory['connection-mac'], true));
    }
 }
-?>

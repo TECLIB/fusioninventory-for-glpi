@@ -68,4 +68,3 @@ Location::dropdown(
             'entity_sons'  => filter_input(INPUT_POST, "is_recursive"),
          )
       );
-?>

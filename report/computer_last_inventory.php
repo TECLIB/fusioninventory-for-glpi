@@ -152,4 +152,3 @@ echo "</table>";
 
 Html::footer();
 
-?>

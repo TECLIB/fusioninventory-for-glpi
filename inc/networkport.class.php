@@ -674,4 +674,3 @@ class PluginFusioninventoryNetworkPort extends CommonDBTM {
    }
 }
 
-?>

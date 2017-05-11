@@ -72,4 +72,3 @@ class PluginFusioninventoryInventoryComputerStorageType extends CommonDropdown {
    }
 }
 
-?>

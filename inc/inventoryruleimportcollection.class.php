@@ -124,8 +124,7 @@ class PluginFusioninventoryInventoryRuleImportCollection extends RuleCollection 
       $name = $this->getRuleClassName();
       if ($name !=  '') {
          return new $name();
-      }
-      else {
+      } else {
          return NULL;
       }
    }
@@ -220,4 +219,3 @@ class PluginFusioninventoryInventoryRuleImportCollection extends RuleCollection 
    }
 }
 
-?>

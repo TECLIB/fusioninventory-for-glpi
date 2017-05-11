@@ -504,7 +504,6 @@ class PluginFusioninventoryMenu extends CommonGLPI {
                                                              $width_status);
       }
 
-
       echo "</td>";
       echo "</tr>";
       echo "</table>";
@@ -819,7 +818,6 @@ class PluginFusioninventoryMenu extends CommonGLPI {
           'color' => "#dedede"
       );
 
-
       // SNMP
       $networkequipment = 0;
       $restrict_entity  = getEntitiesRestrictRequest(" AND", 'net');
@@ -863,7 +861,6 @@ class PluginFusioninventoryMenu extends CommonGLPI {
           'color' => '#3dff7d'
       );
 
-
       // switches ports
       $allSwitchesPortSNMP = 0;
       $restrict_entity     = getEntitiesRestrictRequest(" AND", 'networkports');
@@ -878,7 +875,6 @@ class PluginFusioninventoryMenu extends CommonGLPI {
       if ($data_fi_networkports = $DB->fetch_assoc($res_fi_networkports)) {
          $allSwitchesPortSNMP = $data_fi_networkports['nb_networkports'];
       }
-
 
       $query = "SELECT networkports.`id` FROM `glpi_networkports` networkports
               LEFT JOIN `glpi_plugin_fusioninventory_networkports`
@@ -932,7 +928,6 @@ class PluginFusioninventoryMenu extends CommonGLPI {
           'y'   => ($allSwitchesPortSNMP - $networkPortsConnected),
           'color' => '#dedede'
       );
-
 
       // Number of computer inventories in last hour, 6 hours, 24 hours
       $dataInventory = PluginFusioninventoryInventoryComputerStat::getLastHours();
@@ -1052,4 +1047,3 @@ class PluginFusioninventoryMenu extends CommonGLPI {
    }
 }
 
-?>

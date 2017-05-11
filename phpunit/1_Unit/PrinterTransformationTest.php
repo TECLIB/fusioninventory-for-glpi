@@ -219,4 +219,3 @@ class PrinterTransformation extends RestoreDatabase_TestCase {
    }
 
 }
-?>

@@ -54,14 +54,14 @@ if (!defined('GLPI_ROOT')) {
 
    $dir = GLPI_ROOT."/files/_files/_plugins/fusioninventory";
    $objects = scandir($dir);
-     foreach ($objects as $object) {
-       if ($object != "." && $object != "..") {
+   foreach ($objects as $object) {
+      if ($object != "." && $object != "..") {
          if (filetype($dir."/".$object) == "dir") {
          } else {
             unlink($dir."/".$object);
          }
-       }
-     }
+      }
+   }
 
 
    include_once (GLPI_ROOT . "/inc/timer.class.php");
@@ -236,11 +236,10 @@ class AllTests {
          $suite->addTest(ComputerPeripheral_AllTests::suite());
       }
 
-      # For travis-CI
+      // For travis-CI
       file_put_contents ( "result.stamp", "test ok" );
 
       return $suite;
    }
 }
 
-?>

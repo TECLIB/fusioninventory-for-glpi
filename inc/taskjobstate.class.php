@@ -134,7 +134,7 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
          self::SERVER_HAS_SENT_DATA => __('Server has sent data to the agent', 'fusioninventory'),
          self::AGENT_HAS_SENT_DATA  => __('Agent replied with data to the server', 'fusioninventory'),
          self::FINISHED             => __('Finished', 'fusioninventory'),
-         self::IN_ERROR             => __('Error' , 'fusioninventory'),
+         self::IN_ERROR             => __('Error', 'fusioninventory'),
          self::CANCELLED            => __('Cancelled', 'fusioninventory')
       );
    }
@@ -562,4 +562,3 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
    }
 }
 
-?>

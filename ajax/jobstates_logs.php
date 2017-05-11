@@ -62,6 +62,3 @@ $params = array(
 );
 $pfJobstate->ajaxGetLogs($params);
 
-?>
-
-

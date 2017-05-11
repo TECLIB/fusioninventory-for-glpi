@@ -101,7 +101,6 @@ class UnmanagedImportTest extends Common_TestCase {
       $input['is_dynamic']    = 1;
       $iPAddress->add($input);
 
-
       $pfUnmanaged->import($unmanageds_id);
 
       $cnt = countElementsInTable("glpi_networkequipments");
@@ -185,7 +184,6 @@ class UnmanagedImportTest extends Common_TestCase {
 
       $DB->connect();
 
-
    }
 
 
@@ -199,8 +197,6 @@ class UnmanagedImportTest extends Common_TestCase {
 
       $DB->connect();
 
-
    }
 
 }
-?>

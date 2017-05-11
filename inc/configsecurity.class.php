@@ -105,7 +105,7 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
       echo "<tr class='tab_bg_1'>";
       echo "<td align='center' colspan='2'>" . __('Name') . "</td>";
       echo "<td align='center' colspan='2'>";
-      Html::autocompletionTextField($this,'name');
+      Html::autocompletionTextField($this, 'name');
       echo "</td>";
       echo "</tr>";
 
@@ -124,12 +124,12 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
       echo "<tr class='tab_bg_1'>";
       echo "<td align='center'>" . __('Community', 'fusioninventory') . "</td>";
       echo "<td align='center'>";
-      Html::autocompletionTextField($this,'community');
+      Html::autocompletionTextField($this, 'community');
       echo "</td>";
 
       echo "<td align='center'>" . __('User') . "</td>";
       echo "<td align='center'>";
-      Html::autocompletionTextField($this,'username');
+      Html::autocompletionTextField($this, 'username');
       echo "</td>";
       echo "</tr>";
 
@@ -146,7 +146,7 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
       echo "<td colspan='2'></td>";
       echo "<td align='center'>" . __('Password') . "</td>";
       echo "<td align='center'>";
-      Html::autocompletionTextField($this,'auth_passphrase');
+      Html::autocompletionTextField($this, 'auth_passphrase');
       echo "</td>";
       echo "</tr>";
 
@@ -162,7 +162,7 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
       echo "<td colspan='2'></td>";
       echo "<td align='center'>" . __('Password') . "</td>";
       echo "<td align='center'>";
-      Html::autocompletionTextField($this,'priv_passphrase');
+      Html::autocompletionTextField($this, 'priv_passphrase');
       echo "</td>";
       echo "</tr>";
 
@@ -199,7 +199,7 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
     * @return string
     */
    function getSNMPVersion($id) {
-      switch($id) {
+      switch ($id) {
 
          case '1':
             return '1';
@@ -239,7 +239,7 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
     * @return string
     */
    function getSNMPAuthProtocol($id) {
-      switch($id) {
+      switch ($id) {
 
          case '1':
             return 'MD5';
@@ -276,7 +276,7 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
     * @return string
     */
    function getSNMPEncryption($id) {
-      switch($id) {
+      switch ($id) {
 
          case '1':
             return 'DES';
@@ -323,7 +323,7 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
    static function showMassiveActionsSubForm(MassiveAction $ma) {
       if ($ma->getAction() == 'assign_auth') {
          PluginFusioninventoryConfigSecurity::authDropdown();
-         echo Html::submit(_x('button','Post'), array('name' => 'massiveaction'));
+         echo Html::submit(_x('button', 'Post'), array('name' => 'massiveaction'));
          return TRUE;
       }
       return FALSE;
@@ -346,7 +346,7 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
       switch ($ma->getAction()) {
 
          case "assign_auth" :
-            switch($itemtype) {
+            switch ($itemtype) {
 
                case 'NetworkEquipment':
                   $equipement = new PluginFusioninventoryNetworkEquipment();
@@ -393,4 +393,3 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
    }
 }
 
-?>

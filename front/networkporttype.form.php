@@ -68,4 +68,3 @@ if (isset($_POST['type_to_add'])) {
    Html::back();
 }
 
-?>

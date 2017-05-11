@@ -127,7 +127,6 @@ class RuleEntityTest extends Common_TestCase {
          );
          $ruleaction->add($input);
 
-
       $input = array(
          'name' => 'computer01 - entC'
       );
@@ -142,8 +141,6 @@ class RuleEntityTest extends Common_TestCase {
       );
 
       $this->assertEquals($a_references, $ent, 'Entity C');
-
-
 
       $input = array(
          'name' => 'computer01 - blabla - entB'
@@ -163,4 +160,3 @@ class RuleEntityTest extends Common_TestCase {
    }
 
 }
-?>

@@ -257,4 +257,3 @@ class PluginFusioninventoryCollectRule extends Rule {
    }
 }
 
-?>

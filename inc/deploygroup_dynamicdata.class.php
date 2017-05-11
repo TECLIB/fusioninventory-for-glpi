@@ -88,7 +88,7 @@ class PluginFusioninventoryDeployGroup_Dynamicdata extends CommonDBChild {
 
       if (!$withtemplate
           && $item->fields['type'] == PluginFusioninventoryDeployGroup::DYNAMIC_GROUP) {
-         return array(_n('Criterion', 'Criteria', 2), _n('Associated item','Associated items', 2));
+         return array(_n('Criterion', 'Criteria', 2), _n('Associated item', 'Associated items', 2));
       }
       return '';
    }
@@ -132,7 +132,7 @@ class PluginFusioninventoryDeployGroup_Dynamicdata extends CommonDBChild {
                $params['metacriteria'] = array();
             }
 
-            $params['target'] = Toolbox::getItemTypeFormURL("PluginFusioninventoryDeployGroup" , true).
+            $params['target'] = Toolbox::getItemTypeFormURL("PluginFusioninventoryDeployGroup", true).
                                 "?id=".$item->getID();
             self::showList('PluginFusioninventoryComputer', $params, array('2', '1'));
             return TRUE;
@@ -198,7 +198,7 @@ class PluginFusioninventoryDeployGroup_Dynamicdata extends CommonDBChild {
       $ids = array();
 
       if (!$use_cache || !$ids = self::retrieveCache($group)) {
-         $search_params = PluginFusioninventoryDeployGroup::getSearchParamsAsAnArray($group, false,true);
+         $search_params = PluginFusioninventoryDeployGroup::getSearchParamsAsAnArray($group, false, true);
          if (isset($search_params['metacriteria']) && empty($search_params['metacriteria'])) {
             unset($search_params['metacriteria']);
          }
@@ -288,4 +288,3 @@ class PluginFusioninventoryDeployGroup_Dynamicdata extends CommonDBChild {
 
 }
 
-?>

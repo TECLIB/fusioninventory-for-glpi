@@ -71,4 +71,3 @@ class PluginFusioninventoryRuleDictionnaryComputerArchCollection extends RuleDic
       return __('Dictionnary of computer architectures', 'fusioninventory');
    }
 }
-?>

@@ -88,7 +88,7 @@ class PluginFusioninventoryInventoryComputerStorage extends CommonDBTM {
                         getTableForItemType("PluginFusioninventoryInventoryComputerStorage"),
                         "`computers_id`='".$item->getID()."'");
             if (count($a_nb) > 0) {
-//               return self::createTabEntry(__('Storage', 'fusioninventory'));
+               //               return self::createTabEntry(__('Storage', 'fusioninventory'));
             }
          }
       }
@@ -242,7 +242,7 @@ class PluginFusioninventoryInventoryComputerStorage extends CommonDBTM {
                               $cursize = $remaining_size;
                               $remaining_size = 0;
                               $a_postmp[$parents_id] = $position_temp + 5;
-                          }
+                           }
                            if ($dataposition['totalsize'] > 0) {
 
                               if ($remaining_size == 0
@@ -336,4 +336,3 @@ class PluginFusioninventoryInventoryComputerStorage extends CommonDBTM {
    }
 }
 
-?>

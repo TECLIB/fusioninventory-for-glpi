@@ -55,7 +55,7 @@ if (!defined('GLPI_ROOT')) {
 class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
 
    /**
-    * __contruct function where initialize base URLs 
+    * __contruct function where initialize base URLs
     */
    function __construct() {
       parent::__construct();
@@ -170,7 +170,7 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
     */
    function ajaxGetForm($options) {
       $ID = $this->ajaxLoadItem($options);
-      $this->showForm($ID,$options);
+      $this->showForm($ID, $options);
    }
 
 
@@ -442,7 +442,7 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
          "</input>",
          "</div>"
       ));
-      echo Html::scriptBlock(implode("\n",array(
+      echo Html::scriptBlock(implode("\n", array(
          "$('#add_fusinv_job_item_button').on('click', function() {",
          "  taskjobs.add_item(",
          "     \"$moduletype\", \"$itemtype\", \"$itemtype_name\", \"$dropdown_rand_id\"",
@@ -678,7 +678,7 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
             "        \"".$this->getBaseUrlFor('fi.job.edit')."\", ",
             "        $id",
             "     )'",
-            " value=\"".__('Cancel modifications','fusioninventory')."\"/>",
+            " value=\"".__('Cancel modifications', 'fusioninventory')."\"/>",
             "</div>",
             "</td>",
          ));
@@ -735,13 +735,13 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
                AND $dataDB[$postvars['DefinitionType']] == $postvars['definitionselectiontoadd']) {
                   $add = 0;
                   break;
-               }
+            }
          }
          if ($add == '1') {
             if (isset($postvars['DefinitionType'])
                AND $postvars['DefinitionType'] != '') {
                   $a_listdef[] = array($postvars['DefinitionType']=>$postvars['definitionselectiontoadd']);
-               }
+            }
          }
          $input = array();
          $input['id'] = $postvars['id'];
@@ -843,7 +843,7 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
                     and is_array($postvars['targets'])
                     and count($postvars['targets']) > 0) {
                foreach ($postvars['targets'] as $target) {
-                  list($itemtype, $itemid) = explode('-',$target);
+                  list($itemtype, $itemid) = explode('-', $target);
                   $targets[] = array($itemtype => $itemid);
                }
             }
@@ -855,7 +855,7 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
                     and is_array($postvars['actors'])
                     and count($postvars['actors']) > 0) {
                foreach ($postvars['actors'] as $actor) {
-                  list($itemtype, $itemid) = explode('-',$actor);
+                  list($itemtype, $itemid) = explode('-', $actor);
                   $actors[] = array($itemtype => $itemid);
                }
             }
@@ -872,7 +872,7 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
 
          $this->delete($postvars);
 
-      } elseif (isset($postvars['itemaddaction'])) {
+      } else if (isset($postvars['itemaddaction'])) {
          $array                     = explode("||", $postvars['methodaction']);
          $module                    = $array[0];
          $method                    = $array[1];
@@ -906,7 +906,7 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
          $mytask->update($mytask->fields);
          // force running this job (?)
 
-      } elseif (isset($postvars['forceend'])) {
+      } else if (isset($postvars['forceend'])) {
          $mytaskjobstate = new PluginFusioninventoryTaskjobstate();
          $pfTaskjob = new PluginFusioninventoryTaskjob();
          $mytaskjobstate->getFromDB($postvars['taskjobstates_id']);

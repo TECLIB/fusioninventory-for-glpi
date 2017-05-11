@@ -59,7 +59,6 @@ class CronTaskTest extends RestoreDatabase_TestCase {
       $pfDeployGroup_Dynamicdata = new PluginFusioninventoryDeployGroup_Dynamicdata();
       $pfEntity        = new PluginFusioninventoryEntity();
 
-
       $input = array(
           'id'             => 1,
           'agent_base_url' => 'http://127.0.0.1/glpi'
@@ -122,7 +121,6 @@ class CronTaskTest extends RestoreDatabase_TestCase {
       );
       $pfAgent->add($input);
 
-
       $input = array(
           'entities_id' => 0,
           'name'        => 'computer2'
@@ -138,7 +136,6 @@ class CronTaskTest extends RestoreDatabase_TestCase {
           'computers_id'=> $computers_id
       );
       $pfAgent->add($input);
-
 
       $input = array(
           'entities_id' => 0,
@@ -212,7 +209,6 @@ class CronTaskTest extends RestoreDatabase_TestCase {
           'computers_id'=> $computers_id
       );
       $pfAgent->add($input);
-
 
       PluginFusioninventoryTask::cronTaskscheduler();
 
@@ -353,23 +349,23 @@ class CronTaskTest extends RestoreDatabase_TestCase {
          array('deployinstall')
       );
       foreach ($taskjobstates as $taskjobstate) {
-        $jobstate_order = $deploycommon->run($taskjobstate);
-        $params = array(
+         $jobstate_order = $deploycommon->run($taskjobstate);
+         $params = array(
            'machineid' => 'computer3',
            'uuid'      => $jobstate_order['job']['uuid'],
            'code'      => 'running',
            'msg'       => 'gogogo',
            'sendheaders' => False
-        );
-        PluginFusioninventoryCommunicationRest::updateLog($params);
-        $params = array(
+         );
+         PluginFusioninventoryCommunicationRest::updateLog($params);
+         $params = array(
            'machineid' => 'computer3',
            'uuid'      => $jobstate_order['job']['uuid'],
            'code'      => 'ko',
            'msg'       => 'failure of check #1 (error)',
            'sendheaders' => False
-        );
-        PluginFusioninventoryCommunicationRest::updateLog($params);
+         );
+         PluginFusioninventoryCommunicationRest::updateLog($params);
       }
 
       // re-prepare and will have only the computer in error be in prepared mode
@@ -415,7 +411,6 @@ class CronTaskTest extends RestoreDatabase_TestCase {
       $counters = $data['tasks'][1]['jobs'][1]['targets']['PluginFusioninventoryDeployPackage_1']['counters'];
       $this->assertEquals($reference, $counters);
 
-
       $input = array(
           'id'                      => 1,
           'reprepare_if_successful' => 1,
@@ -447,4 +442,3 @@ class CronTaskTest extends RestoreDatabase_TestCase {
    }
 }
 
-?>

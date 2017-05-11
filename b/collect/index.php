@@ -153,7 +153,7 @@ switch (filter_input(INPUT_GET, "action")) {
                      'uuid'      => filter_input(INPUT_GET, "uuid"),
                      'code'      => 'running',
                      'msg'       => "file ".$a_values['path']." | size ".$a_values['size']
-                 );
+                  );
                   PluginFusioninventoryCommunicationRest::updateLog($params);
                   $pfCollect_subO = new PluginFusioninventoryCollect_File_Content();
                   $a_values = array($sid => $a_values);
@@ -161,55 +161,55 @@ switch (filter_input(INPUT_GET, "action")) {
                   $add_value = false;
                }
                break;
-            }
+         }
 
-            if (!isset($pfCollect_subO)) {
-               die("collect type not found");
-            }
+         if (!isset($pfCollect_subO)) {
+            die("collect type not found");
+         }
 
-            if ($add_value) {
-               // add collected informations to computer
-               $pfCollect_subO->updateComputer(
-                  $computers_id,
-                  $a_values,
-                  $sid
-               );               
-            }
+         if ($add_value) {
+            // add collected informations to computer
+            $pfCollect_subO->updateComputer(
+            $computers_id,
+            $a_values,
+            $sid
+            );
+         }
 
             // change status of state table row
             $pfTaskjobstate->changeStatus($jobstate['id'],
                        PluginFusioninventoryTaskjobstate::AGENT_HAS_SENT_DATA);
 
             // add logs to job
-            if (count($a_values)) {
-               $flag    = PluginFusioninventoryTaskjoblog::TASK_INFO;
-               $message = json_encode($a_values, JSON_UNESCAPED_SLASHES);
-            } else {
-               $flag    = PluginFusioninventoryTaskjoblog::TASK_ERROR;
-               $message = __('Path not found', 'fusioninventory');
-            }
+         if (count($a_values)) {
+            $flag    = PluginFusioninventoryTaskjoblog::TASK_INFO;
+            $message = json_encode($a_values, JSON_UNESCAPED_SLASHES);
+         } else {
+            $flag    = PluginFusioninventoryTaskjoblog::TASK_ERROR;
+            $message = __('Path not found', 'fusioninventory');
+         }
             $pfTaskjoblog->addTaskjoblog($jobstate['id'],
                                          $jobstate['items_id'],
                                          $jobstate['itemtype'],
                                          $flag,
                                          $message);
-         }
-         break;
-
-
-
-       case 'jobsDone':
-         $jobstate = current($pfTaskjobstate->find("`uniqid`='".$_GET['uuid']."'
-            AND `state`!='".PluginFusioninventoryTaskjobstate::FINISHED."'", '', 1));
-         $pfTaskjobstate->changeStatusFinish($jobstate['id'],
-                                             $jobstate['items_id'],
-                                             $jobstate['itemtype']);
-
-         break;
       }
+         break;
 
-   if (count($response) > 0) {
-      echo json_encode($response);
-   } else {
-      echo json_encode((object)array());
-   }
+
+
+   case 'jobsDone':
+      $jobstate = current($pfTaskjobstate->find("`uniqid`='".$_GET['uuid']."'
+            AND `state`!='".PluginFusioninventoryTaskjobstate::FINISHED."'", '', 1));
+      $pfTaskjobstate->changeStatusFinish($jobstate['id'],
+                                     $jobstate['items_id'],
+                                     $jobstate['itemtype']);
+
+         break;
+}
+
+if (count($response) > 0) {
+   echo json_encode($response);
+} else {
+   echo json_encode((object)array());
+}

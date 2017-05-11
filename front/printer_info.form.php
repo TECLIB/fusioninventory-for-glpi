@@ -85,7 +85,7 @@ if ((isset($_POST['update'])) && (isset($_POST['id']))) {
 }
 
 $arg = "";
-for ($i=1 ; $i <= 5 ; $i++) {
+for ($i=1; $i <= 5; $i++) {
    $value = '';
    switch ($i) {
       case 1:
@@ -145,4 +145,3 @@ if (isset($_POST['graph_plugin_fusioninventory_printer_remove'])) {
 
 Html::back();
 
-?>

@@ -245,16 +245,16 @@ class PluginFusioninventoryDeployAction extends CommonDBTM {
          echo "</tr>";
          $i++;
       }
-         if ($package->can($package->getID(), UPDATE)) {
+      if ($package->can($package->getID(), UPDATE)) {
          echo "<tr><th>";
          Html::checkAllAsCheckbox("actionsList$rand", mt_rand());
          echo "</th><th colspan='3' class='mark'></th></tr>";
       }
       echo "</table>";
-         if ($package->can($package->getID(), UPDATE)) {
+      if ($package->can($package->getID(), UPDATE)) {
          echo "&nbsp;&nbsp;<img src='".$CFG_GLPI["root_doc"]."/pics/arrow-left.png' alt=''>";
          echo "<input type='submit' name='delete' value=\"".
-            __('Delete', 'fusioninventory')."\" class='submit'>";
+         __('Delete', 'fusioninventory')."\" class='submit'>";
       }
    }
 
@@ -655,4 +655,3 @@ class PluginFusioninventoryDeployAction extends CommonDBTM {
    }
 }
 
-?>

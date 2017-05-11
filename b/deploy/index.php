@@ -129,7 +129,7 @@ switch (filter_input(INPUT_GET, "action")) {
                      }
                   }
                   $taskjobstate->changeStatus(
-                     $taskjobstate->fields['id'] ,
+                     $taskjobstate->fields['id'],
                      $taskjobstate::SERVER_HAS_SENT_DATA
                   );
                }
@@ -224,4 +224,3 @@ if ($response !== FALSE) {
    echo json_encode((object)array());
 }
 
-?>

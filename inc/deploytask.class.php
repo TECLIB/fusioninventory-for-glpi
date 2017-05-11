@@ -121,7 +121,7 @@ class PluginFusioninventoryDeployTask extends PluginFusioninventoryTask {
     */
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
 
-      switch(get_class($item)) {
+      switch (get_class($item)) {
 
          case __CLASS__:
             return __('Order list', 'fusioninventory');
@@ -141,7 +141,7 @@ class PluginFusioninventoryDeployTask extends PluginFusioninventoryTask {
     * @return boolean
     */
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
-      switch(get_class($item)) {
+      switch (get_class($item)) {
 
          case __CLASS__:
             $obj = new self;
@@ -284,4 +284,3 @@ class PluginFusioninventoryDeployTask extends PluginFusioninventoryTask {
    }
 }
 
-?>

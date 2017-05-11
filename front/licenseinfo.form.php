@@ -55,4 +55,3 @@ if (isset($_POST['associate'])) {
    Html::back();
 }
 
-?>

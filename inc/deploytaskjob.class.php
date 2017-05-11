@@ -231,7 +231,7 @@ class PluginFusioninventoryDeployTaskjob extends CommonDBTM {
       if (!isset($params['get'])) {
          exit;
       }
-      switch($params['get']) {
+      switch ($params['get']) {
 
          case "type";
             $res = json_encode(array(
@@ -293,4 +293,3 @@ class PluginFusioninventoryDeployTaskjob extends CommonDBTM {
    }
 }
 
-?>

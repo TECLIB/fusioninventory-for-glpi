@@ -66,4 +66,3 @@ class PluginFusioninventoryComputerArch extends CommonDropdown {
    }
 }
 
-?>

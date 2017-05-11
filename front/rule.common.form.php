@@ -141,4 +141,3 @@ $rule->showForm($_GET["id"]);
 
 Html::footer();
 
-?>

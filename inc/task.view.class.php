@@ -127,8 +127,8 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
    function showJobLogs() {
       $refresh_intervals = array(
          "off"  => __('Off', 'fusioninventory'),
-         "1"    => '1 '._n('second','seconds',1),
-         "5"    => '5 '._n('second','seconds',5),
+         "1"    => '1 '._n('second', 'seconds', 1),
+         "5"    => '5 '._n('second', 'seconds', 5),
          "10"   => '10 '._n('second', 'seconds', 10),
          "60"   => '1 '._n('minute', 'minutes', 1),
          "120"  => '2 '._n('minute', 'minutes', 2),
@@ -163,7 +163,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       echo implode("\n", array(
          "<script id='template_task' type='x-tmpl-mustache'>",
          "<div id='{{task_id}}' class='task_block {{expanded}}'>",
-         "  <h3>".__("Task",'fusioninventory')." <span class='task_name'>{{task_name}}</span></h3>",
+         "  <h3>".__("Task", 'fusioninventory')." <span class='task_name'>{{task_name}}</span></h3>",
          "  <div class='jobs_block'></div>",
          "</div>",
          "</script>"
@@ -217,7 +217,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
          "<a",
          "  href='javascript:void(0)'",
          "  class='' ",
-         "  title='".__("Show/Hide details","fusioninventory")."'",
+         "  title='".__("Show/Hide details", "fusioninventory")."'",
          "  onclick='taskjobs.toggle_details_type(this, \"{{counter_type}}\", \"{{chart_id}}\")'",
          ">",
          "<div class='fold'></div>",
@@ -250,7 +250,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
          "     'agents_error'     : '". __('In error', 'fusioninventory') . "',",
          "     'agents_success'   : '". __('Successful', 'fusioninventory')."',",
          "     'agents_running'   : '". __('Running', 'fusioninventory')."',",
-         "     'agents_prepared'  : '". __('Prepared' , 'fusioninventory')."',",
+         "     'agents_prepared'  : '". __('Prepared', 'fusioninventory')."',",
          "     'agents_cancelled' : '". __('Cancelled', 'fusioninventory')."',",
          "  };",
          "  taskjobs.logstatuses_names = " . json_encode(
@@ -273,10 +273,10 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       echo implode("\n", array(
          "<div class='tasks_block'>",
          "</div>",
-//         "<pre class='debuglogs' style='text-align:left;'></pre>"
+      //         "<pre class='debuglogs' style='text-align:left;'></pre>"
       ));
 
-      if (isset($this->fields['id']) ) {
+      if (isset($this->fields['id'])) {
          $task_id = $this->fields['id'];
       } else {
          $task_id = json_encode(array());
@@ -339,7 +339,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
          "agents_error"     => __('In error', 'fusioninventory'),
          "agents_success"   => __('Successful', 'fusioninventory'),
          "agents_running"   => __('Running', 'fusioninventory'),
-         "agents_prepared"  => __('Prepared' , 'fusioninventory'),
+         "agents_prepared"  => __('Prepared', 'fusioninventory'),
          "agents_cancelled" => __('Cancelled', 'fusioninventory')
       );
 
@@ -382,7 +382,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
          //Add fold/unfold icon
          $display_list[] = " <div ";
          $display_list[] = "  class='fold'";
-         $display_list[] = "  title='".__("Show/Hide Agent details","fusioninventory")."'";
+         $display_list[] = "  title='".__("Show/Hide Agent details", "fusioninventory")."'";
          $display_list[] = "  onclick='taskjobs.toggle_agent_fold(this)'";
          $display_list[] = " ></div>";
 
@@ -460,9 +460,8 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       }
 
       $options['colspan'] = 2;
-      $this->initForm($id,$options);
+      $this->initForm($id, $options);
       $this->showFormHeader($options);
-
 
       echo "<tr class='tab_bg_1'>";
       echo "<td colspan='4'>";
@@ -499,7 +498,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
          );
 
          $this->showDropdownForItemtype(
-            __('Timeslot','fusioninventory'),
+            __('Timeslot', 'fusioninventory'),
             "PluginFusioninventoryTimeslot",
             array('value' => $this->fields['plugin_fusioninventory_timeslots_id'])
             );
@@ -535,10 +534,10 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       echo "<tr>";
       echo "<td colspan='2'>";
       if ($this->isNewID($ID)) {
-         echo Html::submit(_x('button','Add'), array('name' => 'add'));
+         echo Html::submit(_x('button', 'Add'), array('name' => 'add'));
       } else {
          echo Html::hidden('id', array('value' => $ID));
-         echo Html::submit(_x('button','Save'), array('name' => 'update'));
+         echo Html::submit(_x('button', 'Save'), array('name' => 'update'));
       }
       echo "</td>";
 
@@ -551,7 +550,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
 
       echo "<td>";
       if ($this->can($ID, PURGE)) {
-         echo Html::submit(_x('button','Delete permanently'),
+         echo Html::submit(_x('button', 'Delete permanently'),
                            array('name'    => 'purge',
                                  'confirm' => __('Confirm the final deletion?')));
       }

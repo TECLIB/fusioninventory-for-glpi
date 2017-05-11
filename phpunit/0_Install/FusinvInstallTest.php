@@ -54,7 +54,6 @@ class FusinvInstallTest extends Common_TestCase {
       $DB->connect();
       $this->assertTrue($DB->connected, "Problem connecting to the Database");
 
-
       // Delete if Table of FusionInventory or Tracker yet in DB
       $query = "SHOW FULL TABLES WHERE TABLE_TYPE LIKE 'VIEW'";
       $result = $DB->query($query);
@@ -70,7 +69,7 @@ class FusinvInstallTest extends Common_TestCase {
          if (strstr($data[0], "tracker")
             OR strstr($data[0], "fusi")) {
                $DB->query("DROP TABLE ".$data[0]);
-            }
+         }
       }
 
       $output = array();
@@ -79,9 +78,9 @@ class FusinvInstallTest extends Common_TestCase {
          "php -f ".FUSINV_ROOT. "/scripts/cli_install.php -- --as-user 'glpi'",
          $output, $returncode
       );
-      $this->assertEquals(0,$returncode,
+      $this->assertEquals(0, $returncode,
          "Error when installing plugin in CLI mode\n".
-         implode("\n",$output)
+         implode("\n", $output)
       );
 
       $GLPIlog = new GLPIlogs();
@@ -97,4 +96,3 @@ class FusinvInstallTest extends Common_TestCase {
 
 
 
-?>

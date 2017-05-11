@@ -117,4 +117,3 @@ if (!empty($type) && !empty($actortype)) {
    }
 }
 
-?>

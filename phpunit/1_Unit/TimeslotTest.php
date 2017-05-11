@@ -201,7 +201,7 @@ class TimeslotTest extends RestoreDatabase_TestCase {
 
 
 
-  /**
+   /**
     * @test
     */
    public function addEntrieslotNotInRanges() {
@@ -264,7 +264,7 @@ class TimeslotTest extends RestoreDatabase_TestCase {
 
 
 
-  /**
+   /**
     * @test
     */
    public function addEntryin2Ranges() {
@@ -309,7 +309,7 @@ class TimeslotTest extends RestoreDatabase_TestCase {
 
 
 
-  /**
+   /**
     * @test
     */
    public function addEntryForTwoDays() {
@@ -372,7 +372,7 @@ class TimeslotTest extends RestoreDatabase_TestCase {
 
 
 
-  /**
+   /**
     * @test
     */
    public function addEntryForTwoDaysYetAdded() {

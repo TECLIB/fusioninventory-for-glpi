@@ -328,4 +328,3 @@ class PluginFusioninventoryPrinter extends CommonDBTM {
    }
 }
 
-?>

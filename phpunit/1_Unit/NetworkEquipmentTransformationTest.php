@@ -499,7 +499,6 @@ Compiled Sat 07-Aug-10 22:45 by prod_rel_team',
       );
       $this->assertEquals($a_reference, $a_return['connection-mac'][1]);
 
-
       $a_reference = array();
       $a_reference = array(
                '00:0f:fe:0d:30:76',
@@ -515,4 +514,3 @@ Compiled Sat 07-Aug-10 22:45 by prod_rel_team',
    }
 
 }
-?>

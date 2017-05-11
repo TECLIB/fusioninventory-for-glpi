@@ -85,7 +85,7 @@ if (!empty($fi_machineid)) {
                $order->jobs[] = $module->run($taskjobstate);
 
                $taskjobstate->changeStatus(
-                  $taskjobstate->fields['id'] ,
+                  $taskjobstate->fields['id'],
                   $taskjobstate::SERVER_HAS_SENT_DATA
                );
             }
@@ -113,4 +113,3 @@ if (!empty($fi_machineid)) {
    }
 }
 
-?>

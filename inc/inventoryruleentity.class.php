@@ -310,7 +310,7 @@ class PluginFusioninventoryInventoryRuleEntity extends Rule {
          list ($subnet, $bits) = explode('/', $pattern);
          $subnet = ip2long($subnet);
          $mask = -1 << (32 - $bits);
-         $subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
+         $subnet &= $mask; // nb: in case the supplied subnet wasn't correctly aligned
 
          if (is_array($value)) {
             foreach ($value as $ip) {
@@ -339,7 +339,7 @@ class PluginFusioninventoryInventoryRuleEntity extends Rule {
          list ($subnet, $bits) = explode('/', $pattern);
          $subnet = ip2long($subnet);
          $mask = -1 << (32 - $bits);
-         $subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
+         $subnet &= $mask; // nb: in case the supplied subnet wasn't correctly aligned
 
          if (is_array($value)) {
             $resarray = TRUE;
@@ -405,4 +405,3 @@ class PluginFusioninventoryInventoryRuleEntity extends Rule {
    }
 }
 
-?>

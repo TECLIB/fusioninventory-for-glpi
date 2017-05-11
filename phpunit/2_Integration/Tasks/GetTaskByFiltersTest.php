@@ -78,4 +78,3 @@ class GetTaskByFiltersTest extends RestoreDatabase_TestCase {
 
 
 }
-?>

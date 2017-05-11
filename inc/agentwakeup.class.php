@@ -202,4 +202,3 @@ class PluginFusioninventoryAgentWakeup extends  CommonDBTM {
    }
 }
 
-?>

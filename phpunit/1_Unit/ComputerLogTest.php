@@ -365,7 +365,6 @@ class ComputerLog extends RestoreDatabase_TestCase {
 
       $this->assertEquals($a_reference, $a_logs, "Log may be empty at second update ".print_r($a_logs, true));
 
-
       // * Modify: contact
       // * remove a processor
       // * Remove a software
@@ -433,9 +432,8 @@ class ComputerLog extends RestoreDatabase_TestCase {
          and remove a software)");
 
    }
- }
+}
 
 
 
 
-?>

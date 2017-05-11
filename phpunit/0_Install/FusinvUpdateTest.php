@@ -68,7 +68,6 @@ class UpdateTest extends RestoreDatabase_TestCase {
          return;
       }
 
-
       $query = "SHOW TABLES";
       $result = $DB->query($query);
       while ($data=$DB->fetch_array($result)) {
@@ -101,7 +100,7 @@ class UpdateTest extends RestoreDatabase_TestCase {
          $output,
          $returncode
       );
-      $this->assertEquals(0,$returncode,implode("\n", $output));
+      $this->assertEquals(0, $returncode, implode("\n", $output));
 
       $GLPIlog = new GLPIlogs();
       $GLPIlog->testSQLlogs();
@@ -163,4 +162,3 @@ class UpdateTest extends RestoreDatabase_TestCase {
    }
 }
 
-?>

@@ -119,4 +119,3 @@ class PluginFusioninventoryDeployPackage_User extends CommonDBRelation {
    }
 }
 
-?>

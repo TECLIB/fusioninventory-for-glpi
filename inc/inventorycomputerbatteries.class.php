@@ -211,4 +211,3 @@ class PluginFusioninventoryInventoryComputerBatteries extends CommonDBTM {
    }
 }
 
-?>

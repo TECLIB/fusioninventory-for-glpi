@@ -80,4 +80,3 @@ unset($_SESSION['glpi_tabs']['pluginfusioninventoryconfiguration']);
 
 Html::footer();
 
-?>

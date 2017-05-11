@@ -141,7 +141,7 @@ class PluginFusioninventoryNetworkEquipment extends CommonDBTM {
       }
 
       $id = $item->getID();
-     if (!$data = $this->find("`networkequipments_id`='".$id."'", '', 1)) {
+      if (!$data = $this->find("`networkequipments_id`='".$id."'", '', 1)) {
          // Add in database if not exist
          $input = array();
          $input['networkequipments_id'] = $id;
@@ -158,7 +158,7 @@ class PluginFusioninventoryNetworkEquipment extends CommonDBTM {
          $this->showNetworkEquipmentInformation($id, $options);
          return;
       }
-//$_SESSION['plugin_fusioninventory_networkportview'] = 'glpi';
+      //$_SESSION['plugin_fusioninventory_networkportview'] = 'glpi';
 
       if (!isset($_SESSION['plugin_fusioninventory_networkportview'])) {
          $_SESSION['plugin_fusioninventory_networkportview'] = 'fusioninventory';
@@ -432,8 +432,8 @@ class PluginFusioninventoryNetworkEquipment extends CommonDBTM {
                   $link1 = $item->getLink(1);
                   $link = str_replace($item->getName(0), $NetworkPort->fields["mac"],
                                       $item->getLink());
-//                  $link2 = str_replace($item->getName(0), $NetworkPort->fields["ip"],
-//                                       $item->getLink());
+                  //                  $link2 = str_replace($item->getName(0), $NetworkPort->fields["ip"],
+                  //                                       $item->getLink());
                   echo "<tr>";
                   $icon = $this->getItemtypeIcon($classname);
                   echo "<td align='center'  ".$background_img."
@@ -514,7 +514,6 @@ class PluginFusioninventoryNetworkEquipment extends CommonDBTM {
             $this->fields = $datas;
          }
       }
-
 
       // Form networking informations
       echo "<form name='form' method='post' action='".$options['target']."'>";
@@ -700,8 +699,7 @@ class PluginFusioninventoryNetworkEquipment extends CommonDBTM {
                                              ".dialog('open');\">";
       $tmp .= Ajax::createIframeModalWindow('search_config_top',
                                           $CFG_GLPI["root_doc"].
-                                             "/front/displaypreference.form.php?itemtype=PluginFusioninventoryNetworkPort"
-                                             ,
+                                             "/front/displaypreference.form.php?itemtype=PluginFusioninventoryNetworkPort",
                                           array('title'
                                                    => __('Select default items to show'),
                                                 'reloadonclose'
@@ -713,7 +711,6 @@ class PluginFusioninventoryNetworkEquipment extends CommonDBTM {
                           __s('Select default items to show')."\" src='".
                           $CFG_GLPI["root_doc"]."/pics/options_search.png' ";
       echo $tmp;
-
 
       $url_legend = "https://forge.indepnet.net/wiki/fusioninventory/".
                         "En_VI_visualisationsdonnees_2_reseau";
@@ -1005,12 +1002,12 @@ class PluginFusioninventoryNetworkEquipment extends CommonDBTM {
                      // * GetIP
                         $a_networknames = current($networkName->find("`itemtype`='NetworkPort'
                                           AND `items_id`='".$opposite_port."'", "", 1));
-                        if (isset($a_networknames['id'])) {
-                           $a_ipaddresses =  current($iPAddress->find("`itemtype`='NetworkName'
+                     if (isset($a_networknames['id'])) {
+                        $a_ipaddresses =  current($iPAddress->find("`itemtype`='NetworkName'
                                              AND `items_id`='".$a_networknames['id']."'", "", 1));
-                           $link2 = str_replace($item->getName(0), $a_ipaddresses['name'],
-                                                $item->getLink());
-                        }
+                        $link2 = str_replace($item->getName(0), $a_ipaddresses['name'],
+                                          $item->getLink());
+                     }
 
                      if ($data_device["itemtype"] == 'PluginFusioninventoryUnmanaged') {
                         $icon = $this->getItemtypeIcon($item->fields["item_type"]);
@@ -1241,13 +1238,12 @@ class PluginFusioninventoryNetworkEquipment extends CommonDBTM {
       }
       if (file_exists(GLPI_PLUGIN_DOC_DIR."/fusioninventory/xml/NetworkEquipment/".$folder."/".$items_id)) {
          echo "/ <a href='".$CFG_GLPI['root_doc'].
-        "/plugins/fusioninventory/front/send_inventory.php".
-        "?itemtype=networkequipment".
-        "&function=sendXML&items_id=NetworkEquipment/".$folder."/".$items_id.
-        "&filename=NetworkEquipment-".$items_id.".xml'".
-        "target='_blank'>XML</a>";
+         "/plugins/fusioninventory/front/send_inventory.php".
+         "?itemtype=networkequipment".
+         "&function=sendXML&items_id=NetworkEquipment/".$folder."/".$items_id.
+         "&filename=NetworkEquipment-".$items_id.".xml'".
+         "target='_blank'>XML</a>";
       }
-
 
       echo "</td>";
       echo "</tr>";
@@ -1291,4 +1287,3 @@ class PluginFusioninventoryNetworkEquipment extends CommonDBTM {
    }
 }
 
-?>

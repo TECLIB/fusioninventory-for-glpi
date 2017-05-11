@@ -116,14 +116,14 @@ class PluginFusioninventoryCommunication {
          return;
       }
 
-      switch($compressmode) {
+      switch ($compressmode) {
          case 'none':
             header("Content-Type: application/xml");
             echo PluginFusioninventoryToolbox::formatXML($this->message);
             break;
 
          case 'zlib':
-            # rfc 1950
+            // rfc 1950
             header("Content-Type: application/x-compress-zlib");
             echo gzcompress(
                PluginFusioninventoryToolbox::formatXML($this->message)
@@ -131,7 +131,7 @@ class PluginFusioninventoryCommunication {
             break;
 
          case 'deflate':
-            # rfc 1951
+            // rfc 1951
             header("Content-Type: application/x-compress-deflate");
             echo gzdeflate(
                PluginFusioninventoryToolbox::formatXML($this->message)
@@ -139,7 +139,7 @@ class PluginFusioninventoryCommunication {
             break;
 
          case 'gzip':
-            # rfc 1952
+            // rfc 1952
             header("Content-Type: application/x-compress-gzip");
             echo gzencode(
                PluginFusioninventoryToolbox::formatXML($this->message)
@@ -274,7 +274,7 @@ class PluginFusioninventoryCommunication {
          }
       }
 
-      $jobstates = $pfTask->getTaskjobstatesForAgent($agent_id,$methods);
+      $jobstates = $pfTask->getTaskjobstatesForAgent($agent_id, $methods);
       foreach ($jobstates as $jobstate) {
          $className = $classnames[$jobstate->method];
          if (class_exists($className)) {
@@ -380,7 +380,7 @@ class PluginFusioninventoryCommunication {
             $xml = $rawdata;
             $compressmode = 'none';
       } else {
-         # try each algorithm successively
+         // try each algorithm successively
          if (($xml = gzuncompress($rawdata))) {
             $compressmode = "zlib";
          } else if (($xml = $pfToolbox->gzdecode($rawdata))) {
@@ -491,4 +491,3 @@ class PluginFusioninventoryCommunication {
    }
 }
 
-?>

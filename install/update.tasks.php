@@ -122,8 +122,6 @@ function pluginFusioninventoryUpdateTasks($migration , $plugin_id) {
 
    migrateTablesFusionInventory($migration, $table);
 
-
-
    /*
     * Table glpi_plugin_fusioninventory_taskjobs
     */
@@ -188,7 +186,6 @@ function pluginFusioninventoryUpdateTasks($migration , $plugin_id) {
       )
    );
 
-
    $table['keys']   = array();
    $table['keys'][] = array(
       'field' => 'plugin_fusioninventory_tasks_id',
@@ -223,8 +220,6 @@ function pluginFusioninventoryUpdateTasks($migration , $plugin_id) {
    $DB->query("UPDATE `glpi_plugin_fusioninventory_taskjobs`
       SET `method`='networkdiscovery'
       WHERE `method`='netdiscovery'");
-
-
 
    /*
     * Table glpi_plugin_fusioninventory_taskjoblogs

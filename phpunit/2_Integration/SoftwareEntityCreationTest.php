@@ -80,7 +80,6 @@ class SoftwareEntityCreationTest extends Common_TestCase {
          (`id`, `name`, `entities_id`, `completename`, `level`)
          VALUES (1, 'entity1', 0, 'Entité racine > entity1', 2)");
 
-
       $_SESSION['glpiactive_entity'] = 0;
       $_SESSION['glpiactiveentities_string'] = 0;
       $_SESSION['glpishowallentities'] = 1;
@@ -299,4 +298,3 @@ class SoftwareEntityCreationTest extends Common_TestCase {
 
    }
 }
-?>

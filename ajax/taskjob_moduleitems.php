@@ -60,6 +60,3 @@ $params = array(
 );
 
 $pfTaskjob->ajaxModuleItemsDropdown($params);
-?>
-
-

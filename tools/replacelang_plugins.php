@@ -21,14 +21,13 @@ foreach (explode(";\n", "$sql_query") as $line) {
                  "./js/",
                  "./scripts/",
                  "./test/") as $dir) {
-       foreach (glob($dir.'*.php') as $file) {
-          $php_line_content = file_get_contents($file);
-          $php_line_content = str_replace($split[0], "__('".$string."', 'fusioninventory')",
-                                          $php_line_content);
-          file_put_contents($file, $php_line_content);
-       }
+      foreach (glob($dir.'*.php') as $file) {
+         $php_line_content = file_get_contents($file);
+         $php_line_content = str_replace($split[0], "__('".$string."', 'fusioninventory')",
+                                        $php_line_content);
+         file_put_contents($file, $php_line_content);
+      }
    }
 }
 
 
-?>

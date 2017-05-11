@@ -56,7 +56,7 @@ $collect = new PluginFusioninventoryInventoryComputerCollectContent();
 
 //Add a new collectcontent
 if (isset($_POST["add"])) {
-//we need to rebuild the post.
+   //we need to rebuild the post.
 
    $data = array(
        'plugin_fusioninventory_inventorycomputercollects_id' => $_POST['plugin_fusioninventory_inventorycomputercollects_id'],
@@ -95,12 +95,11 @@ if (isset($_POST["add"])) {
 
    $collect->add($data);
    Html::back();
-// update the properties
+   // update the properties
 } else if (isset($_POST["delete_x"])) {
    $collect->delete($_POST);
    Html::back();
-}else{ //shoudn't happen
+} else { //shoudn't happen
    Html::back();
 }
 
-?>

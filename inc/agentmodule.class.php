@@ -138,15 +138,15 @@ class PluginFusioninventoryAgentmodule extends CommonDBTM {
             }
          }
          // Hack for snmpquery
-            if ($data["modulename"] == 'SNMPQUERY') {
-               $modulename = __('Network inventory (SNMP)', 'fusioninventory');
+         if ($data["modulename"] == 'SNMPQUERY') {
+            $modulename = __('Network inventory (SNMP)', 'fusioninventory');
 
-            }
+         }
          // Hack for deploy
-            if ($data["modulename"] == 'DEPLOY') {
-               $modulename = __('Package deployment', 'fusioninventory');
+         if ($data["modulename"] == 'DEPLOY') {
+            $modulename = __('Package deployment', 'fusioninventory');
 
-            }
+         }
 
          echo "<td align='center'><strong>".$modulename."</strong></td>";
          echo "<td align='center'>";
@@ -162,9 +162,9 @@ class PluginFusioninventoryAgentmodule extends CommonDBTM {
             echo "<td width='45%'>";
             $a_agentList = importArrayFromDB($data['exceptions']);
             $a_used = array();
-            foreach ($a_agentList as $agent_id) {
-               $a_used[] = $agent_id;
-            }
+         foreach ($a_agentList as $agent_id) {
+            $a_used[] = $agent_id;
+         }
             Dropdown::show("PluginFusioninventoryAgent", array("name" => "agent_to_add[]",
                                                                "used" => $a_used));
             echo "</td>";
@@ -178,10 +178,10 @@ class PluginFusioninventoryAgentmodule extends CommonDBTM {
             echo "<td width='45%'>";
 
             echo "<select size='6' name='agent_to_delete[]'>";
-            foreach ($a_agentList as $agent_id) {
-               $pfAgent->getFromDB($agent_id);
-               echo "<option value='".$agent_id."'>".$pfAgent->getName()."</option>";
-            }
+         foreach ($a_agentList as $agent_id) {
+            $pfAgent->getFromDB($agent_id);
+            echo "<option value='".$agent_id."'>".$pfAgent->getName()."</option>";
+         }
             echo "</select>";
             echo "</td>";
             echo "</tr>";
@@ -248,15 +248,15 @@ class PluginFusioninventoryAgentmodule extends CommonDBTM {
             }
          }
          // Hack for snmpquery
-            if ($data["modulename"] == 'SNMPQUERY') {
-               $modulename = __('Network inventory (SNMP)', 'fusioninventory');
+         if ($data["modulename"] == 'SNMPQUERY') {
+            $modulename = __('Network inventory (SNMP)', 'fusioninventory');
 
-            }
+         }
          // Hack for deploy
-            if ($data["modulename"] == 'DEPLOY') {
-               $modulename = __('Package deployment', 'fusioninventory');
+         if ($data["modulename"] == 'DEPLOY') {
+            $modulename = __('Package deployment', 'fusioninventory');
 
-            }
+         }
 
          echo "<td width='50%'>".$modulename." :</td>";
          echo "<td align='center'>";
@@ -441,8 +441,8 @@ class PluginFusioninventoryAgentmodule extends CommonDBTM {
          "Global configuration URL: ".$pfEntity->getValue('agent_base_url', $entities_id)
       );
 
-      # Construct the path to the JSON back from the agent_base_url.
-      # agent_base_url is the initial URL used by the agent
+      // Construct the path to the JSON back from the agent_base_url.
+      // agent_base_url is the initial URL used by the agent
       return $pfEntity->getValue('agent_base_url', $entities_id).'/plugins/fusioninventory/b/'.
               strtolower($modulename).'/';
    }
@@ -464,4 +464,3 @@ class PluginFusioninventoryAgentmodule extends CommonDBTM {
    }
 }
 
-?>

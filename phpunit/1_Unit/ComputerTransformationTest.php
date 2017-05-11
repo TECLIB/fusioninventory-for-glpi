@@ -146,7 +146,7 @@ class ComputerTransformation extends RestoreDatabase_TestCase {
           'computertypes_id'                 => 'Notebook',
           'is_dynamic'                       => 1,
           'contact'                          => 'ddurieux'
-     );
+      );
       $this->assertEquals($a_reference, $a_return);
    }
 
@@ -234,7 +234,7 @@ class ComputerTransformation extends RestoreDatabase_TestCase {
           'computertypes_id'                 => '',
           'is_dynamic'                       => 1,
           'contact'                          => 'ddurieux/admin@local.com'
-     );
+      );
       $this->assertEquals($a_reference, $a_return);
    }
 
@@ -277,7 +277,6 @@ class ComputerTransformation extends RestoreDatabase_TestCase {
           'NAME'           => 'Windows',
           'SERVICE_PACK'   => 'Service Pack 3',
           'ARCH'           => '32 bits');
-
 
       $pfFormatconvert = new PluginFusioninventoryFormatconvert();
 
@@ -332,39 +331,38 @@ class ComputerTransformation extends RestoreDatabase_TestCase {
           'serial'                           => '',
           'computertypes_id'                 => 'VirtualBox',
           'is_dynamic'                       => 1,
-     );
-     $this->assertEquals($a_reference, $a_return);
-
+      );
+      $this->assertEquals($a_reference, $a_return);
 
       $operatingsystems = array(
-//          array(
-//              array(
-//                  'ARCH'           => '',
-//                  'FULL_NAME'      => '',
-//                  'KERNEL_NAME'    => '',
-//                  'KERNEL_VERSION' => '',
-//                  'NAME'           => '',
-//                  'SERVICE_PACK'   => ''
-//              ),
-//              array(
-//                  'arch'        => '',
-//                  'kernname'    => '',
-//                  'kernversion' => '',
-//                  'os'          => '',
-//                  'osversion'   => '',
-//                  'servicepack' => '',
-//                  'edition'     => ''
-//              ),
-//              array(
-//                  'arch'        => '',
-//                  'kernname'    => '',
-//                  'kernversion' => '',
-//                  'os'          => '',
-//                  'osversion'   => '',
-//                  'servicepack' => '',
-//                  'edition'     => ''
-//              )
-//          ),
+      //          array(
+      //              array(
+      //                  'ARCH'           => '',
+      //                  'FULL_NAME'      => '',
+      //                  'KERNEL_NAME'    => '',
+      //                  'KERNEL_VERSION' => '',
+      //                  'NAME'           => '',
+      //                  'SERVICE_PACK'   => ''
+      //              ),
+      //              array(
+      //                  'arch'        => '',
+      //                  'kernname'    => '',
+      //                  'kernversion' => '',
+      //                  'os'          => '',
+      //                  'osversion'   => '',
+      //                  'servicepack' => '',
+      //                  'edition'     => ''
+      //              ),
+      //              array(
+      //                  'arch'        => '',
+      //                  'kernname'    => '',
+      //                  'kernversion' => '',
+      //                  'os'          => '',
+      //                  'osversion'   => '',
+      //                  'servicepack' => '',
+      //                  'edition'     => ''
+      //              )
+      //          ),
           array(
               array(
                   'ARCH'           => '64-bit',
@@ -984,7 +982,6 @@ class ComputerTransformation extends RestoreDatabase_TestCase {
                 'WORKGROUP'      => 'WORKGROUP'
             );
 
-
       $pfFormatconvert = new PluginFusioninventoryFormatconvert();
 
       $a_return = $pfFormatconvert->computerInventoryTransformation($a_computer);
@@ -1038,8 +1035,8 @@ class ComputerTransformation extends RestoreDatabase_TestCase {
           'serial'                           => '',
           'computertypes_id'                 => 'VirtualBox',
           'is_dynamic'                       => 1,
-     );
-     $this->assertEquals($a_reference, $a_return);
+      );
+      $this->assertEquals($a_reference, $a_return);
    }
 
 
@@ -1085,7 +1082,6 @@ class ComputerTransformation extends RestoreDatabase_TestCase {
                 'SPEED'          => 2400,
                 'STEPPING'       => 5
                 ));
-
 
       $pfFormatconvert = new PluginFusioninventoryFormatconvert();
 
@@ -1378,7 +1374,7 @@ class ComputerTransformation extends RestoreDatabase_TestCase {
           'mmanufacturer'                    => 'Dell Inc.',
           'bmanufacturer'                    => 'Dell Inc.',
           'mmodel'                           => '0FJ030'
-     );
+      );
       $this->assertEquals($a_reference, $a_return);
    }
 
@@ -1878,4 +1874,3 @@ class ComputerTransformation extends RestoreDatabase_TestCase {
    }
 }
 
-?>

@@ -58,4 +58,3 @@ PluginFusioninventoryMenu::displayMenu("mini");
 $rulecollection = new PluginFusioninventoryRuleDictionnaryComputerArchCollection();
 
 include (GLPI_ROOT . "/front/rule.common.form.php");
-?>

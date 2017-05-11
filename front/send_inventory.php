@@ -60,4 +60,3 @@ header('Content-type: text/plain');
 
 call_user_func(array('PluginFusioninventoryToolbox', $function), $items_id, $itemtype);
 
-?>
