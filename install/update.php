@@ -372,6 +372,7 @@ function pluginFusioninventoryUpdate($current_version, $migrationname='Migration
       do_dblocks_migration($migration);
       do_rule_migration($migration);
       do_task_migration($migration);
+      do_taskjobstate_migration($migration);
 
 
 
@@ -6474,7 +6475,31 @@ function do_task_migration($migration) {
    migrateTablesFusionInventory($migration, $a_table);
 }
 
+function do_taskjobstate_migration($migration) {
+   global $DB;
 
+   $a_table =  [];
+   $a_table['name'] = 'glpi_plugin_fusioninventory_taskjobstates';
+   $a_table['oldname'] = [];
+
+   $a_table['fields']  = [];
+   $a_table['fields']['date_rescheduled'] = ['type'    => 'datetime',
+                                             'value'   => NULL];
+
+   $a_table['oldfields']  = [];
+
+   $a_table['renamefields'] = [];
+
+   $a_table['keys']   = [];
+   $a_table['keys'][] = ['field' => 'date_rescheduled',
+                         'name'  => '',
+                         'type'  => 'INDEX'
+                        ];
+
+   $a_table['oldkeys'] = [];
+
+   migrateTablesFusionInventory($migration, $a_table);
+}
 
 /**
  * Migrate search params from the old system to the new one
