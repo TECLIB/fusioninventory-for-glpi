@@ -713,28 +713,26 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
           '1' => array(
                      'id'                 => '1',
                      'designation'        => 'Core i3',
-                     'frequence'                => '2400',
-                     'comment'                  => NULL,
-                     'manufacturers_id'         => '1',
-                     'frequency_default'        => '2400',
-                     'nbcores_default'          => NULL,
-                     'nbthreads_default'        => NULL,
-                     'entities_id'              => '0',
-                     'is_recursive'             => '0',
-                     'deviceprocessormodels_id' => NULL
+                     'frequence'          => '2400',
+                     'comment'            => NULL,
+                     'manufacturers_id'   => '1',
+                     'frequency_default'  => '2400',
+                     'nbcores_default'    => NULL,
+                     'nbthreads_default'  => NULL,
+                     'entities_id'        => '0',
+                     'is_recursive'       => '0'
                  ),
           '2' => array(
-                     'id'                       => '2',
-                     'designation'              => 'Core i3',
-                     'frequence'                => '2600',
-                     'comment'                  => NULL,
-                     'manufacturers_id'         => '1',
-                     'frequency_default'        => '2600',
-                     'nbcores_default'          => NULL,
-                     'nbthreads_default'        => NULL,
-                     'entities_id'              => '0',
-                     'is_recursive'             => '0',
-                     'deviceprocessormodels_id' => NULL
+                     'id'                    => '2',
+                     'designation'        => 'Core i3',
+                     'frequence'          => '2600',
+                     'comment'            => NULL,
+                     'manufacturers_id'   => '1',
+                     'frequency_default'  => '2600',
+                     'nbcores_default'    => NULL,
+                     'nbthreads_default'  => NULL,
+                     'entities_id'        => '0',
+                     'is_recursive'       => '0'
                  )
       );
       $this->assertEquals($a_reference, $a_data);
@@ -764,14 +762,11 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
                      'serial'                => '',
                      'is_deleted'            => '0',
                      'is_dynamic'            => '1',
-                     'nbcores'               => '2',
-                     'nbthreads'             => '2',
+                     'nbcores'               => 2,
+                     'nbthreads'             => 2,
                      'entities_id'           => '0',
                      'is_recursive'          => '0',
-                     'busID'                 => NULL,
-                     'otherserial'           => NULL,
-                     'locations_id'          => '0',
-                     'states_id'             => '0'
+                     'busID'                 => NULL
                  ),
           '2' => array(
                      'id' => '2',
@@ -782,14 +777,11 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
                      'serial'                => '',
                      'is_deleted'            => '0',
                      'is_dynamic'            => '1',
-                     'nbcores'               => '2',
-                     'nbthreads'             => '2',
+                     'nbcores'               => 2,
+                     'nbthreads'             => 2,
                      'entities_id'           => '0',
                      'is_recursive'          => '0',
-                     'busID'                 => NULL,
-                     'otherserial'           => NULL,
-                     'locations_id'          => '0',
-                     'states_id'             => '0'
+                     'busID'                 => NULL
                  ),
           '3' => array(
                      'id' => '3',
@@ -800,14 +792,11 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
                      'serial'                => '',
                      'is_deleted'            => '0',
                      'is_dynamic'            => '1',
-                     'nbcores'               => '4',
-                     'nbthreads'             => '4',
+                     'nbcores'               => 4,
+                     'nbthreads'             => 4,
                      'entities_id'           => '0',
                      'is_recursive'          => '0',
-                     'busID'                 => NULL,
-                     'otherserial'           => NULL,
-                     'locations_id'          => '0',
-                     'states_id'             => '0'
+                     'busID'                 => NULL
                  ),
           '4' => array(
                      'id' => '4',
@@ -818,14 +807,11 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
                      'serial'                => '',
                      'is_deleted'            => '0',
                      'is_dynamic'            => '1',
-                     'nbcores'               => '2',
-                     'nbthreads'             => '4',
+                     'nbcores'               => 2,
+                     'nbthreads'             => 4,
                      'entities_id'           => '0',
                      'is_recursive'          => '0',
-                     'busID'                 => NULL,
-                     'otherserial'           => NULL,
-                     'locations_id'          => '0',
-                     'states_id'             => '0'
+                     'busID'                 => NULL
                  )
       );
 
@@ -859,7 +845,6 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
                      'devicememorytypes_id'  => '5',
                      'entities_id'           => '0',
                      'is_recursive'          => '0',
-                     'devicememorymodels_id' => NULL
                  ),
           '2' => array(
                      'id'                    => '2',
@@ -871,7 +856,6 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
                      'devicememorytypes_id'  => '5',
                      'entities_id'           => '0',
                      'is_recursive'          => '0',
-                     'devicememorymodels_id' => NULL
                  )
       );
       $this->assertEquals($a_reference, $a_data);
@@ -903,10 +887,7 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
                      'size'                  => '2048',
                      'entities_id'           => '0',
                      'is_recursive'          => '0',
-                     'busID'                 => 1,
-                     'otherserial'           => NULL,
-                     'locations_id'          => '0',
-                     'states_id'             => '0'
+                     'busID'                 => 1
                  ),
           '2' => array(
                      'id' => '2',
@@ -919,10 +900,7 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
                      'size'                  => '2048',
                      'entities_id'           => '0',
                      'is_recursive'          => '0',
-                     'busID'                 => 2,
-                     'otherserial'           => NULL,
-                     'locations_id'          => '0',
-                     'states_id'             => '0'
+                     'busID'                 => 2
                  ),
           '3' => array(
                      'id' => '3',
@@ -935,10 +913,7 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
                      'size'                  => '2048',
                      'entities_id'           => '0',
                      'is_recursive'          => '0',
-                     'busID'                 => 3,
-                     'otherserial'           => NULL,
-                     'locations_id'          => '0',
-                     'states_id'             => '0'
+                     'busID'                 => 3
                  ),
           '4' => array(
                      'id' => '4',
@@ -951,10 +926,7 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
                      'size'                  => '2048',
                      'entities_id'           => '0',
                      'is_recursive'          => '0',
-                     'busID'                 => 4,
-                     'otherserial'           => NULL,
-                     'locations_id'          => '0',
-                     'states_id'             => '0'
+                     'busID'                 => 4
                  )
       );
 

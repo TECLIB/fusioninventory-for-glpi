@@ -269,7 +269,7 @@ class ComputerHistory extends RestoreDatabase_TestCase {
       // update computer
       $pfCommunication->handleOCSCommunication('', $xml, 'glpi');
       $this->assertEquals($nb_computer, countElementsInTable('glpi_computers'));
-      $this->assertEquals(0, countElementsInTable('glpi_logs'), print_r($log->find(), true));
+      $this->assertEquals(0, countElementsInTable('glpi_logs'), print_r($log->find()));
    }
 
 }
