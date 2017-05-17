@@ -274,7 +274,7 @@ class PluginFusioninventoryInventoryComputerLib extends CommonDBTM {
          if (isset($a_computerinventory['bios'])) {
             $arrayslower = array_map('strtolower', $a_computerinventory['bios']);
             foreach ($db_bios as $keydb => $arraydb) {
-               if (isset($arrayslower['version']) && $arrayslower['version'] == $arraydb['version']) {
+               if (isset($arrayslower['serial']) && $arrayslower['serial'] == $arraydb['serial']) {
                   unset($a_computerinventory['bios']);
                   unset($db_bios[$keydb]);
                   break;
