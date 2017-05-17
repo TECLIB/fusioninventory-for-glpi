@@ -132,8 +132,11 @@ if (!defined('GLPI_ROOT')) {
    }
 
    spl_autoload_register('glpiautoload');
-
-   include (GLPI_ROOT . "/inc/based_config.php");
+   if (file_exists(GLPI_ROOT . "/inc/based_config.php")) {
+      include_once (GLPI_ROOT . "/inc/based_config.php");
+   } else {
+      include_once (GLPI_ROOT . "/config/based_config.php");
+   }
    include (GLPI_ROOT . "/inc/includes.php");
    restore_error_handler();
 
