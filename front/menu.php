@@ -50,7 +50,19 @@ if (PluginFusioninventoryMenu::canView()) {
    Html::header(__('FusionInventory', 'fusioninventory'), $_SERVER["PHP_SELF"], "plugins",
                 "pluginfusioninventorymenu", "menu");
 
-   echo Html::manageRefreshPage();
+   $timer = $_SESSION['glpirefresh_ticket_list'];
+   $callback = 'window.location.reload()';
+   $text = "";
+   if ($timer > 0) {
+      // set timer to millisecond from minutes
+      $timer = $timer * MINUTE_TIMESTAMP * 1000;
+
+      // call callback function to $timer interval
+      $text = Html::scriptBlock("window.setInterval(function() {
+            $callback
+         }, $timer);");
+   }
+   echo $text;
 
    PluginFusioninventoryMenu::displayMenu();
    PluginFusioninventoryMenu::board();
