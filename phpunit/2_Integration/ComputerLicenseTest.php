@@ -83,7 +83,6 @@ class ComputerLicenseTest extends RestoreDatabase_TestCase {
           'drive'          => array(),
           'batteries'      => array(),
           'remote_mgmt'    => array(),
-          'bios'           => array(),
           'itemtype'       => 'Computer'
       );
 

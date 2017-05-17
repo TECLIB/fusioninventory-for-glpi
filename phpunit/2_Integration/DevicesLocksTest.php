@@ -91,7 +91,6 @@ class DevicesLocks extends RestoreDatabase_TestCase {
           'drive'          => array(),
           'batteries'      => array(),
           'remote_mgmt'    => array(),
-          'bios'           => array(),
           'itemtype'       => 'Computer'
       );
 
@@ -182,7 +181,6 @@ class DevicesLocks extends RestoreDatabase_TestCase {
           'drive'          => array(),
           'batteries'      => array(),
           'remote_mgmt'    => array(),
-          'bios'           => array(),
           'itemtype'       => 'Computer'
       );
 
@@ -242,7 +240,8 @@ class DevicesLocks extends RestoreDatabase_TestCase {
           ),
           "fusioninventorycomputer" => Array(
               'last_fusioninventory_update' => date('Y-m-d H:i:s'),
-              'serialized_inventory'        => 'something'
+              'serialized_inventory'        => 'something',
+              'bios_manufacturers_id'       => 'Award'
           ),
           'soundcard'      => array(),
           'graphiccard'    => array(),
@@ -264,10 +263,6 @@ class DevicesLocks extends RestoreDatabase_TestCase {
           'drive'          => array(),
           'batteries'      => array(),
           'remote_mgmt'    => array(),
-          'bios'           => array(
-              'manufacturers_id' => 'Award',
-              'designation'      => 'Award BIOS'
-          ),
           'itemtype'       => 'Computer'
       );
 
@@ -292,16 +287,10 @@ class DevicesLocks extends RestoreDatabase_TestCase {
       $computer->getFromDB(1);
       $this->assertEquals($computer->fields['manufacturers_id'], 0, "Manufacturer not right");
 
-      $this->assertEquals(countElementsInTable('glpi_devicefirmwares'), 1, 'More than 1 bios component created');
-      $this->assertEquals(countElementsInTable('glpi_items_devicefirmwares'), 1, 'More than 1 bios component link created');
-
-      $deviceBios = new DeviceFirmware();
-      $deviceBios->getFromDB(1);
-
-      $this->assertEquals($deviceBios->fields['manufacturers_id'], 1, "bios manufacturer not right");
-
+      $pfInventoryComputerComputer->getFromDB(1);
+      $this->assertEquals($pfInventoryComputerComputer->fields['bios_manufacturers_id'], 1, "bios manufacturer not right");
       $this->assertEquals(countElementsInTable('glpi_manufacturers'), 1, 'More than 1 manufacturer created');
-      $manufacturer->getFromDB($deviceBios->fields['manufacturers_id']);
+      $manufacturer->getFromDB($pfInventoryComputerComputer->fields['bios_manufacturers_id']);
       $this->assertEquals($manufacturer->fields['name'], 'Award', "Manufacturer name not right");
 
       $GLPIlog = new GLPIlogs();
