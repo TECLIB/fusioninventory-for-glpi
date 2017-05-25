@@ -112,6 +112,7 @@ class PluginFusioninventoryConfig extends CommonDBTM {
       $input['import_process']         = 1;
       $input['import_vm']              = 1;
       $input['component_processor']    = 1;
+      $input['component_sensor']       = 1;
       $input['component_memory']       = 1;
       $input['component_harddrive']    = 1;
       $input['component_networkcard']  = 1;
@@ -671,6 +672,17 @@ class PluginFusioninventoryConfig extends CommonDBTM {
       echo "</td>";
       echo "<td>";
       Dropdown::showYesNo("component_removablemedia", $pfConfig->getValue('component_removablemedia'));
+      echo "</td>";
+      echo "</tr>";
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<td colspan='2'>";
+      echo "</td>";
+      echo "<td>";
+      echo _n('Sensor', 'Sensors', 2, "fusioninventory")."&nbsp;:";
+      echo "</td>";
+      echo "<td>";
+      Dropdown::showYesNo("component_sensor", $pfConfig->getValue('component_sensor'));
       echo "</td>";
       echo "</tr>";
 

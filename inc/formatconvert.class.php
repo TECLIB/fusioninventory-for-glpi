@@ -97,7 +97,8 @@ class PluginFusioninventoryFormatconvert {
                            'VIRTUALMACHINES', 'ANTIVIRUS', 'MONITORS',
                            'PRINTERS', 'USBDEVICES', 'PHYSICAL_VOLUMES',
                            'VOLUME_GROUPS', 'LOGICAL_VOLUMES', 'BATTERIES',
-                           'LICENSEINFOS', 'STORAGES', 'INPUTS', 'REMOTE_MGMT');
+                           'LICENSEINFOS', 'STORAGES', 'INPUTS', 'REMOTE_MGMT',
+                           'SENSORS');
          foreach ($a_fields as $field) {
             if (isset($datainventory['CONTENT'][$field])
                     AND !is_array($datainventory['CONTENT'][$field])) {
@@ -256,6 +257,7 @@ class PluginFusioninventoryFormatconvert {
          'networkcard'             => array(),
          'soundcard'               => array(),
          'controller'              => array(),
+         'sensor'                  => array(),
          'SOFTWARES'               => array(),
          'virtualmachine'          => array(),
          'computerdisk'            => array(),
@@ -932,6 +934,25 @@ class PluginFusioninventoryFormatconvert {
                   $array_tmp['frequence'] = $array_tmp['frequency'];
                   $array_tmp['frequency_default'] = $array_tmp['frequency'];
                   $a_inventory['processor'][] = $array_tmp;
+               }
+            }
+         }
+      }
+
+      // * Sensors
+      $a_inventory['sensor'] = array();
+      if ($pfConfig->getValue('component_sensor') == 1) {
+         if (isset($array['SENSORS'])) {
+            foreach ($array['SENSORS'] as $a_sensors) {
+               if (is_array($a_sensors)
+                       && (isset($a_sensors['NAME'])
+                        || isset($a_sensors['TYPE']))) {
+                  $array_tmp = $thisc->addValues($a_sensors,
+                                                 array(
+                                                    'MANUFACTURER' => 'manufacturers_id',
+                                                    'NAME'         => 'designation',
+                                                    'TYPE'         => 'devicesensortypes_id'));
+                 $a_inventory['sensor'][] = $array_tmp;                        
                }
             }
          }

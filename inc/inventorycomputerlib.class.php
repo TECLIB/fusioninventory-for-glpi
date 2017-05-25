@@ -113,6 +113,8 @@ class PluginFusioninventoryInventoryComputerLib extends CommonDBTM {
       $pfInventoryComputerComputer  = new PluginFusioninventoryInventoryComputerComputer();
       $item_DeviceProcessor         = new Item_DeviceProcessor();
       $deviceProcessor              = new DeviceProcessor();
+      $item_DeviceSensor            = new Item_DeviceSensor();
+      $deviceSensor                 = new DeviceSensor();
       $item_DeviceMemory            = new Item_DeviceMemory();
       $deviceMemory                 = new DeviceMemory();
       $item_DeviceBattery           = new Item_DeviceBattery();
@@ -359,6 +361,61 @@ class PluginFusioninventoryInventoryComputerLib extends CommonDBTM {
                   if (count($a_computerinventory['processor']) != 0) {
                      foreach ($a_computerinventory['processor'] as $a_processor) {
                         $this->addProcessor($a_processor, $computers_id, $no_history);
+                     }
+                  }
+               }
+            }
+         }
+
+         // * Sensors
+         if ($pfConfig->getValue("component_sensor") != 0) {
+            $db_sensors = array();
+            if ($no_history === FALSE) {
+               $query = "SELECT `glpi_items_devicesensors`.`id`, `designation`,
+                     `serial`, `manufacturers_id`, `devicesensortypes_id`
+                  FROM `glpi_items_devicesensors`
+                  LEFT JOIN `glpi_devicesensors`
+                     ON `devicesensors_id`=`glpi_devicesensors`.`id`
+                  WHERE `items_id` = '$computers_id'
+                     AND `itemtype`='Computer'
+                     AND `is_dynamic`='1'";
+               $result = $DB->query($query);
+               while (($data = $DB->fetch_assoc($result))) {
+                  $idtmp = $data['id'];
+                  unset($data['id']);
+                  $db_sensors[$idtmp] = Toolbox::addslashes_deep($data);
+               }
+            }
+            if (count($db_sensors) == 0) {
+               foreach ($a_computerinventory['sensor'] as $a_sensor) {
+                  $this->addSensor($a_sensor, $computers_id, $no_history);
+               }
+            } else {
+               // Check all fields from source: 'designation', 'serial', 'manufacturers_id',
+               // 'frequence'
+               foreach ($a_computerinventory['sensor'] as $key => $arrays) {
+                  foreach ($db_sensors as $keydb => $arraydb) {
+                     if ($arrays == $arraydb) {
+                        $a_criteria = $deviceSensor->getImportCriteria();
+                        unset($a_computerinventory['sensor'][$key]);
+                        unset($db_sensors[$keydb]);
+                        break;
+                     }
+                  }
+               }
+               if (count($a_computerinventory['sensor']) == 0
+                  AND count($db_sensors) == 0) {
+                  // Nothing to do
+               } else {
+                  if (count($db_sensors) != 0) {
+                     // Delete processor in DB
+                     foreach ($db_sensors as $idtmp => $data) {
+                        $item_DeviceSensor->delete(array('id'=>$idtmp), 1);
+                     }
+                  }
+                  if (count($a_computerinventory['sensor']) != 0) {
+                     foreach ($a_computerinventory['sensor'] as $a_sensor) {
+                        $this->addSensor($a_sensor, $computers_id, $no_history);
                      }
                   }
                }
@@ -2140,6 +2197,25 @@ class PluginFusioninventoryInventoryComputerLib extends CommonDBTM {
       $item_DeviceProcessor->add($data, array(), !$no_history);
    }
 
+   /**
+    * Add a new sensor component
+    *
+    * @param array $data
+    * @param integer $computers_id
+    * @param boolean $no_history
+    */
+   function addSensor($data, $computers_id, $no_history) {
+      $item_DeviceSensor         = new Item_DeviceSensor();
+      $deviceSensor              = new DeviceSensor();
+
+      $sensors_id = $deviceSensor->import($data);
+      $data['devicesensors_id']  = $sensors_id;
+      $data['itemtype']             = 'Computer';
+      $data['items_id']             = $computers_id;
+      $data['is_dynamic']           = 1;
+      $data['_no_history']          = $no_history;
+      $item_DeviceSensor->add($data, array(), !$no_history);
+   }
 
 
    /**
