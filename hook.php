@@ -242,14 +242,14 @@ function plugin_fusioninventory_getAddSearchOptions($itemtype) {
          $sopt[5283]['massiveaction'] = FALSE;
          $sopt[5283]['forcegroupby']  = true;
 
-      $oracle_options = array('has_advanced_compression' 
+      $oracle_options = array('has_advanced_compression'
                                  => 'Advanced Compression',
                               'has_active_data_guard' => 'Active Data Guard',
                               'has_change_management_pack'
                                  => 'Change Management Pack',
-                              'has_configuration_management' 
+                              'has_configuration_management'
                                  => 'Configuration Management',
-                              'has_data_masking_pack' 
+                              'has_data_masking_pack'
                                  => 'Data Masking Pack',
                               'has_data_mining'
                                  => 'Data Mining',
@@ -263,14 +263,14 @@ function plugin_fusioninventory_getAddSearchOptions($itemtype) {
                                  => 'Provisionning Patch Automation Pack',
                                     'has_provisionning_patch_automation_pack_for_database'
                                  => 'Provisionning Patch Automation Pack For Database',
-                              'has_real_application_cluster' 
+                              'has_real_application_cluster'
                                  => 'Real Application Cluster',
                               'has_real_application_testing'
                                  => 'Real Application Testing',
                               'has_spatial' => 'Spatial',
                               'has_total_recall' => 'Total Recall',
                               'has_tuning_pack' => 'Tuning Pack',
-                              'has_weblogic_server_management_pack' 
+                              'has_weblogic_server_management_pack'
                                  => 'Weblogic Server Management Pack for Enterprise',
                            );
       $i = 5284;
@@ -283,7 +283,7 @@ function plugin_fusioninventory_getAddSearchOptions($itemtype) {
          $sopt[$i]['massiveaction'] = FALSE;
          $sopt[$i]['forcegroupby']  = true;
          $sopt[$i]['datatype']      = 'bool';
-      
+
          $i++;
       }
 
@@ -362,9 +362,9 @@ function plugin_fusioninventory_getAddSearchOptions($itemtype) {
       $sopt[6192]['massiveaction'] = FALSE;
    }
 
-   
+
    /* ====== SWITCHS AND PORTS ====== */
-   if ($itemtype == 'Printer' 
+   if ($itemtype == 'Printer'
        || $itemtype == 'Computer') {
       // Switch
       $sopt[5192]['table']         ='glpi_networkequipments';
@@ -373,16 +373,16 @@ function plugin_fusioninventory_getAddSearchOptions($itemtype) {
       $sopt[5192]['name']          =__('FusInv', 'fusioninventory')." - ".__('Switch');
       $sopt[5192]['itemlink_type'] = 'NetworkEquipment';
       $sopt[5192]['forcegroupby']  = 'true';
-      $sopt[5192]['joinparams']    = 
-         array('condition' => "AND REFTABLE.itemtype='NetworkEquipment'", 
+      $sopt[5192]['joinparams']    =
+         array('condition' => "AND REFTABLE.itemtype='NetworkEquipment'",
                'beforejoin' => array(
-                  'table' => 'glpi_networkports', 
+                  'table' => 'glpi_networkports',
                   'joinparams'  => array(
-                     'jointype' => 'item_item_revert', 
+                     'jointype' => 'item_item_revert',
                      'beforejoin' => array(
                         'table' => 'glpi_networkports_networkports',
                         'joinparams' => array(
-                           'jointype'=> 'item_item', 
+                           'jointype'=> 'item_item',
                            'beforejoin' => array(
                               'table' => 'glpi_networkports',
                               'joinparams' => array(
@@ -395,16 +395,16 @@ function plugin_fusioninventory_getAddSearchOptions($itemtype) {
       $sopt[5193]['linkfield']='';
       $sopt[5193]['name']=__('FusInv', 'fusioninventory')." - ".__('Hardware ports');
       $sopt[5193]['forcegroupby']='1';
-      $sopt[5193]['joinparams']    = 
-         array('jointype' => 'child', 
+      $sopt[5193]['joinparams']    =
+         array('jointype' => 'child',
                'beforejoin' => array(
-                  'table' => 'glpi_networkports', 
+                  'table' => 'glpi_networkports',
                   'joinparams'  => array(
-                     'jointype' => 'item_item_revert', 
+                     'jointype' => 'item_item_revert',
                      'beforejoin' => array(
                         'table' => 'glpi_networkports_networkports',
                         'joinparams' => array(
-                           'jointype'=> 'item_item', 
+                           'jointype'=> 'item_item',
                            'beforejoin' => array(
                               'table' => 'glpi_networkports',
                               'joinparams' => array(
@@ -435,8 +435,8 @@ function plugin_fusioninventory_getAddSearchOptions($itemtype) {
          $sopt[5191]['datatype']      = 'itemlink';
          $sopt[5191]['itemlink_type'] = 'PluginFusioninventoryConfigSecurity';
          $sopt[5191]['massiveaction'] = FALSE;
-         $sopt[5191]['joinparams']    = array('beforejoin' => 
-                                          array('table'   => 'glpi_plugin_fusioninventory_printers', 
+         $sopt[5191]['joinparams']    = array('beforejoin' =>
+                                          array('table'   => 'glpi_plugin_fusioninventory_printers',
                                              'joinparams' => array('jointype'=>'child')));
       }
 
@@ -474,8 +474,8 @@ function plugin_fusioninventory_getAddSearchOptions($itemtype) {
       $sopt[5191]['datatype']      =  'itemlink';
       $sopt[5191]['itemlink_type'] =  'PluginFusioninventoryConfigSecurity';
       $sopt[5191]['massiveaction'] =  FALSE;
-      $sopt[5191]['joinparams']    = array('beforejoin' => 
-                                       array('table'      => 'glpi_plugin_fusioninventory_networkequipments', 
+      $sopt[5191]['joinparams']    = array('beforejoin' =>
+                                       array('table'      => 'glpi_plugin_fusioninventory_networkequipments',
                                              'joinparams' =>array('jointype'=>'child')));
 
 
@@ -1873,6 +1873,9 @@ function plugin_fusioninventory_getDatabaseRelations() {
              break;
           case 'Computer':
              $id = $params['item']->getID();
+             if (!$id) {
+                return true;
+             }
              $pfInventoryComputerComputer = new PluginFusioninventoryInventoryComputerComputer();
              if (!empty($pfInventoryComputerComputer->hasAutomaticInventory($id))) {
                 return true;
