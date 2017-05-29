@@ -91,6 +91,7 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
           'batteries'      => array(),
           'remote_mgmt'    => array(),
           'bios'           => array(),
+          'sensor'         => array(),
           'itemtype'       => 'Computer'
           );
       $a_inventory['Computer'] = array(
@@ -1191,6 +1192,7 @@ class ComputerUpdateTest extends RestoreDatabase_TestCase {
           'batteries'      => array(),
           'remote_mgmt'    => array(),
           'bios'           => array(),
+          'sensor'         => array(),          
           'itemtype'       => 'Computer'
           );
       $a_inventory['Computer'] = array(
