@@ -45,7 +45,7 @@
  *
  */
 
-define ("PLUGIN_FUSIONINVENTORY_VERSION", "9.2+1.0");
+define ("PLUGIN_FUSIONINVENTORY_VERSION", "9.2+1.0_TECLIB");
 
 // Used for use config values in 'cache'
 $PF_CONFIG = array();
@@ -54,14 +54,14 @@ $PF_ESXINVENTORY = FALSE;
 
 define ("PLUGIN_FUSIONINVENTORY_XML", '');
 
-define ("PLUGIN_FUSIONINVENTORY_OFFICIAL_RELEASE", "0");
-define ("PLUGIN_FUSIONINVENTORY_REALVERSION", "9.2+1.0 SNAPSHOT");
+define ("PLUGIN_FUSIONINVENTORY_OFFICIAL_RELEASE", "1");
+define ("PLUGIN_FUSIONINVENTORY_REALVERSION", "9.2+1.0 TECLIB SNAPSHOT");
 include_once(GLPI_ROOT."/inc/includes.php");
 
 define("PLUGIN_FUSIONINVENTORY_REPOSITORY_DIR",
        GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/repository/");
 define("PLUGIN_FUSIONINVENTORY_MANIFESTS_DIR",
-       GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/"); 
+       GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/");
 
 /**
  * Check if the script name finish by
