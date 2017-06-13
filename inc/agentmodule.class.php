@@ -462,6 +462,16 @@ class PluginFusioninventoryAgentmodule extends CommonDBTM {
       }
       return $a_modules;
    }
+
+   /**
+   * Check if an agent has the deploy module enabled
+   * @param agents_id the agent's ID
+   * @return true is module is enabled, false otherwise
+   */
+   static function isDeployEnabled($agents_id) {
+      $pfAgentmodule = new self();
+      return $pfAgentmodule->isAgentCanDo('deploy', $agents_id);
+   }
 }
 
 ?>

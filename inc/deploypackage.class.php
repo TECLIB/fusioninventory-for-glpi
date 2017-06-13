@@ -1317,13 +1317,21 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
    function showPackageForMe($users_id, $item = false) {
       global $CFG_GLPI;
 
-      $computer     = new Computer();
+      $computer      = new Computer();
+      $pfAgent       = new PluginFusioninventoryAgent();
+      $show_packages = true;
+
       $self_service = !($_SESSION['glpiactiveprofile']['interface'] == 'central');
       if (!$self_service) {
          $computers_id = false;
          if ($item && $item instanceof Computer) {
             $computers_id = $item->getID();
          }
+         if ($pfAgent->getAgentWithComputerid($computers_id) &&
+            !PluginFusioninventoryAgentmodule::isDeployEnabled($pfAgent->getID())) {
+               $show_packages = false;
+         }
+
          $my_packages = $this->getPackageForMe(false, $computers_id);
       } else {
          $my_packages = $this->getPackageForMe($users_id);
@@ -1337,6 +1345,8 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
              enctype=\"multipart/form-data\">";
 
       echo "<table class='tab_cadre_fixe'>";
+
+
       foreach ($my_packages as $computers_id => $data) {
 
          $package_to_install = [];
@@ -1386,15 +1396,19 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          $p['size']     = 3;
          $p['width']    = 950;
 
-         echo "<tr class='tab_bg_1'>";
-         echo "<td>";
-         echo __('Select packages you want install', 'fusioninventory');
-         echo "<br/>";
-         Dropdown::showFromArray($p['name'], $package_to_install, $p);
-         echo "</td>";
+         if ($show_packages) {
+            echo "<tr class='tab_bg_1'>";
+            echo "<td>";
+            echo __('Select packages you want install', 'fusioninventory');
+            echo "<br/>";
+            Dropdown::showFromArray($p['name'], $package_to_install, $p);
+            echo "</td>";
+            echo "</th>";
+         }
          echo "</tr>";
       }
-      if (count($my_packages)) {
+
+      if (count($my_packages) && $show_packages) {
          echo "<tr>";
          echo "<th colspan='2'>";
          echo Html::submit(__('Prepare for install', 'fusioninventory'),
@@ -1416,7 +1430,11 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       } else {
          echo "<tr>";
          echo "<th colspan='2'>";
-         echo __('No packages available to install', 'fusioninventory');
+         if ($show_packages) {
+            echo __('No packages available to install', 'fusioninventory');
+         } else {
+            echo __("Software deployment module is disable for this agent", "fusioninventory");
+         }
          echo "</th>";
          echo "</tr>";
       }
@@ -1451,7 +1469,6 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       $mycomputers = $computer->find($query);
 
       $pfAgent       = new PluginFusioninventoryAgent();
-      $pfAgentmodule = new PluginFusioninventoryAgentmodule();
 
       foreach ($mycomputers as $mycomputers_id => $data) {
          $my_packages[$mycomputers_id] = [];
@@ -1468,7 +1485,12 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          //Browse all packages that the user can install
          foreach ($packages as $package) {
 
-            //Get computers that can be targeted for this package installation
+            //Check if the package belong to one of the entity that
+            //are currenlty visible
+            if (in_array($package['entities_id'], $_SESSION['glpiactiveentities'])) {
+               continue;
+            }
+            
             $computers = $pfDeployGroup->getTargetsForGroup($package['plugin_fusioninventory_deploygroups_id']);
 
             //Browse all computers that are target by a a package installation
@@ -1477,7 +1499,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
                //If the agent associated with the computer has not the
                //deploy feature enabled, do not propose to deploy packages on
                if ($pfAgent->getAgentWithComputerid($mycomputers_id) &&
-                  !$pfAgentmodule->isAgentCanDo('deploy', $pfAgent->getID())) {
+                  !PluginFusioninventoryAgentmodule::isDeployEnabled($pfAgent->getID())) {
                      continue;
                }
                //If we only want packages for one computer
