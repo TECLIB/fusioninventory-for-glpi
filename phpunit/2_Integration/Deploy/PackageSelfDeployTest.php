@@ -44,6 +44,7 @@ class PackageSelfDeployTest extends RestoreDatabase_TestCase {
 
 
    protected function setUp() {
+      global $DB;
 
       parent::setUp();
 
@@ -52,6 +53,7 @@ class PackageSelfDeployTest extends RestoreDatabase_TestCase {
       $computer      = new Computer();
       $user          = new User();
       $pfAgent       = new PluginFusioninventoryAgent();
+      $pfModule      = new PluginFusioninventoryAgentmodule();
       $pfDeployGroup = new PluginFusioninventoryDeployGroup();
       $profile       = new Profile();
 
@@ -60,6 +62,11 @@ class PackageSelfDeployTest extends RestoreDatabase_TestCase {
                       'entities_id' => 0,
                       'users_id'    => $users_id
                      ]);
+      foreach ($DB->request('glpi_plugin_fusioninventory_agentmodules') as $module) {
+         $module['is_active'] = 1;
+         $pfModule->update($module);
+      }
+
       $pfAgent->add(['computers_id'=> 1, 'entities_id' => 0]);
       $pfDeployGroup->add(['name' => 'all', 'type' => 'DYNAMIC']);
       $a_profile = current($profile->find("`interface`='helpdesk'", '', 1));
@@ -226,8 +233,8 @@ class PackageSelfDeployTest extends RestoreDatabase_TestCase {
       $pfAgent         = new PluginFusioninventoryAgent();
       $pfDeployPackage_Entity = new PluginFusioninventoryDeployPackage_Entity();
 
-      $computer->add(array('name' => 'pc02', 'entities_id' => 0));
-      $pfAgent->add(array('computers_id'=> 2, 'entities_id' => 0));
+      $c_id = $computer->add(array('name' => 'pc02', 'entities_id' => 0));
+      $pfAgent->add(array('computers_id'=> $c_id, 'entities_id' => 0));
 
       $input = array(
           'name'        => 'test1',
@@ -325,8 +332,8 @@ class PackageSelfDeployTest extends RestoreDatabase_TestCase {
       $pfAgent                = new PluginFusioninventoryAgent();
       $pfDeployPackage_Entity = new PluginFusioninventoryDeployPackage_Entity();
 
-      $computer->add(array('name' => 'pc03', 'entities_id' => 0));
-      $pfAgent->add(array('computers_id'=> 3, 'entities_id' => 0));
+      $c_id = $computer->add(array('name' => 'pc03', 'entities_id' => 0));
+      $pfAgent->add(array('computers_id'=> $c_id, 'entities_id' => 0));
 
       $input = array('name'                                   => 'test1',
                      'entities_id'                            => 0,
@@ -340,7 +347,7 @@ class PackageSelfDeployTest extends RestoreDatabase_TestCase {
       $packages_id = $pfDeployPackage->add($input);
       $pfDeployPackage_Entity->add(array('plugin_fusioninventory_deploypackages_id' => $packages_id));
 
-      $packages = $pfDeployPackage->getPackageForMe(false, 1);
+      $packages = $pfDeployPackage->getPackageForMe(false, $c_id);
       $names    = [];
 
       foreach ($packages as $computers_id=>$data) {

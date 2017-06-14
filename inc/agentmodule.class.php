@@ -470,7 +470,7 @@ class PluginFusioninventoryAgentmodule extends CommonDBTM {
    */
    static function isDeployEnabled($agents_id) {
       $pfAgentmodule = new self();
-      return $pfAgentmodule->isAgentCanDo('deploy', $agents_id);
+      return $pfAgentmodule->isAgentCanDo('DEPLOY', $agents_id);
    }
 }
 
