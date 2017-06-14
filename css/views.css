@@ -901,3 +901,10 @@ table.runs td.comment {
    }
 }
 
+
+.fa.fa-floppy-o {
+   background-image: url(../../../pics/export.png);
+   display: inline-block;
+   width: 16px;
+   height: 14px;
+}
