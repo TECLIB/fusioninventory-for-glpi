@@ -233,15 +233,14 @@ class PackageSelfDeployTest extends RestoreDatabase_TestCase {
       $pfAgent         = new PluginFusioninventoryAgent();
       $pfDeployPackage_Entity = new PluginFusioninventoryDeployPackage_Entity();
 
-      $c_id = $computer->add(array('name' => 'pc02', 'entities_id' => 0));
-      $pfAgent->add(array('computers_id'=> $c_id, 'entities_id' => 0));
-
-      $input = array(
-          'name'        => 'test1',
-          'entities_id' => 0,
-          'plugin_fusioninventory_deploygroups_id' => 1);
+      $c_id     = $computer->add(array('name' => 'pc02', 'entities_id' => 0));
+      $agent_id = $pfAgent->add(array('computers_id'=> $c_id, 'entities_id' => 0));
+      $input    = ['name'        => 'test1',
+                   'entities_id' => 0,
+                   'plugin_fusioninventory_deploygroups_id' => 1];
       $packages_id = $pfDeployPackage->add($input);
-      $pfDeployPackage_Entity->add(array('plugin_fusioninventory_deploypackages_id' => $packages_id));
+      $pfDeployPackage_Entity->add(['plugin_fusioninventory_deploypackages_id' => $packages_id,
+                                    'entities_id' => 0]);
 
       // Create task
       $pfDeployPackage->deployToComputer(1, $packages_id, $_SESSION['glpiID']);
@@ -252,8 +251,8 @@ class PackageSelfDeployTest extends RestoreDatabase_TestCase {
       // Prepare task
       PluginFusioninventoryTask::cronTaskscheduler();
 
-      $packages = $pfDeployPackage->getPackageForMe($users_id);
-      $packages_deploy = array();
+      $packages        = $pfDeployPackage->getPackageForMe($users_id);
+      $packages_deploy = [];
       foreach ($packages as $computers_id=>$data) {
          foreach ($data as $packages_id => $package_info) {
             if (isset($package_info['taskjobs_id'])) {
@@ -261,9 +260,7 @@ class PackageSelfDeployTest extends RestoreDatabase_TestCase {
             }
          }
       }
-      $reference = array(
-          1 => 'agents_prepared'
-      );
+      $reference = [1 => 'agents_prepared'];
       $this->assertEquals($reference, $packages_deploy);
    }
 

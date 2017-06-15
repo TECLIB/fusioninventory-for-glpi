@@ -1349,6 +1349,13 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
 
       foreach ($my_packages as $computers_id => $data) {
 
+         //If the agent associated with the computer has not the
+         //deploy feature enabled, do not propose to deploy packages on
+         if ($pfAgent->getAgentWithComputerid($computers_id) &&
+            !PluginFusioninventoryAgentmodule::isDeployEnabled($pfAgent->getID())) {
+               continue;
+         }
+
          $package_to_install = [];
          $computer->getFromDB($computers_id);
          echo "<tr>";
@@ -1454,6 +1461,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
 
       $computer      = new Computer();
       $pfDeployGroup = new PluginFusioninventoryDeployGroup();
+      $pfAgent       = new PluginFusioninventoryAgent();
       $my_packages   = []; //Store all installable packages
 
       $query = "";
@@ -1466,12 +1474,10 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       $query.= "`entities_id` IN (".$_SESSION['glpiactiveentities_string'].")";
 
       //Get all computers of the user
-      $mycomputers = $computer->find($query);
+      $user_computers = $computer->find($query);
 
-      $pfAgent       = new PluginFusioninventoryAgent();
-
-      foreach ($mycomputers as $mycomputers_id => $data) {
-         $my_packages[$mycomputers_id] = [];
+      foreach ($user_computers as $user_computers_id => $data) {
+         $my_packages[$user_computers_id] = [];
       }
 
       //Get packages used for the user or a specific computer
@@ -1480,37 +1486,46 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       //Get packages that a the user can deploy
       $packages = $this->canUserDeploySelf();
 
-      if ($packages) {
+      if (is_array($packages)) {
 
          //Browse all packages that the user can install
          foreach ($packages as $package) {
 
             //Check if the package belong to one of the entity that
             //are currenlty visible
-            if (in_array($package['entities_id'], $_SESSION['glpiactiveentities'])) {
+            if (!in_array($package['entities_id'], $_SESSION['glpiactiveentities'])) {
                continue;
             }
-            
-            $computers = $pfDeployGroup->getTargetsForGroup($package['plugin_fusioninventory_deploygroups_id']);
+
+            //For the group associated with the on demand package
+            //we try to get all computers of the group
+            $group_computers = $pfDeployGroup->getTargetsForGroup($package['plugin_fusioninventory_deploygroups_id']);
 
             //Browse all computers that are target by a a package installation
-            foreach ($mycomputers as $comp_id => $data) {
+            foreach ($user_computers as $comp_id => $data) {
 
-               //If the agent associated with the computer has not the
-               //deploy feature enabled, do not propose to deploy packages on
-               if ($pfAgent->getAgentWithComputerid($mycomputers_id) &&
-                  !PluginFusioninventoryAgentmodule::isDeployEnabled($pfAgent->getID())) {
+               //There's an agent for the computer
+               if ($pfAgent->getAgentWithComputerid($comp_id)) {
+                  //If the agent associated with the computer has not the
+                  //deploy feature enabled, do not propose to deploy packages on
+                  if (!PluginFusioninventoryAgentmodule::isDeployEnabled($pfAgent->getID())) {
                      continue;
-               }
-               //If we only want packages for one computer
-               //check if it's the computer we look for
-               if ($computers_id && $comp_id != $computers_id) {
+                  }
+
+                  //If we only want packages for one computer
+                  //check if it's the computer we look for
+                  if ($comp_id != $computers_id) {
+                     continue;
+                  }
+
+               } else {
+                  //If there's no agent, do not try to deploy anything ^^
                   continue;
                }
 
                //Does the computer belongs to the group
                //associated with the package ?
-               if (isset($computers[$comp_id])) {
+               if (isset($group_computers[$comp_id])) {
                   $my_packages[$comp_id][$package['id']]
                      = ['name' => $package['name']];
 
@@ -1691,6 +1706,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
             }
          }
       }
+
       return $packages_used;
    }
 
@@ -1789,15 +1805,12 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
                 LEFT JOIN `glpi_plugin_fusioninventory_deploypackages_profiles`
                      ON (`glpi_plugin_fusioninventory_deploypackages_profiles`.`plugin_fusioninventory_deploypackages_id` = `$table`.`id`)
                $where";
-      $result = $DB->query($query);
-      $a_packages = array();
-      if ($DB->numrows($result) > 0) {
-         while ($data = $DB->fetch_assoc($result)) {
-            $a_packages[$data['id']] = $data;
-         }
-         return $a_packages;
+Toolbox::logDebug($query);
+      $a_packages = false;
+      foreach($DB->request($query) as $data) {
+         $a_packages[$data['id']] = $data;
       }
-      return False;
+      return $a_packages;
    }
 
    /**
