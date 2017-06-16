@@ -31,7 +31,7 @@ class GLPIInstallTest extends PHPUnit_Framework_TestCase {
       } else if ($glpi_version == '0.85/bugfixes') {
          $glpisql = '0.85.5';
       } else {
-         $glpisql = '9.1.3';
+         $glpisql = '9.1.4';
       }
 
       $result = load_mysql_file(
@@ -60,5 +60,3 @@ class GLPIInstallTest extends PHPUnit_Framework_TestCase {
 
    }
 }
-
-
