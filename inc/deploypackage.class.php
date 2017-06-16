@@ -509,14 +509,16 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       global $CFG_GLPI;
 
       $subtypes = array(
-         'check'  => __("Audits", 'fusioninventory'),
-         'file'   => __("Files", 'fusioninventory'),
-         'action' => __("Actions", 'fusioninventory')
+         'check'           => __("Audits", 'fusioninventory'),
+         'file'            => __("Files", 'fusioninventory'),
+         'action'          => __("Actions", 'fusioninventory'),
+         'userinteraction' => __("User interactions", 'fusioninventory')
       );
       $json_subtypes = array(
-         'check'  => 'checks',
-         'file'   => 'associatedFiles',
-         'action' => 'actions'
+         'check'       => 'checks',
+         'file'        => 'associatedFiles',
+         'action'      => 'actions',
+         'userinteraction' => 'userinteractions'
       );
       $rand = mt_rand();
 
@@ -681,7 +683,8 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
             array(
                'PluginFusioninventoryDeployCheck',
                'PluginFusioninventoryDeployFile',
-               'PluginFusioninventoryDeployAction'
+               'PluginFusioninventoryDeployAction',
+               'PluginFusioninventoryDeployUserinteraction'
             ))) {
          switch ($action_type) {
 
