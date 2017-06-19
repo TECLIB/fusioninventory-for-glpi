@@ -912,3 +912,10 @@ table.runs td.comment {
 .toggle_run.expand {
    background-image: url("../../../pics/collapse.png");
 }
+
+.fa.fa-floppy-o {
+   background-image: url(../../../pics/export.png);
+   display: inline-block;
+   width: 16px;
+   height: 14px;
+}
