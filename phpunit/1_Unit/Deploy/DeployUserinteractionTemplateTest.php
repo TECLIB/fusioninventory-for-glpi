@@ -86,14 +86,17 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
                                    ]);
 
 
-      $icons = PluginFusioninventoryDeployCheck::getIcons('foo');
+      $icons = PluginFusioninventoryDeployUserinteractionTemplate::getIcons('foo');
       $this->assertFalse($icons);
 
-      $icons = PluginFusioninventoryDeployCheck::getIcons();
+      $icons = PluginFusioninventoryDeployUserinteractionTemplate::getIcons();
       $this->assertFalse($icons);
 
    }
 
+   /**
+    * @test
+    */
    public function testAdd() {
       $interaction = new PluginFusioninventoryDeployUserinteractionTemplate();
       $tmp = ['name'         => 'test',
@@ -101,10 +104,13 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
               'is_recursive' => 0,
               'json'         => ''
              ];
-      $this->assertTrue($interaction->add($tmp));
+      $this->assertEquals(1, $interaction->add($tmp));
 
    }
 
+   /**
+    * @test
+    */
    public function testUpdate() {
       $interaction = new PluginFusioninventoryDeployUserinteractionTemplate();
       $tmp = ['id'   => 1,
@@ -114,8 +120,32 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
       $this->assertTrue($interaction->update($tmp));
 
       $interaction->getFromDB(1);
-      $this->assertEquals('test 2', $interaction->fields['name']);
+      $this->assertEquals('test2', $interaction->fields['name']);
 
    }
 
+   /**
+    * @test
+    */
+   public function testSaveToJson() {
+      $values = ['name'                           => 'interaction',
+                 'type'                           => PluginFusioninventoryDeployUserinteractionTemplate::ALERT_WTS,
+                 'duration'                       => 4,
+                 'buttons'                        => PluginFusioninventoryDeployUserinteractionTemplate::BUTTON_OK_SYNC,
+                 'icon'                           => 'warning',
+                 'retry_after'                    => 4,
+                 'nb_max_retry'                   => 4,
+                 'action_delay_over'              => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY,
+                 'action_no_active_session'       => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY,
+                 'action_multiple_action_session' => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CANCEL_DEPLOY
+                ];
+      $interaction = new PluginFusioninventoryDeployUserinteractionTemplate();
+      $result      = $interaction->saveToJson($values);
+      $expected    = '{"name":"interaction","type":"wts","duration":4,"buttons":"ok_sync","retry_after":4,"nb_max_retry":4,"action_delay_over":"continue","action_no_active_session":"continue","action_multiple_action_session":"cancel"}';
+      $this->assertEquals($expected, $result);
+
+      $result      = $interaction->saveToJson([]);
+      $this->assertEquals($expected, "{}");
+
+   }
 }

@@ -53,11 +53,24 @@ if (!defined('GLPI_ROOT')) {
  */
 class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
 
+   /**
+    * The right name for this class
+    *
+    * @var string
+    */
+   static $rightname = 'plugin_fusioninventory_userinteractiontemplate';
 
    const ALERT_WTS                = 'wts'; //Alerts using Windows WTS API
    const BEHAVIOR_CONTINUE_DEPLOY = 'continue'; //Continue a software deployment
    const BEHAVIOR_CANCEL_DEPLOY   = 'cancel'; //Cancel a software deployment
    const BEHAVIOR_POSTPONE_DEPLOY = 'postpone'; //Postpone a software deployment
+
+   const BUTTON_OK_SYNC           = 'ok_sync';
+   const BUTTON_OK_NOSYNC         = 'ok_no_sync';
+   const BUTTON_OK_CANCEL         = 'ok_cancel';
+   const BUTTON_YES_NO            = 'yes_no';
+   const BUTTON_OK_RETRY          = 'ok_retry';
+   const BUTTON_OK_RETRY_CANCEL   = 'ok_retry_cancel';
 
    /**
     * Get list of supported interaction methods
@@ -78,16 +91,16 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
     */
    static function getButtons($interaction_type = '') {
        $interactions =  [ self::ALERT_WTS =>
-                           [ 'ok_sync'         => __('OK sync', 'fusioninventory'),
-                             'ok_no_sync'      => __('OK no sync', 'fusioninventory'),
-                             'ok_cancel'       => __('OK - Cancel', 'fusioninventory'),
-                             'yes_no'          => __('Yes - No', 'fusioninventory'),
-                             'ok_retry'        => __('OK - Retry', 'fusioninventory'),
-                             'ok_retry_cancel' => __('OK - Retry - Cancel', 'fusioninventory')
+                           [ self::BUTTON_OK_SYNC         => __('OK sync', 'fusioninventory'),
+                             self::BUTTON_OK_NOSYNC       => __('OK no sync', 'fusioninventory'),
+                             self::BUTTON_OK_CANCEL       => __('OK - Cancel', 'fusioninventory'),
+                             self::BUTTON_YES_NO          => __('Yes - No', 'fusioninventory'),
+                             self::BUTTON_OK_RETRY        => __('OK - Retry', 'fusioninventory'),
+                             self::BUTTON_OK_RETRY_CANCEL => __('OK - Retry - Cancel', 'fusioninventory')
                            ]
                        ];
       if (isset($interactions[$interaction_type])) {
-         return $interaction_type;
+         return $interactions[$interaction_type];
       } else {
          return false;
       }
@@ -108,7 +121,7 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
                            ]
                        ];
       if (isset($icons[$interaction_type])) {
-         return $icons;
+         return $icons[$interaction_type];
       } else {
          return false;
       }
@@ -129,13 +142,67 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
    }
 
    /**
+   * Save form data as a json encoded array
+   * @since 9.2
+   * @param params form parameters
+   * @return json encoded array
+   */
+   function saveToJson($params = []) {
+      $fields = ['name', 'type', 'duration', 'buttons', 'icons',
+                 'retry_after', 'nb_max_retry', 'action_delay_over',
+                 'action_no_active_session', 'action_multiple_action_session'];
+      $result = [];
+      foreach ($fields as $field) {
+         if (isset($params[$field])) {
+            $result[$field] = $params[$field];
+         }
+      }
+      return json_encode($result);
+   }
+   /**
    * Display an interaction template form
    * @since 9.2
-   * @param $templates_id id of a template to edit
+   * @param $id id of a template to edit
+   * @param options POST form options
    */
-   function showForm($templates_id) {
-      if (!$this->getFromDB($templates_id)) {
-         $this->getEmpty();
-      }
+   function showForm($ID, $options = []) {
+      global $CFG_GLPI, $DB;
+
+      $this->initForm($ID, $options);
+      $this->showFormHeader($options);
+
+      echo "<tr class='tab_bg_1'>";
+
+      $rand = mt_rand();
+      $tplmark = $this->getAutofillMark('name', $options);
+
+      //TRANS: %1$s is a string, %2$s a second one without spaces between them : to change for RTL
+      echo "<td><label for='textfield_name$rand'>".sprintf(__('%1$s%2$s'), __('Name'), $tplmark) .
+           "</label></td>";
+      echo "<td>";
+      $objectName = autoName($this->fields["name"], "name",
+                             (isset($options['withtemplate']) && ( $options['withtemplate']== 2)),
+                             $this->getType(), $this->fields["entities_id"]);
+      Html::autocompletionTextField(
+         $this,
+         'name',
+         [
+            'value'     => $objectName,
+            'rand'      => $rand
+         ]
+      );
+      echo "</td>";
+      echo "</tr>";
+
+      $this->showFormButtons($options);
+
+      return true;
+
+   }
+
+   public function prepareInputForAdd($input) {
+      //Save params as a json array, ready to be saved in db
+      $input['json'] = $this->saveToJson($input);
+      return $input;
    }
 }
