@@ -85,25 +85,47 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
 
    }
 
+
+   /**
+    * @test
+    */
+   public function testGetJsonFields() {
+      $template = new PluginFusioninventoryDeployUserinteractionTemplate();
+      $this->assertEquals(9, count($template->getJsonFields()));
+   }
+
+
+   /**
+    * @test
+    */
+   public function testInitializeJsonFields() {
+      $template = new PluginFusioninventoryDeployUserinteractionTemplate();
+      $tmp      = [];
+      $this->assertEquals(9, count($template->initializeJsonFields($tmp)));
+   }
+
    /**
     * @test
     */
    public function testGetIcons() {
       $icons = PluginFusioninventoryDeployUserinteractionTemplate::getIcons(PluginFusioninventoryDeployUserinteractionTemplate::ALERT_WTS);
-      $this->assertEquals(3, count($icons));
-      $this->assertEquals($icons, [ 'warning' => __('Warning'),
-                                    'info'    => _n('Information', 'Informations', 1),
-                                    'error'   => __('Error')
+      $this->assertEquals(5, count($icons));
+      $this->assertEquals($icons, [ PluginFusioninventoryDeployUserinteractionTemplate::ICON_NONE     => __('None'),
+                                    PluginFusioninventoryDeployUserinteractionTemplate::ICON_WARNING  => __('Warning'),
+                                    PluginFusioninventoryDeployUserinteractionTemplate::ICON_INFO     => _n('Information', 'Informations', 1),
+                                    PluginFusioninventoryDeployUserinteractionTemplate::ICON_ERROR    => __('Error'),
+                                    PluginFusioninventoryDeployUserinteractionTemplate::ICON_QUESTION => __('Question', 'fusioninventory')
                                    ]);
-
 
       $icons = PluginFusioninventoryDeployUserinteractionTemplate::getIcons('foo');
       $this->assertFalse($icons);
 
       $icons = PluginFusioninventoryDeployUserinteractionTemplate::getIcons();
-      $this->assertEquals($icons, [ 'warning' => __('Warning'),
-                                    'info'    => _n('Information', 'Informations', 1),
-                                    'error'   => __('Error')
+      $this->assertEquals($icons, [ PluginFusioninventoryDeployUserinteractionTemplate::ICON_NONE     => __('None'),
+                                    PluginFusioninventoryDeployUserinteractionTemplate::ICON_WARNING  => __('Warning'),
+                                    PluginFusioninventoryDeployUserinteractionTemplate::ICON_INFO     => _n('Information', 'Informations', 1),
+                                    PluginFusioninventoryDeployUserinteractionTemplate::ICON_ERROR    => __('Error'),
+                                    PluginFusioninventoryDeployUserinteractionTemplate::ICON_QUESTION => __('Question', 'fusioninventory')
                                    ]);
 
    }

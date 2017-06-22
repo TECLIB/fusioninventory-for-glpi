@@ -72,6 +72,12 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
    const BUTTON_OK_RETRY          = 'ok_retry';
    const BUTTON_OK_RETRY_CANCEL   = 'ok_retry_cancel';
 
+   const ICON_NONE                = 'none';
+   const ICON_WARNING             = 'warn';
+   const ICON_QUESTION            = 'question';
+   const ICON_INFO                = 'info';
+   const ICON_ERROR               = 'error';
+
    /**
     * Get name of this type by language of the user connected
     *
@@ -151,9 +157,11 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
     */
    static function getIcons($interaction_type = self::ALERT_WTS) {
        $icons = [ self::ALERT_WTS =>
-                           [ 'warning' => __('Warning'),
-                             'info'    => _n('Information', 'Informations', 1),
-                             'error'   => __('Error')
+                           [ self::ICON_NONE     => __('None'),
+                             self::ICON_WARNING  => __('Warning'),
+                             self::ICON_INFO     => _n('Information', 'Informations', 1),
+                             self::ICON_ERROR    => __('Error'),
+                             self::ICON_QUESTION => __('Question', 'fusioninventory')
                            ]
                        ];
       if (isset($icons[$interaction_type])) {
@@ -170,7 +178,7 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
     * @param type the type of button (if one already selected)
     * @return rand
     */
-   function dropdownIcons($icon = 'warning') {
+   function dropdownIcons($icon = self::ICON_NONE) {
       $icons = self::getIcons();
       return Dropdown::showFromArray('icons', $icons, ['value' => $icon]);
    }
@@ -201,6 +209,34 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
       return Dropdown::showFromArray($name, $behaviors, ['value' => $behavior]);
    }
 
+
+   /**
+   * Get the fields to be encoded in json
+   * @since 9.2
+   * @return an array of field names
+   */
+   function getJsonFields() {
+      return  ['type', 'duration', 'buttons', 'icons',
+               'retry_after', 'nb_max_retry', 'action_delay_over',
+               'action_no_active_session', 'action_multiple_action_session'];
+
+   }
+
+   /**
+   * Initialize json fields
+   * @since 9.2
+   *
+   * @return an array of field names
+   */
+   function initializeJsonFields($json_fields) {
+      foreach ($this->getJsonFields() as $field) {
+         if (!isset($json_fields[$field])) {
+            $json_fields[$field] = '';
+         }
+      }
+      return $json_fields;
+   }
+
    /**
    * Save form data as a json encoded array
    * @since 9.2
@@ -208,11 +244,8 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
    * @return json encoded array
    */
    function saveToJson($params = []) {
-      $fields = ['type', 'duration', 'buttons', 'icons',
-                 'retry_after', 'nb_max_retry', 'action_delay_over',
-                 'action_no_active_session', 'action_multiple_action_session'];
       $result = [];
-      foreach ($fields as $field) {
+      foreach ($this->getJsonFields() as $field) {
          if (isset($params[$field])) {
             $result[$field] = $params[$field];
          }
@@ -232,7 +265,8 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
       $this->showFormHeader($options);
 
       $json_data = json_decode($this->fields['json'], true);
-
+      $json_data = $this->initializeJsonFields($json_data);
+      
       echo "<tr class='tab_bg_1'>";
 
       $rand    = mt_rand();
