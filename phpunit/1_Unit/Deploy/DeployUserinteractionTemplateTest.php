@@ -49,7 +49,7 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
    public function testGetTypes() {
       $types = PluginFusioninventoryDeployUserinteractionTemplate::getTypes();
       $this->assertEquals($types,
-                          [self::ALERT_WTS => __("Windows system alert (WTS)", 'fusioninventory')]);
+                          [PluginFusioninventoryDeployUserinteractionTemplate::ALERT_WTS => __("Windows system alert (WTS)", 'fusioninventory')]);
    }
 
    /**
@@ -78,7 +78,7 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
     * @test
     */
    public function testGetIcons() {
-      $icons = PluginFusioninventoryDeployCheck::getIcons(PluginFusioninventoryDeployUserinteractionTemplate::ALERT_WTS);
+      $icons = PluginFusioninventoryDeployUserinteractionTemplate::getIcons(PluginFusioninventoryDeployUserinteractionTemplate::ALERT_WTS);
       $this->assertEquals(3, count($icons));
       $this->assertEquals($icons, [ 'warning' => __('Warning'),
                                     'info'    => _n('Information', 'Informations', 1),
@@ -91,6 +91,30 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
 
       $icons = PluginFusioninventoryDeployCheck::getIcons();
       $this->assertFalse($icons);
+
+   }
+
+   public function testAdd() {
+      $interaction = new PluginFusioninventoryDeployUserinteractionTemplate();
+      $tmp = ['name'         => 'test',
+              'entities_id'  => 0,
+              'is_recursive' => 0,
+              'json'         => ''
+             ];
+      $this->assertTrue($interaction->add($tmp));
+
+   }
+
+   public function testUpdate() {
+      $interaction = new PluginFusioninventoryDeployUserinteractionTemplate();
+      $tmp = ['id'   => 1,
+              'name' => 'test2',
+              'json' => ''
+             ];
+      $this->assertTrue($interaction->update($tmp));
+
+      $interaction->getFromDB(1);
+      $this->assertEquals('test 2', $interaction->fields['name']);
 
    }
 

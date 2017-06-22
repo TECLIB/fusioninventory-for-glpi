@@ -134,6 +134,8 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
    * @param $templates_id id of a template to edit
    */
    function showForm($templates_id) {
-
+      if (!$this->getFromDB($templates_id)) {
+         $this->getEmpty();
+      }
    }
 }
