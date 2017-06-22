@@ -475,7 +475,8 @@ class PluginFusioninventoryMenu extends CommonGLPI {
       }
 
       if (Session::haveRight('plugin_fusioninventory_userinteractiontemplate', READ)) {
-         $a_menu[2]['name'] = __('User interaction templates', 'fusioninventory');
+         $a_menu[2]['name'] = _n('User interaction template',
+                                 'User interaction templates', 2, 'fusioninventory');
          $a_menu[2]['pic']  = $CFG_GLPI['root_doc']."/plugins/fusioninventory/pics/menu_files.png";
          $a_menu[2]['link'] = $CFG_GLPI['root_doc']."/plugins/fusioninventory/front/deployuserinteractiontemplate.php";
       }

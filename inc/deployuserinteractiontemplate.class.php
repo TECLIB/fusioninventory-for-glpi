@@ -73,6 +73,17 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
    const BUTTON_OK_RETRY_CANCEL   = 'ok_retry_cancel';
 
    /**
+    * Get name of this type by language of the user connected
+    *
+    * @param integer $nb number of elements
+    * @return string name of this type
+    */
+   static function getTypeName($nb=0) {
+         return _n('User interaction template',
+                   'User interaction templates', $nb, 'fusioninventory');
+   }
+
+   /**
     * Get list of supported interaction methods
     *
     * @since 9.2
@@ -80,6 +91,19 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
     */
    static function getTypes() {
       return [self::ALERT_WTS => __("Windows system alert (WTS)", 'fusioninventory')];
+   }
+
+
+   /**
+    * Display a dropdown with the list of alert types
+    *
+    * @since 9.2
+    * @param type the type of alert (if one already selected)
+    * @return rand
+    */
+   function dropdownTypes($type = self::ALERT_WTS) {
+      $types = self::getTypes();
+      return Dropdown::showFromArray('type', $types, ['value' => $type]);
    }
 
    /**
@@ -107,14 +131,26 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
    }
 
    /**
+    * Display a dropdown with the list of buttons available
+    *
+    * @since 9.2
+    * @param type the type of button (if one already selected)
+    * @return rand
+    */
+   public function dropdownButtons($button = self::BUTTON_OK_SYNC) {
+      $types = self::getButtons();
+      return Dropdown::showFromArray('buttons', $buttons, ['value' => $button]);
+   }
+
+   /**
     * Get available icons for alerts, by interaction type
     *
     * @since 9.2
     * @param interaction_type the type of interaction
     * @return array
     */
-   static function getIcons($interaction_type = '') {
-       $icons =  [ self::ALERT_WTS =>
+   static function getIcons($interaction_type = self::ALERT_WTS) {
+       $icons = [ self::ALERT_WTS =>
                            [ 'warning' => __('Warning'),
                              'info'    => _n('Information', 'Informations', 1),
                              'error'   => __('Error')
@@ -128,6 +164,18 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
    }
 
    /**
+    * Display a dropdown with the list of buttons available
+    *
+    * @since 9.2
+    * @param type the type of button (if one already selected)
+    * @return rand
+    */
+   function dropdownIcons($icon = 'warning') {
+      $icons = self::getIcons();
+      return Dropdown::showFromArray('icons', $icons, ['value' => $icon]);
+   }
+
+   /**
     * Get available behaviors in case of user interactions
     *
     * @since 9.2
@@ -135,10 +183,22 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
     */
    static function getBehaviors() {
       $behaviors = [self::BEHAVIOR_CONTINUE_DEPLOY => __('Continue'),
-                    self::BEHAVIOR_POSTPONE_DEPLOY => __('Postpone', 'fusioninventory'),
+                    self::BEHAVIOR_POSTPONE_DEPLOY => __('Retry later', 'fusioninventory'),
                     self::BEHAVIOR_CANCEL_DEPLOY   => __('Cancel')
                    ];
       return $behaviors;
+   }
+
+   /**
+    * Display a dropdown with the list of available behaviors
+    *
+    * @since 9.2
+    * @param type the type of bahaviors (if one already selected)
+    * @return rand
+    */
+   function dropdownBehaviors($name, $behavior = self::BEHAVIOR_CONTINUE_DEPLOY) {
+      $behaviors = self::getBehaviors();
+      return Dropdown::showFromArray($name, $behaviors, ['value' => $behavior]);
    }
 
    /**
@@ -148,7 +208,7 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
    * @return json encoded array
    */
    function saveToJson($params = []) {
-      $fields = ['name', 'type', 'duration', 'buttons', 'icons',
+      $fields = ['type', 'duration', 'buttons', 'icons',
                  'retry_after', 'nb_max_retry', 'action_delay_over',
                  'action_no_active_session', 'action_multiple_action_session'];
       $result = [];
@@ -171,9 +231,11 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
       $this->initForm($ID, $options);
       $this->showFormHeader($options);
 
+      $json_data = json_decode($this->fields['json'], true);
+
       echo "<tr class='tab_bg_1'>";
 
-      $rand = mt_rand();
+      $rand    = mt_rand();
       $tplmark = $this->getAutofillMark('name', $options);
 
       //TRANS: %1$s is a string, %2$s a second one without spaces between them : to change for RTL
@@ -183,15 +245,67 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
       $objectName = autoName($this->fields["name"], "name",
                              (isset($options['withtemplate']) && ( $options['withtemplate']== 2)),
                              $this->getType(), $this->fields["entities_id"]);
-      Html::autocompletionTextField(
-         $this,
-         'name',
-         [
-            'value'     => $objectName,
-            'rand'      => $rand
-         ]
-      );
+      Html::autocompletionTextField($this, 'name', [ 'value'     => $objectName,
+                                                     'rand'      => $rand
+                                                   ]);
       echo "</td>";
+
+      echo "<td>".__('Interaction format', 'fusioninventory')."</td>";
+      echo "<td>";
+      $this->dropdownTypes($json_data['type']);
+      echo "</td>";
+      echo "</tr>";
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>".__('Alert display duration', 'fusioninventory')."</td>";
+      echo "<td>";
+      Dropdown::showInteger('duration', $json_data['duration'], 1, 120, 1);
+      echo "&nbsp;"._n('Minute', 'Minutes', 2);
+      echo "</td>";
+
+      echo "<td>".__('Alert icon', 'fusioninventory')."</td>";
+      echo "<td>";
+      $this->dropdownIcons($json_data['icons']);
+      echo "</td>";
+      echo "</tr>";
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>".__('Retry job after', 'fusioninventory')."</td>";
+      echo "<td>";
+      Dropdown::showInteger('retry_after', $json_data['retry_after'], 1, 24, 1);
+      echo "&nbsp;"._n('Hour', 'Hours', 2);
+      echo "</td>";
+
+      echo "<td>".__('Maximum number of retry allowed', 'fusioninventory')."</td>";
+      echo "<td>";
+      Dropdown::showInteger('nb_max_retry', $json_data['nb_max_retry'], 1, 20, 1);
+      echo "</td>";
+      echo "</tr>";
+
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<th colspan='4'>".__('Advanced information')."</th>";
+      echo "</tr>";
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>".__('In case of alert duration exceeded', 'fusioninventory')."</td>";
+      echo "<td>";
+      $this->dropdownBehaviors('action_delay_over', $json_data['action_delay_over']);
+      echo "</td>";
+
+      echo "<td>".__('In case of no active session', 'fusioninventory')."</td>";
+      echo "<td>";
+      $this->dropdownBehaviors('action_no_active_session', $json_data['action_no_active_session']);
+      echo "</td>";
+      echo "</tr>";
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>".__('In case of several active sessions', 'fusioninventory')."</td>";
+      echo "<td>";
+      $this->dropdownBehaviors('action_multiple_action_session', $json_data['action_multiple_action_session']);
+      echo "</td>";
+
+      echo "<td colspan='2'></td>";
       echo "</tr>";
 
       $this->showFormButtons($options);
@@ -205,4 +319,9 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
       $input['json'] = $this->saveToJson($input);
       return $input;
    }
+
+   public function prepareInputForUpdate($input) {
+      return $this->prepareInputForAdd($input);
+   }
+
 }

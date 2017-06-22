@@ -42,6 +42,17 @@
 
 class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
 
+   /**
+    * @test
+    */
+   public function testGetTypeName() {
+      $this->assertEquals('User interaction templates',
+                           PluginFusioninventoryDeployUserinteractionTemplate::getTypeName());
+      $this->assertEquals('User interaction template',
+                           PluginFusioninventoryDeployUserinteractionTemplate::getTypeName(1));
+      $this->assertEquals('User interaction templates',
+                           PluginFusioninventoryDeployUserinteractionTemplate::getTypeName(2));
+   }
 
    /**
     * @test
@@ -90,8 +101,23 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
       $this->assertFalse($icons);
 
       $icons = PluginFusioninventoryDeployUserinteractionTemplate::getIcons();
-      $this->assertFalse($icons);
+      $this->assertEquals($icons, [ 'warning' => __('Warning'),
+                                    'info'    => _n('Information', 'Informations', 1),
+                                    'error'   => __('Error')
+                                   ]);
 
+   }
+
+   /**
+    * @test
+    */
+   public function testGetBehaviors() {
+      $behaviors = PluginFusioninventoryDeployUserinteractionTemplate::getBehaviors();
+      $expected  = [PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY => __('Continue'),
+                    PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_POSTPONE_DEPLOY => __('Retry later', 'fusioninventory'),
+                    PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CANCEL_DEPLOY   => __('Cancel')
+                   ];
+      $this->assertEquals($expected, $behaviors);
    }
 
    /**
@@ -105,8 +131,29 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
               'json'         => ''
              ];
       $this->assertEquals(1, $interaction->add($tmp));
+      $interaction->getFromDB(1);
+      $this->assertEquals('[]', $interaction->fields['json']);
+
+      $tmp = ['name'         => 'test2',
+              'entities_id'  => 0,
+              'is_recursive' => 0,
+              'type'                           => PluginFusioninventoryDeployUserinteractionTemplate::ALERT_WTS,
+              'duration'                       => 4,
+              'buttons'                        => PluginFusioninventoryDeployUserinteractionTemplate::BUTTON_OK_SYNC,
+              'icon'                           => 'warning',
+              'retry_after'                    => 4,
+              'nb_max_retry'                   => 4,
+              'action_delay_over'              => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY,
+              'action_no_active_session'       => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY,
+              'action_multiple_action_session' => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CANCEL_DEPLOY
+             ];
+      $this->assertEquals(2, $interaction->add($tmp));
+      $interaction->getFromDB(2);
+      $expected = '{"type":"wts","duration":4,"buttons":"ok_sync","retry_after":4,"nb_max_retry":4,"action_delay_over":"continue","action_no_active_session":"continue","action_multiple_action_session":"cancel"}';
+      $this->assertEquals($expected, $interaction->fields['json']);
 
    }
+
 
    /**
     * @test
@@ -114,13 +161,13 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
    public function testUpdate() {
       $interaction = new PluginFusioninventoryDeployUserinteractionTemplate();
       $tmp = ['id'   => 1,
-              'name' => 'test2',
+              'name' => 'test_update',
               'json' => ''
              ];
       $this->assertTrue($interaction->update($tmp));
 
       $interaction->getFromDB(1);
-      $this->assertEquals('test2', $interaction->fields['name']);
+      $this->assertEquals('test_update', $interaction->fields['name']);
 
    }
 
@@ -141,11 +188,11 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
                 ];
       $interaction = new PluginFusioninventoryDeployUserinteractionTemplate();
       $result      = $interaction->saveToJson($values);
-      $expected    = '{"name":"interaction","type":"wts","duration":4,"buttons":"ok_sync","retry_after":4,"nb_max_retry":4,"action_delay_over":"continue","action_no_active_session":"continue","action_multiple_action_session":"cancel"}';
+      $expected    = '{"type":"wts","duration":4,"buttons":"ok_sync","retry_after":4,"nb_max_retry":4,"action_delay_over":"continue","action_no_active_session":"continue","action_multiple_action_session":"cancel"}';
       $this->assertEquals($expected, $result);
 
       $result      = $interaction->saveToJson([]);
-      $this->assertEquals($expected, "{}");
+      $this->assertEquals($result, "[]");
 
    }
 }
