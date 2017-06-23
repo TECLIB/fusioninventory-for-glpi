@@ -84,4 +84,12 @@ switch ($type) {
       PluginFusioninventoryDeployAction::displayAjaxValues(NULL, $request_data, $mode);
       break;
 
+   case 'userinteraction':
+      $request_data = array(
+          'packages_id' => filter_input(INPUT_POST, "packages_id"),
+          'value'      => filter_input(INPUT_POST, "value")
+      );
+      PluginFusioninventoryDeployUserinteraction::displayAjaxValues(NULL, $request_data, $rand, $mode);
+      break;
+
 }

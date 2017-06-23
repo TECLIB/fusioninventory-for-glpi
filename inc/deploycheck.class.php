@@ -451,6 +451,7 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
    static function getMandatoryMark() {
       return "&nbsp;<span class='red'>*</span>";
    }
+
    /**
    *  Get labels and type for a check
    * @param check_type the type of check
@@ -861,5 +862,3 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
       PluginFusioninventoryDeployPackage::updateOrderJson($params['id'], $datas);
    }
 }
-
-?>

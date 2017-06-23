@@ -515,9 +515,9 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          'userinteraction' => __("User interactions", 'fusioninventory')
       );
       $json_subtypes = array(
-         'check'       => 'checks',
-         'file'        => 'associatedFiles',
-         'action'      => 'actions',
+         'check'           => 'checks',
+         'file'            => 'associatedFiles',
+         'action'          => 'actions',
          'userinteraction' => 'userinteractions'
       );
       $rand = mt_rand();

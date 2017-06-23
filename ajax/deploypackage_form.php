@@ -119,6 +119,11 @@ if (!empty($fi_move_item)) { //ajax request
                  $pfDeployPackage, $input, $rand, $mode);
          break;
 
+      case 'userinteraction':
+         PluginFusioninventoryDeployUserinteraction::displayForm(
+                 $pfDeployPackage, $input, $rand, $mode);
+         break;
+
       case 'package_json_debug':
          if (isset($order->fields['json'])) {
             $pfDeployPackage->displayJSONDebug();

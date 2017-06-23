@@ -51,7 +51,7 @@ if (!defined('GLPI_ROOT')) {
 /**
  * Manage user interactions templates.
  */
-class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
+class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown {
 
    /**
     * The right name for this class
@@ -252,6 +252,19 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
       }
       return json_encode($result);
    }
+
+   /**
+   * Add the json template fields to package
+   *
+   */
+   function addJsonFieldsToArray($params = []) {
+      $fields = json_decode($this->fields['json'], true);
+      foreach ($this->getJsonFields() as $field) {
+         $params[$field] = $fields[$field];
+      }
+      return $params;
+   }
+
    /**
    * Display an interaction template form
    * @since 9.2
@@ -266,7 +279,7 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDBTM {
 
       $json_data = json_decode($this->fields['json'], true);
       $json_data = $this->initializeJsonFields($json_data);
-      
+
       echo "<tr class='tab_bg_1'>";
 
       $rand    = mt_rand();

@@ -36,7 +36,6 @@
  *
  * @package   FusionInventory
  * @author    Walid Nouh
- * @author    David Durieux
  * @copyright Copyright (c) 2010-2016 FusionInventory team
  * @license   AGPL License 3.0 or (at your option) any later version
  *            http://www.gnu.org/licenses/agpl-3.0-standalone.html
@@ -54,55 +53,244 @@ if (!defined('GLPI_ROOT')) {
  */
 class PluginFusioninventoryDeployUserinteraction extends CommonDBTM {
 
+   //Events
+
+   //Audits are all been executed successfully, just before download
+   const EVENT_AFTER_AUDITS    = 1;
+   //File download has been done, just before actions execution
+   const EVENT_AFTER_DOWNLOAD  = 2;
+   //Actions have been executed, deployement is finished
+   const EVENT_AFTER_ACTIONS   = 3;
+   //At least one downlod has failed
+   const EVENT_DOWNLOAD_FAILED = 4;
+   //At least one action has failed
+   const EVENT_ACTION_FAILED   = 5;
+
    /**
-    * Get list of return actions available
+    * Get name of this type by language of the user connected
     *
-    * @return array
+    * @param integer $nb number of elements
+    * @return string name of this type
     */
-   static function getReturnActionNames() {
-      return array(
-         0              => Dropdown::EMPTY_VALUE,
-         'okCode'       => __("Return code is equal to", 'fusioninventory'),
-         'errorCode'    => __("Return code is not equal to", 'fusioninventory'),
-         'okPattern'    => __("Command output contains", 'fusioninventory'),
-         'errorPattern' => __("Command output does not contains", 'fusioninventory')
-      );
+   static function getTypeName($nb=0) {
+         return _n('User interaction',
+                   'User interactions', $nb, 'fusioninventory');
    }
 
-
-
    /**
-    * Get types of actions with name => description
-    *
+    * Get events with name => description
+    * @since 9.2
     * @return array
     */
-   static function getTypes() {
-       return array(
-         'cmd'     => __('Command', 'fusioninventory'),
-         'move'    => __('Move', 'fusioninventory'),
-         'copy'    => __('Copy', 'fusioninventory'),
-         'delete'  => __('Delete directory', 'fusioninventory'),
-         'mkdir'   => __('Create directory', 'fusioninventory')
-      );
+   static function getEvents() {
+      return [self::EVENT_AFTER_AUDITS    => __("Alert after audits", 'fusioninventory'),
+              self::EVENT_AFTER_DOWNLOAD  => __("Alert after download", 'fusioninventory'),
+              self::EVENT_AFTER_ACTIONS   => __("Alert after actions", 'fusioninventory'),
+              self::EVENT_DOWNLOAD_FAILED => __("Alert on failed download", 'fusioninventory'),
+              self::EVENT_ACTION_FAILED   => __("Alert on failed actions", 'fusioninventory')
+             ];
    }
 
-
-
    /**
-    * Get description of the type name
-    *
-    * @param string $type name of the type
-    * @return string mapped with the type
+    * Get an event label by it's identifier
+    * @since 9.2
+    * @return array
     */
-   static function getTypeDescription($type) {
-      $a_types = PluginFusioninventoryDeployAction::getTypes();
-      if (isset($a_types[$type])) {
-         return $a_types[$type];
+   static function getEventLabel($event) {
+      $events = self::getEvents();
+      if (isset($events[$event])) {
+         return $events[$event];
+      } else {
+         return false;
       }
-      return $type;
    }
 
+   /**
+    * Display the dropdown to select type of element
+    *
+    * @global array $CFG_GLPI
+    * @param array $config order item configuration
+    * @param string $rand unique element id used to identify/update an element
+    * @param string $mode mode in use (create, edit...)
+    */
+   static function displayDropdownType($config, $rand, $mode) {
+      global $CFG_GLPI;
 
+      /*
+       * Build dropdown options
+       */
+      $dropdown_options['rand'] = $rand;
+      if ($mode === 'edit') {
+         $dropdown_options['value'] = $config['type'];
+         $dropdown_options['readonly'] = true;
+      }
+
+      /*
+       * Build actions types list
+       */
+      if ($mode === 'create') {
+         $events = self::getEvents();
+      } else {
+         $events = [];
+         foreach (self::getEvents() as $label => $data) {
+            $events[] = $data;
+         }
+      }
+      array_unshift($events, "---");
+
+      /*
+       * Display dropdown html
+       */
+      echo "<table class='package_item'>";
+      echo "<tr>";
+      echo "<th>".__("Type", 'fusioninventory')."</th>";
+      echo "<td>";
+      Dropdown::showFromArray("deploy_userinteractiontype", $events, $dropdown_options);
+      echo "</td>";
+      echo "</tr></table>";
+
+      //ajax update of check value span
+      if ($mode === 'create') {
+         $params = [
+                     'value'  => '__VALUE__',
+                     'rand'   => $rand,
+                     'myname' => 'method',
+                     'type'   => "userinteraction",
+                     'mode'   => $mode
+         ];
+
+         Ajax::updateItemOnEvent(
+            "dropdown_deploy_userinteractiontype$rand",
+            "show_userinteraction_value$rand",
+            $CFG_GLPI["root_doc"].
+            "/plugins/fusioninventory".
+            "/ajax/deploy_displaytypevalue.php",
+            $params,
+            ["change", "load"]
+         );
+      }
+   }
+
+   /**
+    * Display different fields relative the check selected
+    *
+    * @param array $config
+    * @param array $request_data
+    * @param string $rand unique element id used to identify/update an element
+    * @param string $mode mode in use (create, edit...)
+    * @return boolean
+    */
+   static function displayAjaxValues($config, $request_data, $rand, $mode) {
+      global $CFG_GLPI;
+
+      $pfDeployPackage = new PluginFusioninventoryDeployPackage();
+
+      if (isset($request_data['packages_id'])) {
+         $pfDeployPackage->getFromDB($request_data['orders_id']);
+      } else {
+         $pfDeployPackage->getEmpty();
+      }
+
+      /*
+       * Get type from request params
+       */
+      $type = NULL;
+      if ($mode === 'create') {
+         $type = $request_data['value'];
+         $config_data = NULL;
+      } else {
+         $type = $config['type'];
+         $config_data = $config['data'];
+      }
+
+      $values = self::getValues($type, $config_data, $mode);
+      Toolbox::logDebug($values);
+      if ($values === FALSE) {
+         return FALSE;
+      }
+
+      echo "<table class='package_item'>";
+      echo "<tr>";
+      echo "<th>".PluginFusioninventoryDeployUserinteractionTemplate::getTypeName(1)."</th>";
+      echo "<td><input type='text' name='name' id='userinteraction_name{$rand}' value=\"{$values['name_value']}\" /></td>";
+      echo "</tr>";
+
+      echo "<tr>";
+      echo "<th>{$values['title_label']}</th>";
+      echo "<td><input type='text' name='path' id='userinteraction_title{$rand}' value=\"{$values['title_value']}\" />";
+      echo "</td>";
+      echo "</tr>";
+
+      echo "<tr>";
+      echo "<th>{$values['description_label']}</th>";
+      echo "<td><textarea name='path' id='userinteraction_description{$rand}' rows='5'/>{$values['description_value']}</textarea>";
+      echo "</td>";
+      echo "</tr>";
+
+      echo "<tr>";
+      echo "<th>{$values['template_label']}</th>";
+      echo "<td>";
+      Dropdown::show('PluginFusioninventoryDeployUserinteractionTemplate', ['value' => $values['template_value']]);
+      echo "</td>";
+      echo "</tr>";
+
+      echo "<tr>";
+      echo "<td>";
+      echo "</td>";
+      echo "<td>";
+      if ($pfDeployPackage->can($pfDeployPackage->getID(), UPDATE)) {
+         if ($mode === 'edit') {
+            echo "<input type='submit' name='save_item' value=\"".
+               _sx('button', 'Save')."\" class='submit' >";
+         } else {
+            echo "<input type='submit' name='add_item' value=\"".
+               _sx('button', 'Add')."\" class='submit' >";
+         }
+      }
+      echo "</td>";
+      echo "</tr>";
+
+      echo "</table>";
+   }
+
+   /**
+    * Get fields for the check type requested
+    *
+    * @param string $type the type of check
+    * @param array $data fields yet defined in edit mode
+    * @param string $mode mode in use (create, edit...)
+    *
+    * @return string|false
+    */
+   static function getValues($type, $data, $mode) {
+      $values = [
+         'name_value'          => "",
+         'name_label'          => __('Interaction label', 'fusioninventory'),
+         'name_type'           => "input",
+         'title_label'         => __('Title').self::getMandatoryMark(),
+         'title_value'         => "",
+         'title_type'          => "input",
+         'description_label'   => __('Message'),
+         'description_type'    => "text",
+         'description_value'   => "",
+         'template_label'      => PluginFusioninventoryDeployUserinteractionTemplate::getTypeName(1).self::getMandatoryMark(),
+         'template_value'      => "",
+         'template_type'       => "dropdown",
+      ];
+
+      if ($mode === 'edit') {
+         $values['name_value']        = isset($data['name'])?$data['name']:"";
+         $values['title_value']       = isset($data['title'])?$data['title']:"";
+         $values['description_value'] = isset($data['description_value'])?$data['description_value']:"";
+         $values['template_value']    = isset($data['template_value'])?$data['template_value']:"";
+      }
+
+      return $values;
+   }
+
+   static function getMandatoryMark() {
+      return "&nbsp;<span class='red'>*</span>";
+   }
 
    /**
     * Display form
@@ -113,7 +301,6 @@ class PluginFusioninventoryDeployUserinteraction extends CommonDBTM {
     * @param string $mode possible values: init|edit|create
     */
    static function displayForm(PluginFusioninventoryDeployPackage $package, $request_data, $rand, $mode) {
-
       /*
        * Get element config in 'edit' mode
        */
@@ -124,14 +311,13 @@ class PluginFusioninventoryDeployUserinteraction extends CommonDBTM {
           */
          echo "<input type='hidden' name='index' value='".$request_data['index']."' />";
 
-         $element = $package->getSubElement('actions', $request_data['index']);
-         if (is_array($element) && count($element) == 1) {
-            reset($element);
-            $type = key($element);
+         $c = $package->getSubElement('userinteractions', $request_data['index']);
+
+         if (is_array($c) && count($c)) {
 
             $config = array(
-               'type' => $type,
-               'data' => $element[$type]
+               'type' => $c['type'],
+               'data' => $c
             );
          }
       }
@@ -140,7 +326,7 @@ class PluginFusioninventoryDeployUserinteraction extends CommonDBTM {
        * Display start of div form
        */
       if (in_array($mode, array('init'), TRUE)) {
-         echo "<div id='actions_block$rand' style='display:none'>";
+         echo "<div id='userinteractions_block$rand' style='display:none'>";
       }
 
       /*
@@ -156,9 +342,9 @@ class PluginFusioninventoryDeployUserinteraction extends CommonDBTM {
        * javascript event.
        */
       if (in_array($mode, array('create', 'edit'), TRUE)) {
-         echo "<span id='show_action_value{$rand}'>";
+         echo "<span id='show_userinteraction_value{$rand}'>";
          if ($mode === 'edit') {
-            self::displayAjaxValues($config, $request_data, $mode);
+            self::displayAjaxValues($config, $request_data, $rand, $mode);
          }
          echo "</span>";
       }
@@ -172,510 +358,214 @@ class PluginFusioninventoryDeployUserinteraction extends CommonDBTM {
    }
 
 
+      /**
+       * Display list of user interactions
+       *
+       * @global array $CFG_GLPI
+       * @param object $package PluginFusioninventoryDeployPackage instance
+       * @param array $datas array converted of 'json' field in DB where stored checks
+       * @param string $rand unique element id used to identify/update an element
+       */
+      static function displayList(PluginFusioninventoryDeployPackage $package, $datas, $rand) {
+         global $CFG_GLPI;
 
-   /**
-    * Display list of actions
-    *
-    * @global array $CFG_GLPI
-    * @param object $package PluginFusioninventoryDeployPackage instance
-    * @param array $datas array converted of 'json' field in DB where stored actions
-    * @param string $rand unique element id used to identify/update an element
-    */
-   static function displayList(PluginFusioninventoryDeployPackage $package, $datas, $rand) {
-      global $CFG_GLPI;
+         $interaction_types = self::getEvents();
+         $package_id   = $package->getID();
+         $canedit      = $package->canUpdateContent();
+         echo "<table class='tab_cadrehov package_item_list' id='table_userinteraction_$rand'>";
+         $i = 0;
+         foreach ($datas['jobs']['userinteractions'] as $interaction) {
 
-      $canedit    = $package->canUpdateContent();
-      $package_id = $package->getID();
-      echo "<table class='tab_cadrehov package_item_list' id='table_userinteraction_$rand'>";
-      $i=0;
-      foreach ($datas['jobs']['actions'] as $action) {
-         echo Search::showNewLine(Search::HTML_OUTPUT, ($i%2));
-         if ($canedit) {
-            echo "<td class='control'>";
-            Html::showCheckbox(array('name' => 'action_entries['.$i.']'));
-            echo "</td>";
-         }
-         $keys = array_keys($action);
-         $action_type = array_shift($keys);
-         echo "<td>";
-         if ($canedit) {
-            echo "<a class='edit'
-                     onclick=\"edit_subtype('action', $package_id, $rand ,this)\">";
-         }
-         echo PluginFusioninventoryDeployAction::getTypeDescription($action_type);
-         if ($canedit) {
-            echo "</a>";
-         }
-         echo "<br />";
+            echo Search::showNewLine(Search::HTML_OUTPUT, ($i%2));
+            if ($canedit) {
+               echo "<td class='control'>";
+               Html::showCheckbox(array('name' => 'userinteraction_entries['.$i.']'));
+               echo "</td>";
+            }
 
-         foreach ($action[$action_type] as $key => $value) {
-            if (is_array($value)) {
-               if ($key === "list") {
-                  foreach ($value as $list) {
-                     echo $list;
-                     echo " ";
-                  }
-               }
+            //Get the audit full description (with type and return value)
+            //to be displayed in the UI
+            $text = self::getInteractionDescription($interaction);
+            if (isset($interaction['name']) && !empty($interaction['name'])) {
+               $interaction_label = $interaction['name'].' ('.$text.')';
             } else {
-               echo "<b>";
-               if ($key == 'exec') {
-                  echo __('Command to execute', 'fusioninventory');
-               } else {
-                  echo $key;
-               }
-               echo "</b>";
-               if ($key ==="exec") {
-                  echo "<pre style='border-left:solid lightgrey 3px;margin-left: 5px;".
-                          "padding-left:2px;white-space: pre-wrap;'>$value</pre>";
-               } else {
-                  echo " $value ";
-               }
+               $interaction_label = $text;
             }
-         }
-         if (isset($action[$action_type]['retChecks'])) {
-            echo "<br><b>".__("return codes saved for this command", 'fusioninventory').
-               "</b> : <ul class='retChecks'>";
-            foreach ($action[$action_type]['retChecks'] as $retCheck) {
-               echo "<li>";
-               $getReturnActionNames = self::getReturnActionNames();
-               echo $getReturnActionNames[$retCheck['type']]." ".array_shift($retCheck['values']);
-               echo "</li>";
+            echo "<td>";
+            if ($canedit) {
+               echo "<a class='edit'
+                        onclick=\"edit_subtype('userinteraction', $package_id, $rand ,this)\">";
             }
-            echo "</ul>";
+            echo $interaction_label;
+            if ($canedit) {
+               echo "</a>";
+            }
+
+            echo "</td>";
+            if ($canedit) {
+               echo "<td class='rowhandler control' title='".__('drag', 'fusioninventory').
+                  "'><div class='drag row'></div></td>";
+            }
+            echo "</tr>";
+            $i++;
          }
-         echo "</td>";
-         echo "</td>";
          if ($canedit) {
-            echo "<td class='rowhandler control' title='".__('drag', 'fusioninventory').
-               "'><div class='drag row'></div></td>";
+            echo "<tr><th>";
+            Html::checkAllAsCheckbox("userinteractionsList$rand", mt_rand());
+            echo "</th><th colspan='3' class='mark'></th></tr>";
          }
-         echo "</tr>";
-         $i++;
-      }
-         if ($canedit) {
-         echo "<tr><th>";
-         Html::checkAllAsCheckbox("actionsList$rand", mt_rand());
-         echo "</th><th colspan='3' class='mark'></th></tr>";
-      }
-      echo "</table>";
-         if ($canedit) {
-         echo "&nbsp;&nbsp;<img src='".$CFG_GLPI["root_doc"]."/pics/arrow-left.png' alt=''>";
-         echo "<input type='submit' name='delete' value=\"".
-            __('Delete', 'fusioninventory')."\" class='submit'>";
-      }
-   }
-
-
-
-   /**
-    * Display dropdown type
-    *
-    * @global array $CFG_GLPI
-    * @param array $config order item configuration
-    * @param string $rand unique element id used to identify/update an element
-    * @param string $mode mode in use (create, edit...)
-    */
-   static function displayDropdownType($config, $rand, $mode) {
-      global $CFG_GLPI;
-      /*
-       * Build dropdown options
-       */
-      $dropdown_options['rand'] = $rand;
-      if ($mode === 'edit') {
-         $dropdown_options['value'] = $config['type'];
-         $dropdown_options['readonly'] = true;
-      }
-
-      /*
-       * Build actions types list
-       */
-      $actions_types = self::getTypes();
-      array_unshift($actions_types, "---");
-
-      /*
-       * Display dropdown html
-       */
-      echo "<table class='package_item'>";
-      echo "<tr>";
-      echo "<th>".__("Type", 'fusioninventory')."</th>";
-      echo "<td>";
-      Dropdown::showFromArray("deploy_actiontype", $actions_types, $dropdown_options);
-      echo "</td>";
-      echo "</tr>";
-      echo "</table>";
-
-      //ajax update of action value span
-
-      if ($mode === 'create') {
-         $params = array(
-            'values'  => '__VALUE__',
-            'rand'   => $rand,
-            'myname' => 'method',
-            'type'   => 'action',
-            'mode'   => $mode
-         );
-
-         Ajax::updateItemOnEvent(
-            "dropdown_deploy_actiontype$rand",
-            "show_action_value$rand",
-            $CFG_GLPI["root_doc"].
-            "/plugins/fusioninventory/".
-            "ajax/deploy_displaytypevalue.php",
-            $params,
-            array("change", "load")
-         );
-      }
-   }
-
-
-
-   /**
-    * Display different fields relative the action selected (cmd, move...)
-    *
-    * @param array $config
-    * @param array $request_data
-    * @param string $mode mode in use (create, edit...)
-    * @return boolean
-    */
-   static function displayAjaxValues($config, $request_data, $mode) {
-      global $CFG_GLPI;
-
-      $mandatory_mark  = PluginFusioninventoryDeployCheck::getMandatoryMark();
-      $pfDeployPackage = new PluginFusioninventoryDeployPackage();
-
-      if (isset($request_data['packages_id'])) {
-         $pfDeployPackage->getFromDB($request_data['packages_id']);
-      } else {
-         $pfDeployPackage->getEmpty();
-      }
-
-      /*
-       * Get type from request params
-       */
-      $type = NULL;
-
-      if ($mode === 'create') {
-         $type = $request_data['values'];
-      } else {
-         $type = $config['type'];
-         $config_data = $config['data'];
-      }
-
-      /*
-       * Set default values
-       */
-      $value_type_1 = "input";
-      $value_1      = "";
-      $value_2      = "";
-      $retChecks    = NULL;
-      $name_label   = __('Action label', 'fusioninventory');
-      $name_value   = (isset($config_data['name']))?$config_data['name']:"";
-      $name_type    = "input";
-      $logLineLimit = (isset($config_data['logLineLimit']))?$config_data['logLineLimit']:100;
-
-      /*
-       * set values from element's config in 'edit' mode
-       */
-      switch ($type) {
-
-         case 'move':
-         case 'copy':
-            $value_label_1 = __("From", 'fusioninventory');
-            $name_label_1 = "from";
-            $value_label_2 = __("To", 'fusioninventory');
-            $name_label_2 = "to";
-            if ($mode === 'edit') {
-               $value_1 = $config_data['from'];
-               $value_2 = $config_data['to'];
-            }
-            break;
-
-         case 'cmd':
-            $value_label_1 = __("exec", 'fusioninventory');
-            $name_label_1 = "exec";
-            $value_label_2 = FALSE;
-            $value_type_1  = "textarea";
-            if ($mode === 'edit') {
-               $value_1 = $config_data['exec'];
-               if (isset($config_data['retChecks'])) {
-                  $retChecks = $config_data['retChecks'];
-               }
-            }
-            break;
-
-         case 'delete':
-         case 'mkdir':
-            $value_label_1 = __("path", 'fusioninventory');
-            $name_label_1 = "list[]";
-            $value_label_2 = FALSE;
-            if ($mode === 'edit') {
-               /*
-                * TODO : Add list input like `retChecks` on `mkdir` and `delete`
-                * because those methods are defined as list in specification
-                */
-               $value_1 = array_shift($config_data['list']);
-            }
-            break;
-
-         default:
-            return FALSE;
-
-      }
-
-      echo "<table class='package_item'>";
-      echo "<tr>";
-      echo "<th>".__('Action label', 'fusioninventory')."</th>";
-      echo "<td><input type='text' name='name' id='check_name' value=\"{$name_value}\" /></td>";
-      echo "</tr>";
-      echo "<tr>";
-      echo "<th>$value_label_1&nbsp;".$mandatory_mark."</th>";
-      echo "<td>";
-      switch ($value_type_1) {
-
-         case "input":
-            echo "<input type='text' name='$name_label_1' value='$value_1' />";
-            break;
-
-         case "textarea":
-            echo "<textarea name='$name_label_1' rows='3' style='width: 760px;'>$value_1</textarea>";
-            break;
-
-      }
-      echo "</td>";
-      echo "</tr>";
-      if ($value_label_2 !== FALSE) {
-         echo "<tr>";
-         echo "<th>".$value_label_2."&nbsp;".$mandatory_mark."</th>";
-         echo "<td><input type='text' name='$name_label_2' value='$value_2'/></td>";
-         echo "</tr>";
-      }
-
-      //specific case for cmd : add retcheck form
-      if ($type == "cmd") {
-         echo "<tr>";
-         echo "<th>".__("Execution checks", 'fusioninventory');
-         PluginFusioninventoryDeployPackage::plusButton("retchecks", ".table_retchecks.template");
-         echo "</th>";
-         echo "<td>";
-         echo "<span id='retchecks' style='display:block'>";
-
-         if (is_array($retChecks)
-                 && count($retChecks)) {
-            foreach ($retChecks as $retcheck) {
-               echo "<table class='table_retchecks'>";
-               echo "<tr>";
-               echo "<td>";
-               Dropdown::showFromArray('retchecks_type[]', self::getReturnActionNames(), array(
-                  'value' => $retcheck['type']
-               ));
-               echo "</td>";
-               echo "<td>";
-               echo "<input type='text' name='retchecks_value[]' value='".
-                  $retcheck['values'][0]."' />";
-               echo "</td>";
-               echo "<td><a class='edit' onclick='removeLine(this)'><img src='".
-                  $CFG_GLPI["root_doc"]."/pics/delete.png' /></a></td>";
-               echo "</tr>";
-
-               echo "</table>";
-            }
-         }
-         echo "<table class='table_retchecks template' style='display:none'>";
-         echo "<tr>";
-         echo "<td>";
-         Dropdown::showFromArray('retchecks_type[]', self::getReturnActionNames());
-         echo "</td>";
-         echo "<td><input type='text' name='retchecks_value[]' /></td>";
-         echo "<td><a class='edit' onclick='removeLine(this)'><img src='".
-               $CFG_GLPI["root_doc"]."/pics/delete.png' /></a></td>";
-         echo "</tr>";
-
          echo "</table>";
-         echo "</span>";
-         echo "</td>";
-         echo "</tr>";
+         if ($canedit) {
+            echo "&nbsp;&nbsp;<img src='".$CFG_GLPI["root_doc"]."/pics/arrow-left.png' alt='' />";
+            echo "<input type='submit' name='delete' value=\"".
+               __('Delete', 'fusioninventory')."\" class='submit' />";
+         }
       }
 
-      if ($type == 'cmd') {
-         echo "<tr>";
-         echo "<th>".__('Number of output lines to retrieve', 'fusioninventory')."</th>";
-         echo "<td>";
-         $options = ['min'   => 0,
-                     'max'   => 5000,
-                     'step'  => 10,
-                     'toadd' => [0 => __('None'), -1 => __('All')],
-                     'value' => (isset($config_data['logLineLimit']))?$config_data['logLineLimit']:10
-                    ];
-         Dropdown::showNumber('logLineLimit', $options);
-         echo "&nbsp;<span class='red'><i>";
-         echo __('Fusioninventory-Agent 2.3.20 or higher mandatory');
-         echo "</i></span></td>";
-         echo "</tr>";
-      }
-
-      echo "<tr>";
-      echo "<td></td><td>";
-      if ($pfDeployPackage->can($pfDeployPackage->getID(), UPDATE)) {
-         if ($mode === 'edit') {
-            echo "<input type='submit' name='save_item' value=\"".
-               _sx('button', 'Save')."\" class='submit' >";
+      static function getInteractionDescription($interaction) {
+         $text = '';
+         if (isset($interaction['interaction_label'])) {
+            $text = $interaction['interaction_label'];
          } else {
-            echo "<input type='submit' name='add_item' value=\"".
-               _sx('button', 'Add')."\" class='submit' >";
+            $text .= self::getEventLabel($interaction['type']);
+            $text.= ' ' .Dropdown::getDropdownName('glpi_plugin_fusioninventory_deployuserinteractiontemplates',
+                                              $interaction['template']);
          }
+         return $text;
       }
-      echo "</td>";
-      echo "</tr></table>";
-
-      echo "<script type='text/javascript'>
-         function removeLine(item) {
-            var tag_table = item.parentNode.parentNode.parentNode.parentNode;
-            var parent = tag_table.parentNode;
-               parent.removeChild(tag_table);
+      /**
+       * Add a new item in checks of the package
+       *
+       * @param array $params list of fields with value of the check
+       */
+      static function add_item($params) {
+         Toolbox::logDebug($params);
+         if (!isset($params['description_value'])) {
+            $params['description_value'] = "";
          }
-      </script>";
-   }
-
-
-
-   /**
-    * Add a new item in actions of the package
-    *
-    * @param array $params list of fields with value of the action
-    */
-   static function add_item($params) {
-      //prepare new action entry to insert in json
-      $fields = ['list', 'from', 'to', 'exec', 'name', 'logLineLimit'];
-      foreach ($fields as $field) {
-         if (isset($params[$field])) {
-            $tmp[$field] = $params[$field];
+         if (!isset($params['template_value'])) {
+            $params['template_value'] = 0;
          }
+
+         if ($params['template_value']) {
+            $template = new PluginFusioninventoryDeployUserinteractionTemplate();
+            $template->getFromDB($params['template_value']);
+
+         }
+
+         //prepare new check entry to insert in json
+         $new_entry = [
+            'title'       => $params['title_value'],
+            'description' => $params['description'],
+            'type'        => $params['deploy_userinteractiontype'],
+            'template'    => $params['template']
+         ];
+
+         //get current order json
+         $datas = json_decode(
+                 PluginFusioninventoryDeployPackage::getJson($params['id']),
+                 TRUE
+         );
+
+         //add new entry
+         $datas['jobs']['userinteractions'][] = $new_entry;
+
+         //update order
+         PluginFusioninventoryDeployPackage::updateOrderJson(
+            $params['id'], $datas
+         );
       }
 
-      //process ret checks
-      if (isset($params['retchecks_type'])
-              && !empty($params['retchecks_type'])) {
-         foreach ($params['retchecks_type'] as $index => $type) {
-            if ($type !== '0') {
-               $tmp['retChecks'][] = array(
-                  'type' => $type,
-                  'values' => array($params['retchecks_value'][$index])
-               );
+      /**
+       * Save the item in checks
+       *
+       * @param array $params list of fields with value of the check
+       */
+      static function save_item($params) {
+
+         if (!isset($params['value'])) {
+            $params['value'] = "";
+         }
+         if (!isset($params['name'])) {
+            $params['name'] = "";
+         }
+
+         //prepare new check entry to insert in json
+         $new_entry = [
+            'title'       => $params['title_value'],
+            'description' => $params['description'],
+            'type'        => $params['deploy_userinteractiontype'],
+            'template'    => $params['template']
+         ];
+
+         //get current order json
+         $datas = json_decode(PluginFusioninventoryDeployPackage::getJson($params['id']), TRUE);
+
+         //unset index
+         unset($datas['jobs']['userinteractions'][$params['index']]);
+
+         //add new datas at index position
+         //(array_splice for insertion, ex : http://stackoverflow.com/a/3797526)
+         array_splice($datas['jobs']['userinteractions'], $params['index'], 0, array($entry));
+
+         //update order
+         PluginFusioninventoryDeployPackage::updateOrderJson($params['id'], $datas);
+      }
+
+
+
+      /**
+       * Remove an item
+       *
+       * @param array $params
+       * @return boolean
+       */
+      static function remove_item($params) {
+         if (!isset($params['userinteraction_entries'])) {
+            return FALSE;
+         }
+
+         //get current order json
+         $datas = json_decode(PluginFusioninventoryDeployPackage::getJson($params['packages_id']), TRUE);
+
+         //remove selected checks
+         foreach ($params['userinteraction_entries'] as $index => $checked) {
+            if ($checked >= "1" || $checked == "on") {
+               unset($datas['jobs']['userinteractions'][$index]);
             }
          }
+
+         //Ensure checks is an array and not a dictionnary
+         //Note: This happens when removing an array element from the begining
+         $datas['jobs']['userinteractions'] = array_values($datas['jobs']['userinteractions']);
+
+         //update order
+         PluginFusioninventoryDeployPackage::updateOrderJson($params['packages_id'], $datas);
+         return TRUE;
       }
 
-      //append prepared datas to new entry
-      $new_entry[$params['deploy_actiontype']] = $tmp;
-
-      //get current order json
-      $data = json_decode(PluginFusioninventoryDeployPackage::getJson($params['id']), TRUE);
-
-      //add new entry
-      $data['jobs']['actions'][] = $new_entry;
-
-      //update order
-      PluginFusioninventoryDeployPackage::updateOrderJson($params['id'], $data);
-   }
 
 
+      /**
+       * Move an item
+       *
+       * @param array $params
+       */
+      static function move_item($params) {
+         //get current order json
+         $datas = json_decode(PluginFusioninventoryDeployPackage::getJson($params['id']), TRUE);
 
-   /**
-    * Save the item in actions
-    *
-    * @param array $params list of fields with value of the action
-    */
-   static function save_item($params) {
-      $fields = ['list', 'from', 'to', 'exec', 'name', 'logLineLimit'];
-      foreach ($fields as $field) {
-         if (isset($params[$field])) {
-            $tmp[$field] = $params[$field];
-         }
+         //get data on old index
+         $moved_check = $datas['jobs']['userinteractions'][$params['old_index']];
+
+         //remove this old index in json
+         unset($datas['jobs']['userinteractions'][$params['old_index']]);
+
+         //insert it in new index (array_splice for insertion, ex : http://stackoverflow.com/a/3797526)
+         array_splice($datas['jobs']['userinteractions'], $params['new_index'], 0, array($moved_check));
+
+         //update order
+         PluginFusioninventoryDeployPackage::updateOrderJson($params['id'], $datas);
       }
 
-      //process ret checks
-      if (isset($params['retchecks_type']) && !empty($params['retchecks_type'])) {
-         foreach ($params['retchecks_type'] as $index => $type) {
-            //if type == '0', this means nothing is selected
-            if ($type !== '0') {
-               $tmp['retChecks'][] = array(
-                  'type' => $type,
-                  'values' => array($params['retchecks_value'][$index])
-               );
-            }
-         }
-      }
-
-      //append prepared datas to new entry
-      $entry[ $params['deploy_actiontype']] = $tmp;
-
-      //get current order json
-      $data = json_decode(PluginFusioninventoryDeployPackage::getJson($params['id']), TRUE);
-
-      //unset index
-      unset($data['jobs']['actions'][$params['index']]);
-
-      //add new datas at index position
-      //(array_splice for insertion, ex : http://stackoverflow.com/a/3797526)
-      array_splice($data['jobs']['actions'], $params['index'], 0, array($entry));
-
-      //update order
-      PluginFusioninventoryDeployPackage::updateOrderJson($params['id'], $data);
-   }
-
-
-
-   /**
-    * Remove an item
-    *
-    * @param array $params
-    * @return boolean
-    */
-   static function remove_item($params) {
-      if (!isset($params['action_entries'])) {
-         return FALSE;
-      }
-
-      //get current order json
-      $datas = json_decode(PluginFusioninventoryDeployPackage::getJson($params['packages_id']), TRUE);
-      //remove selected checks
-      foreach ($params['action_entries'] as $index => $checked) {
-         if ($checked >= "1" || $checked == "on") {
-            unset($datas['jobs']['actions'][$index]);
-         }
-      }
-
-      //Ensure actions list is an array and not a dictionnary
-      //Note: This happens when removing an array element from the begining
-      $datas['jobs']['actions'] = array_values($datas['jobs']['actions']);
-
-      //update order
-      PluginFusioninventoryDeployPackage::updateOrderJson($params['packages_id'], $datas);
-   }
-
-
-
-   /**
-    * Move an item
-    *
-    * @param array $params
-    */
-   static function move_item($params) {
-      //get current order json
-      $datas = json_decode(PluginFusioninventoryDeployPackage::getJson($params['id']), TRUE);
-
-      //get data on old index
-      $moved_check = $datas['jobs']['actions'][$params['old_index']];
-
-      //remove this old index in json
-      unset($datas['jobs']['actions'][$params['old_index']]);
-
-      //insert it in new index (array_splice for insertion, ex : http://stackoverflow.com/a/3797526)
-      array_splice($datas['jobs']['actions'], $params['new_index'], 0, array($moved_check));
-
-      //update order
-      PluginFusioninventoryDeployPackage::updateOrderJson($params['id'], $datas);
-   }
 }
-
-?>
