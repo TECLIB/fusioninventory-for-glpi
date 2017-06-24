@@ -96,7 +96,8 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
     * @return array
     */
    static function getTypes() {
-      return [self::ALERT_WTS => __("Windows system alert (WTS)", 'fusioninventory')];
+      return [self::ALERT_WTS
+               => __("Windows system alert (WTS)", 'fusioninventory')];
    }
 
 
@@ -121,12 +122,18 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
     */
    static function getButtons($interaction_type = '') {
        $interactions =  [ self::ALERT_WTS =>
-                           [ self::BUTTON_OK_SYNC         => __('OK sync', 'fusioninventory'),
-                             self::BUTTON_OK_NOSYNC       => __('OK no sync', 'fusioninventory'),
-                             self::BUTTON_OK_CANCEL       => __('OK - Cancel', 'fusioninventory'),
-                             self::BUTTON_YES_NO          => __('Yes - No', 'fusioninventory'),
-                             self::BUTTON_OK_RETRY        => __('OK - Retry', 'fusioninventory'),
-                             self::BUTTON_OK_RETRY_CANCEL => __('OK - Retry - Cancel', 'fusioninventory')
+                           [ self::BUTTON_OK_SYNC
+                                 => __('OK sync', 'fusioninventory'),
+                             self::BUTTON_OK_NOSYNC
+                                 => __('OK no sync', 'fusioninventory'),
+                             self::BUTTON_OK_CANCEL
+                                 => __('OK - Cancel', 'fusioninventory'),
+                             self::BUTTON_YES_NO
+                                 => __('Yes - No', 'fusioninventory'),
+                             self::BUTTON_OK_RETRY
+                                 => __('OK - Retry', 'fusioninventory'),
+                             self::BUTTON_OK_RETRY_CANCEL
+                                 => __('OK - Retry - Cancel', 'fusioninventory')
                            ]
                        ];
       if (isset($interactions[$interaction_type])) {
@@ -144,8 +151,9 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
     * @return rand
     */
    public function dropdownButtons($button = self::BUTTON_OK_SYNC) {
-      $types = self::getButtons();
-      return Dropdown::showFromArray('buttons', $buttons, ['value' => $button]);
+      return Dropdown::showFromArray('buttons',
+                                     self::getButtons(),
+                                     ['value' => $button]);
    }
 
    /**
@@ -179,8 +187,9 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
     * @return rand
     */
    function dropdownIcons($icon = self::ICON_NONE) {
-      $icons = self::getIcons();
-      return Dropdown::showFromArray('icons', $icons, ['value' => $icon]);
+      return Dropdown::showFromArray('icons',
+                                     self::getIcons(),
+                                     ['value' => $icon]);
    }
 
    /**
@@ -190,11 +199,10 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
     * @return array
     */
    static function getBehaviors() {
-      $behaviors = [self::BEHAVIOR_CONTINUE_DEPLOY => __('Continue'),
-                    self::BEHAVIOR_POSTPONE_DEPLOY => __('Retry later', 'fusioninventory'),
-                    self::BEHAVIOR_CANCEL_DEPLOY   => __('Cancel')
-                   ];
-      return $behaviors;
+      return [self::BEHAVIOR_CONTINUE_DEPLOY => __('Continue'),
+              self::BEHAVIOR_POSTPONE_DEPLOY => __('Retry later', 'fusioninventory'),
+              self::BEHAVIOR_CANCEL_DEPLOY   => __('Cancel')
+             ];
    }
 
    /**
@@ -205,8 +213,9 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
     * @return rand
     */
    function dropdownBehaviors($name, $behavior = self::BEHAVIOR_CONTINUE_DEPLOY) {
-      $behaviors = self::getBehaviors();
-      return Dropdown::showFromArray($name, $behaviors, ['value' => $behavior]);
+      return Dropdown::showFromArray($name,
+                                     self::getBehaviors(),
+                                     ['value' => $behavior]);
    }
 
 
@@ -256,11 +265,16 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
    /**
    * Add the json template fields to package
    *
+   * @since 9.2
+   * @param the input array
+   * @param array now containing input data + data from the template
    */
    function addJsonFieldsToArray($params = []) {
       $fields = json_decode($this->fields['json'], true);
       foreach ($this->getJsonFields() as $field) {
-         $params[$field] = $fields[$field];
+         if (isset($fields[$field])) {
+            $params[$field] = $fields[$field];
+         }
       }
       return $params;
    }

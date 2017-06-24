@@ -30,7 +30,7 @@
  *
  * ------------------------------------------------------------------------
  *
- * This file is used to manage the deploy package form.
+ * This file is used to manage the deploy group search list.
  *
  * ------------------------------------------------------------------------
  *
@@ -47,36 +47,14 @@
 include ("../../../inc/includes.php");
 Session::checkLoginUser();
 
-$template = new PluginFusioninventoryDeployUserinteractionTemplate();
-//general form
-if (isset ($_POST["add"])) {
-   Session::checkRight('plugin_fusioninventory_userinteractiontemplate', CREATE);
-   $newID = $template->add($_POST);
-   Html::redirect($template->getFormURLWithID($newID));
-} else if (isset ($_POST["update"])) {
-   Session::checkRight('plugin_fusioninventory_userinteractiontemplate', UPDATE);
-   $template->update($_POST);
-   Html::back();
-} else if (isset ($_POST["purge"])) {
-   Session::checkRight('plugin_fusioninventory_userinteractiontemplate', PURGE);
-   $template->delete($_POST, 1);
-   $template->redirectToList();
-}
+Html::header(__('User interaction template', 'fusioninventory'), $_SERVER["PHP_SELF"], "plugins",
+             "pluginfusioninventorymenu", "userinteractiontemplate");
 
-if (isset($_GET['_in_modal']) && $_GET['_in_modal']) {
-   Html::nullHeader(__('FusionInventory DEPLOY'), $_SERVER["PHP_SELF"]);
-} else {
-   Html::header(__('FusionInventory DEPLOY'), $_SERVER["PHP_SELF"], "plugins",
-      "pluginfusioninventorymenu", "deployuserinteractiontemplate");
-   PluginFusioninventoryMenu::displayMenu("mini");
-}
-$id = "";
-if (isset($_GET["id"])) {
-   $id = $_GET["id"];
-}
-$template->display($_GET);
-if (isset($_GET['_in_modal']) && $_GET['_in_modal']) {
-   Html::nullFooter();
-} else {
-   Html::footer();
-}
+
+PluginFusioninventoryMenu::displayMenu("mini");
+
+Search::show('PluginFusioninventoryDeployUserinteractionTemplate');
+
+Html::footer();
+
+?>

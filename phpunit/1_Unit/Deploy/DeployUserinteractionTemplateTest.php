@@ -107,6 +107,27 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
    /**
     * @test
     */
+   public function testAddJsonFieldsToArray() {
+      $template = new PluginFusioninventoryDeployUserinteractionTemplate();
+      $template->fields['json'] = '{"type":"wts","duration":4,"buttons":"ok_sync","retry_after":4,"nb_max_retry":4,"action_delay_over":"continue","action_no_active_session":"continue","action_multiple_action_session":"cancel"}';
+      $result = ['name' => 'foo'];
+      $result = $template->addJsonFieldsToArray($result);
+
+      $expected = ['name'                           => 'foo',
+                   'type'                           => 'wts',
+                   'duration'                       => 4,
+                   'buttons'                        => 'ok_sync',
+                   'retry_after'                    => 4,
+                   'nb_max_retry'                   => 4,
+                   'action_delay_over'              => 'continue',
+                   'action_no_active_session'       => 'continue',
+                   'action_multiple_action_session' => 'cancel'];
+      $this->assertEquals($expected, $result);
+   }
+
+   /**
+    * @test
+    */
    public function testGetIcons() {
       $icons = PluginFusioninventoryDeployUserinteractionTemplate::getIcons(PluginFusioninventoryDeployUserinteractionTemplate::ALERT_WTS);
       $this->assertEquals(5, count($icons));

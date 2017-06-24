@@ -307,9 +307,10 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       if (!isset($input['json'])) {
          $input['json'] = json_encode(array(
              'jobs' => array(
-                 'checks'          => array(),
-                 'associatedFiles' => array(),
-                 'actions'         => array()
+                 'checks'           => array(),
+                 'associatedFiles'  => array(),
+                 'actions'          => array(),
+                 'userinteractions' => array()
              ),
              'associatedFiles' => array()));
       }
