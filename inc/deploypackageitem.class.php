@@ -48,17 +48,27 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
+/**
+* Abstract class to manage display, add, update, remove and move of items
+* in a package
+* @since 9.2
+*/
 abstract class PluginFusioninventoryDeployPackageItem extends CommonDBTM {
 
-   const CREATE = 'create';
-   const EDIT   = 'edit';
-   const INIT   = 'init';
+   //Display modes
+   const CREATE      = 'create';
+   const EDIT        = 'edit';
+   const INIT        = 'init';
 
    public $shortname = '';
+
+   //The section name in the JSON representation
    public $json_name = '';
 
+   //Add a new item
    abstract function add_item($params);
 
+   //Save an existing idem
    abstract function save_item($params);
 
    abstract function displayAjaxValues($config, $request_data, $rand, $mode);
@@ -97,7 +107,7 @@ abstract class PluginFusioninventoryDeployPackageItem extends CommonDBTM {
       if (!isset($config['type']) && $mode == self::EDIT) {
          return true;
       }
-      
+
       /*
        * Display dropdown html
        */

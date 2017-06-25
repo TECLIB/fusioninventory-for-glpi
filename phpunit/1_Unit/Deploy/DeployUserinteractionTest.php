@@ -46,7 +46,7 @@ class DeployUserinteractionTest extends RestoreDatabase_TestCase {
     * @test
     */
    public function testGetTypeName() {
-      $this->assertEquals('User interaction',
+      $this->assertEquals('User interactions',
                            PluginFusioninventoryDeployUserinteraction::getTypeName());
       $this->assertEquals('User interaction',
                            PluginFusioninventoryDeployUserinteraction::getTypeName(1));
@@ -57,33 +57,21 @@ class DeployUserinteractionTest extends RestoreDatabase_TestCase {
    /**
     * @test
     */
-   public function testGetEvents() {
-      $events = PluginFusioninventoryDeployUserinteraction::getEvents();
+   public function testGetTypes() {
+      $interaction = new PluginFusioninventoryDeployUserinteraction();
+      $events      = $interaction->getTypes();
       $this->assertEquals(5, count($events));
-
-      $this->assertEquals(5, count($events));
-      $this->assertEquals("Alert after audits", $events[self::EVENT_AFTER_AUDITS]);
-      $this->assertEquals("Alert after downlod", $events[self::EVENT_AFTER_DOWNLOAD]);
    }
 
    /**
     * @test
     */
-   public function testGetEvents() {
-      $audit       = PluginFusioninventoryDeployUserinteractionTemplate::getEventLabel(self::EVENT_AFTER_AUDITS);
-      $this->assertEquals("Alert after audits", $audit);
-
-      $download     = PluginFusioninventoryDeployUserinteractionTemplate::getEventLabel(self::EVENT_AFTER_DOWNLOAD);
-      $this->assertEquals("Alert after download", $download);
-
-      $action       = PluginFusioninventoryDeployUserinteractionTemplate::getEventLabel(self::EVENT_AFTER_ACTIONS);
-      $this->assertEquals("Alert after actions", $action);
-
-      $fail_download = PluginFusioninventoryDeployUserinteractionTemplate::getEventLabel(self::EVENT_DOWNLOAD_FAILED);
-      $this->assertEquals("Alert on failed download", $fail_download);
-
-      $fail_actions = PluginFusioninventoryDeployUserinteractionTemplate::getEventLabel(self::EVENT_ACTION_FAILED);
-      $this->assertEquals("Alert on failed actions", $fail_actions);
+   public function testGetLabelForAType() {
+      $interaction = new PluginFusioninventoryDeployUserinteraction();
+      $this->assertEquals("Alert after audits",
+                          $interaction->getLabelForAType(PluginFusioninventoryDeployUserinteraction::EVENT_AFTER_AUDITS));
+      $this->assertEquals("Alert after download",
+                          $interaction->getLabelForAType(PluginFusioninventoryDeployUserinteraction::EVENT_AFTER_DOWNLOAD));
 
    }
 
