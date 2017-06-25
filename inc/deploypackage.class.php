@@ -115,10 +115,10 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          $this->running_tasks =
                PluginFusioninventoryTask::getItemsFromDB(
                   array(
-                      'is_active'   => TRUE,
-                      'is_running'  => TRUE,
+                      'is_active'   => true,
+                      'is_running'  => true,
                       'targets'     => array(__CLASS__ => $this->fields['id']),
-                      'by_entities' => FALSE,
+                      'by_entities' => false,
                   )
                );
       }
@@ -424,7 +424,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
     */
    function showMenu($options=array()) {
 
-      $this->displaylist  = FALSE;
+      $this->displaylist  = false;
       $this->fields['id'] = -1;
       $this->showList();
    }
@@ -456,7 +456,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          $this->addStandardTab(__CLASS__, $ong, $options);
       }
 
-      $ong['no_all_tab'] = TRUE;
+      $ong['no_all_tab'] = true;
       return $ong;
    }
 
@@ -496,7 +496,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       echo "</tr>";
 
       $this->showFormButtons($options);
-      return TRUE;
+      return true;
    }
 
 
@@ -523,7 +523,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       );
       $rand = mt_rand();
 
-      $datas = json_decode($this->fields['json'], TRUE);
+      $datas = json_decode($this->fields['json'], true);
 
       echo "<table class='tab_cadre_fixe' id='package_order_".$this->getID()."'>";
 
@@ -567,7 +567,8 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
             ucfirst($subtype)."' />";
 
          $classname = "PluginFusioninventoryDeploy".ucfirst($subtype);
-         $classname::displayForm($this, $datas, $rand, "init");
+         $class = new $classname;
+         $class->displayForm($this, $datas, $rand, "init");
          Html::closeForm();
 
          $json_subtype = $json_subtypes[$subtype];
@@ -583,7 +584,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
             echo "<input type='hidden' name='remove_item' />";
             echo "<input type='hidden' name='itemtype' value='". $classname . "' />";
             echo "<input type='hidden' name='packages_id' value='".$this->getID()."' />";
-            $classname::displayList($this, $datas, $rand);
+            $class->displayList($this, $datas, $rand);
             Html::closeForm();
             echo "</div>";
          }
@@ -634,12 +635,12 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
     * @param string $dom_id
     * @param boolean $clone
     */
-   static function plusButton($dom_id, $clone = FALSE) {
+   static function plusButton($dom_id, $clone = false) {
       global $CFG_GLPI;
 
       echo  "&nbsp;";
       echo  "<img id='plus_$dom_id' ";
-      if ($clone !== FALSE) {
+      if ($clone !== false) {
          echo " onClick=\"plusbutton('$dom_id', '$clone')\" ";
       } else {
          echo " onClick=\"plusbutton('$dom_id')\" ";
@@ -678,31 +679,29 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       //route to sub class
       $item_type = $params['itemtype'];
 
-      if (
-         in_array(
-            $item_type,
-            array(
-               'PluginFusioninventoryDeployCheck',
-               'PluginFusioninventoryDeployFile',
-               'PluginFusioninventoryDeployAction',
-               'PluginFusioninventoryDeployUserinteraction'
-            ))) {
+      if (in_array($item_type, [
+                                 'PluginFusioninventoryDeployCheck',
+                                 'PluginFusioninventoryDeployFile',
+                                 'PluginFusioninventoryDeployAction',
+                                 'PluginFusioninventoryDeployUserinteraction'
+                              ])) {
+         $class = new $item_type();
          switch ($action_type) {
 
             case "add_item" :
-               $item_type::add_item($params);
+               $class->add_item($params);
                break;
 
             case "save_item" :
-               $item_type::save_item($params);
+               $class->save_item($params);
                break;
 
             case "remove_item" :
-               $item_type::remove_item($params);
+               $class->remove_item($params);
                break;
 
             case "move_item" :
-               $item_type::move_item($params);
+               $class->move_item($params);
                break;
 
          }
@@ -761,8 +760,8 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       }
 
       $zip = new ZipArchive();
-      if ($zip->open($filename) == TRUE) {
-         if ($zip->open($filename, ZipArchive::CREATE) == TRUE) {
+      if ($zip->open($filename) == true) {
+         if ($zip->open($filename, ZipArchive::CREATE) == true) {
             $zip->addEmptyDir('files');
             $zip->addEmptyDir('files/manifests');
             $zip->addEmptyDir('files/repository');
@@ -799,7 +798,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
 
       $extract_folder = GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/import/".$zipfile.".extract";
 
-      if ($zip->open($filename, ZipArchive::CREATE) == TRUE) {
+      if ($zip->open($filename, ZipArchive::CREATE) == true) {
          $zip->extractTo($extract_folder);
          $zip->close();
       }
@@ -907,7 +906,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
     * @return string
     */
    function getSubElement($subtype, $index) {
-      $data_o = json_decode($this->fields['json'], TRUE);
+      $data_o = json_decode($this->fields['json'], true);
       return $data_o['jobs'][$subtype][$index];
    }
 
@@ -920,83 +919,13 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
     * @return null|string
     */
    function getAssociatedFile($hash) {
-      $data_o = json_decode($this->fields['json'], TRUE);
+      $data_o = json_decode($this->fields['json'], true);
 
       if (array_key_exists( $hash, $data_o['associatedFiles'])) {
          return $data_o['associatedFiles'][$hash];
       }
       return NULL;
    }
-
-
-
-   /**
-    * Get the json
-    *
-    * @param integer $packages_id id of the order
-    * @return boolean|string the string is in json format
-    */
-   static function getJson($packages_id) {
-      $pfDeployPackage = new self;
-      $pfDeployPackage->getFromDB($packages_id);
-      if (!empty($pfDeployPackage->fields['json'])) {
-         return $pfDeployPackage->fields['json'];
-      } else {
-         return FALSE;
-      }
-   }
-
-
-
-   /**
-    * Update the order json
-    *
-    * @param integer $packages_id
-    * @param array $datas
-    * @return integer error number
-    */
-   static function updateOrderJson($packages_id, $datas) {
-      $pfDeployPackage = new self;
-      $options = JSON_UNESCAPED_SLASHES;
-
-      $json = json_encode($datas, $options);
-
-      $json_error_consts = array(
-         JSON_ERROR_NONE           => "JSON_ERROR_NONE",
-         JSON_ERROR_DEPTH          => "JSON_ERROR_DEPTH",
-         JSON_ERROR_STATE_MISMATCH => "JSON_ERROR_STATE_MISMATCH",
-         JSON_ERROR_CTRL_CHAR      => "JSON_ERROR_CTRL_CHAR",
-         JSON_ERROR_SYNTAX         => "JSON_ERROR_SYNTAX",
-         JSON_ERROR_UTF8           => "JSON_ERROR_UTF8"
-      );
-
-      $error_json = json_last_error();
-
-      if (version_compare(PHP_VERSION, '5.5.0',"ge")) {
-         $error_json_message = json_last_error_msg();
-      } else {
-         $error_json_message = "";
-      }
-      $error = 0;
-      if ($error_json != JSON_ERROR_NONE) {
-         $error_msg = $json_error_consts[$error_json];
-         Session::addMessageAfterRedirect(
-            __("The modified JSON contained a syntax error :", "fusioninventory") . "<br/>" .
-            $error_msg . "<br/>". $error_json_message, FALSE, ERROR, FALSE
-         );
-         $error = 1;
-      } else {
-         $error = $pfDeployPackage->update(
-            array(
-               'id'   => $packages_id,
-               'json' => Toolbox::addslashes_deep($json)
-            )
-         );
-      }
-      return $error;
-   }
-
-
 
    /**
     * Get the tab name used for item
@@ -1047,10 +976,10 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
 
             case 1:
                $item->showVisibility();
-               return TRUE;
+               return true;
          }
       }
-      return FALSE;
+      return false;
    }
 
 
@@ -1259,7 +1188,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
 
       echo "</div>";
 
-      return TRUE;
+      return true;
    }
 
 
@@ -1868,7 +1797,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          }
          return $a_packages;
       }
-      return False;
+      return false;
    }
 
    /**
@@ -1893,5 +1822,3 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       return $result;
    }
 }
-
-?>
