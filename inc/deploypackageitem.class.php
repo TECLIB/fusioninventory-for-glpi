@@ -92,14 +92,26 @@ abstract class PluginFusioninventoryDeployPackageItem extends CommonDBTM {
    }
 
    /**
+   * Get the types already in used, so they cannot be selected anymore
+   * @since 9.2
+   * @param $package the package to check
+   * @return the types already in used
+   */
+   function getTypesAlreadyInUse(PluginFusioninventoryDeployPackage $package) {
+      return [];
+   }
+
+   /**
     * Display the dropdown to select type of element
     *
     * @global array $CFG_GLPI
+    * @param object $package the package
     * @param array $config order item configuration
     * @param string $rand unique element id used to identify/update an element
     * @param string $mode mode in use (create, edit...)
     */
-   function displayDropdownType($config, $rand, $mode) {
+   function displayDropdownType(PluginFusioninventoryDeployPackage $package,
+                                $config, $rand, $mode) {
       global $CFG_GLPI;
 
       //In case of a file item, there's no type, so don't display dropdown
@@ -122,7 +134,10 @@ abstract class PluginFusioninventoryDeployPackageItem extends CommonDBTM {
          $types      = $this->getTypes();
          array_unshift($types, Dropdown::EMPTY_VALUE);
 
-         Dropdown::showFromArray($type_field, $types, ['rand' => $rand]);
+         Dropdown::showFromArray($type_field, $types,
+                                 ['rand' => $rand,
+                                  'used' => $this->getTypesAlreadyInUse($package)
+                                 ]);
          $params = [
                      'value'  => '__VALUE__',
                      'rand'   => $rand,
@@ -200,7 +215,7 @@ abstract class PluginFusioninventoryDeployPackageItem extends CommonDBTM {
        * Display element's dropdownType in 'create' or 'edit' mode
        */
       if (in_array($mode, [self::CREATE, self::EDIT], true)) {
-         $this->displayDropdownType($config, $rand, $mode);
+         $this->displayDropdownType($package, $config, $rand, $mode);
       }
 
       /*

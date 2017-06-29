@@ -59,15 +59,27 @@ class PluginFusioninventoryDeployUserinteraction extends PluginFusioninventoryDe
    //Events
 
    //Audits are all been executed successfully, just before download
-   const EVENT_AFTER_AUDITS    = 1;
+   const EVENT_BEFORE_DOWNLOAD    = 'before';
    //File download has been done, just before actions execution
-   const EVENT_AFTER_DOWNLOAD  = 2;
+   const EVENT_AFTER_DOWNLOAD  = 'after_download';
    //Actions have been executed, deployement is finished
-   const EVENT_AFTER_ACTIONS   = 3;
+   const EVENT_AFTER_ACTIONS   = 'after';
    //At least one downlod has failed
-   const EVENT_DOWNLOAD_FAILED = 4;
+   const EVENT_DOWNLOAD_FAILURE = 'after_download_failure';
    //At least one action has failed
-   const EVENT_ACTION_FAILED   = 5;
+   const EVENT_ACTION_FAILURE   = 'after_failure';
+
+   //The agent notice that the job must continue
+   const RESPONSE_CONTINUE        = 'continue';
+
+   //The agent notice that the job must be postponed
+   const RESPONSE_POSTPONE        = 'postpone';
+
+   //The agent notice that the job must be canceled
+   const RESPONSE_STOP            = 'stop';
+
+   //The agent recieved a malformed or non existing event
+   const RESPONSE_BAD_EVENT       = 'error_bad_event';
 
    /**
     * Get name of this type by language of the user connected
@@ -86,11 +98,11 @@ class PluginFusioninventoryDeployUserinteraction extends PluginFusioninventoryDe
     * @return array
     */
    function getTypes() {
-      return [self::EVENT_AFTER_AUDITS    => __("Alert after audits", 'fusioninventory'),
-              self::EVENT_AFTER_DOWNLOAD  => __("Alert after download", 'fusioninventory'),
-              self::EVENT_AFTER_ACTIONS   => __("Alert after actions", 'fusioninventory'),
-              self::EVENT_DOWNLOAD_FAILED => __("Alert on failed download", 'fusioninventory'),
-              self::EVENT_ACTION_FAILED   => __("Alert on failed actions", 'fusioninventory')
+      return [self::EVENT_BEFORE_DOWNLOAD  => __("Before download", 'fusioninventory'),
+              self::EVENT_AFTER_DOWNLOAD   => __("After download", 'fusioninventory'),
+              self::EVENT_AFTER_ACTIONS    => __("After actions", 'fusioninventory'),
+              self::EVENT_DOWNLOAD_FAILURE => __("On download failure", 'fusioninventory'),
+              self::EVENT_ACTION_FAILURE   => __("On actions failure", 'fusioninventory')
              ];
    }
 
@@ -159,7 +171,7 @@ class PluginFusioninventoryDeployUserinteraction extends PluginFusioninventoryDe
 
       echo "<tr>";
       echo "<th>{$values['description_label']}</th>";
-      echo "<td><textarea name='description' id='userinteraction_description{$rand}' rows='5'>{$values['description_value']}</textarea>";
+      echo "<td><textarea name='text' id='userinteraction_description{$rand}' rows='5'>{$values['description_value']}</textarea>";
       echo "</td>";
       echo "</tr>";
 
@@ -206,7 +218,7 @@ class PluginFusioninventoryDeployUserinteraction extends PluginFusioninventoryDe
       if ($mode === self::EDIT) {
          $values['name_value']        = isset($data['name'])?$data['name']:"";
          $values['title_value']       = isset($data['title'])?$data['title']:"";
-         $values['description_value'] = isset($data['description'])?$data['description']:"";
+         $values['description_value'] = isset($data['text'])?$data['text']:"";
          $values['template_value']    = isset($data['template'])?$data['template']:"";
       }
 
@@ -308,8 +320,8 @@ class PluginFusioninventoryDeployUserinteraction extends PluginFusioninventoryDe
     * @param array $params list of fields with value of the check
     */
    function add_item($params) {
-      if (!isset($params['description'])) {
-         $params['description'] = "";
+      if (!isset($params['text'])) {
+         $params['text'] = "";
       }
       if (!isset($params['template'])) {
          $params['template'] = 0;
@@ -319,7 +331,7 @@ class PluginFusioninventoryDeployUserinteraction extends PluginFusioninventoryDe
       $entry = [
          'name'        => $params['name'],
          'title'       => $params['title'],
-         'description' => $params['description'],
+         'text'        => $params['text'],
          'type'        => $params['userinteractionstype'],
          'template'    => $params['template']
       ];
@@ -328,31 +340,122 @@ class PluginFusioninventoryDeployUserinteraction extends PluginFusioninventoryDe
       $this->addToPackage($params['id'], $entry, 'userinteractions');
    }
 
-      /**
-       * Save the item in checks
-       *
-       * @param array $params list of fields with value of the check
-       */
-      function save_item($params) {
-
-         if (!isset($params['value'])) {
-            $params['value'] = "";
-         }
-         if (!isset($params['name'])) {
-            $params['name'] = "";
-         }
-
-         //prepare new check entry to insert in json
-         $entry = [
-            'name'        => $params['name'],
-            'title'       => $params['title'],
-            'description' => $params['description'],
-            'type'        => $params['userinteractionstype'],
-            'template'    => $params['template']
-         ];
-
-         //update order
-         $this->updateOrderJson($params['id'],
-                                $this->prepareDataToSave($params, $entry));
+   /**
+    * Save the item in checks
+    *
+    * @param array $params list of fields with value of the check
+    */
+   function save_item($params) {
+      if (!isset($params['value'])) {
+         $params['value'] = "";
       }
+      if (!isset($params['name'])) {
+         $params['name'] = "";
+      }
+      //prepare new check entry to insert in json
+      $entry = [
+         'name'        => $params['name'],
+         'title'       => $params['title'],
+         'text' => $params['text'],
+         'type'        => $params['userinteractionstype'],
+         'template'    => $params['template']
+      ];
+
+      //update order
+      $this->updateOrderJson($params['id'],
+                             $this->prepareDataToSave($params, $entry));
+   }
+
+
+   function getTypesAlreadyInUse(PluginFusioninventoryDeployPackage $package) {
+      $used_interactions = [];
+      $json              = json_decode($package->fields['json'], true);
+
+      if (isset($json['jobs'][$this->json_name])
+         && !empty($json['jobs'][$this->json_name])) {
+         foreach ($json['jobs'][$this->json_name] as $interaction) {
+            if (!isset($used_interactions[$interaction['type']])) {
+               $used_interactions[$interaction['type']] = $interaction['type'];
+               }
+            }
+      }
+      return $used_interactions;
+   }
+
+   /**
+   * Get a log message depending on an agent response
+   * @since 9.2
+   *
+   * @param behavior the behavior the agent must adopt for the job
+   * @param type the type of event that triggered the user interaction
+   * @param $event the button clicked by the user
+   *         (or the what's happened in special cases, as defined in a template)
+   * @return string the message to be display in a taskjob log
+   */
+   public function getLogMessage($behavior, $type, $event) {
+      $message = self::getTypeName(1);
+      $message .= ': '.$this->getLabelForAType($type);
+      $message .= '/';
+      switch ($behavior) {
+         case self::RESPONSE_STOP:
+            $message .= __('Job cancelled by the user', 'fusioninventory');
+            break;
+
+         case self::RESPONSE_CONTINUE:
+            $message .= __('User confirmed to continue the job', 'fusioninventory');
+            break;
+
+         case self::RESPONSE_POSTPONE:
+            $message .= __('Job postponed by the user', 'fusioninventory');
+            break;
+
+         case self::RESPONSE_BAD_EVENT:
+            $message .= __('Bad event sent to the agent', 'fusioninventory');
+            break;
+
+      }
+      $message.= ' ('.$this->getEventMessage($event).')';
+      return $message;
+   }
+
+   function getEventMessage($event = '') {
+      $message = __('%1s button pressed');
+      switch ($event) {
+         case 'on_ok':
+            return sprintf($message, _('OK'));
+
+         case 'on_yes':
+            return sprintf($message, __('Yes'));
+
+         case 'on_async':
+            return __('Alert displayed, no input required', 'fusioninventory');
+
+         case 'on_no':
+            return sprintf($message, __('No'));
+
+         case 'on_retry':
+            return sprintf($message, __('Retry', 'fusioninventory'));
+
+         case 'on_cancel':
+            return sprintf($message, __('Cancel'));
+
+         case 'on_abort':
+            return sprintf($message, __('Abort', 'fusioninventory'));
+
+         case 'on_ignore':
+            return sprintf($message, __('Ignore', 'fusioninventory'));
+
+         case 'on_continue':
+            return sprintf($message, __('Continue'));
+
+         case 'on_timeout':
+            return __('Alert duration exceeded', 'fusioninventory');
+
+         case 'on_nouser':
+            return __('No user connected', 'fusioninventory');
+
+         case 'on_multiusers':
+            return __('Multiple users connected', 'fusioninventory');
+      }
+   }
 }

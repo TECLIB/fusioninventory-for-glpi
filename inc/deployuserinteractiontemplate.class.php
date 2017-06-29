@@ -60,17 +60,21 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
     */
    static $rightname = 'plugin_fusioninventory_userinteractiontemplate';
 
-   const ALERT_WTS                = 'wts'; //Alerts using Windows WTS API
-   const BEHAVIOR_CONTINUE_DEPLOY = 'continue'; //Continue a software deployment
-   const BEHAVIOR_CANCEL_DEPLOY   = 'cancel'; //Cancel a software deployment
-   const BEHAVIOR_POSTPONE_DEPLOY = 'postpone'; //Postpone a software deployment
+   const ALERT_WTS                = 'win32'; //Alerts for win32 platform (WTS API)
 
-   const BUTTON_OK_SYNC           = 'ok_sync';
-   const BUTTON_OK_NOSYNC         = 'ok_no_sync';
-   const BUTTON_OK_CANCEL         = 'ok_cancel';
-   const BUTTON_YES_NO            = 'yes_no';
-   const BUTTON_OK_RETRY          = 'ok_retry';
-   const BUTTON_OK_RETRY_CANCEL   = 'ok_retry_cancel';
+   //Behaviors (to sent to the agent)
+   const BEHAVIOR_CONTINUE_DEPLOY = 'continue:continue'; //Continue a software deployment
+   const BEHAVIOR_STOP_DEPLOY     = 'stop:stop'; //Cancel a software deployment
+   const BEHAVIOR_POSTPONE_DEPLOY = 'stop:postpone'; //Postpone a software deployment
+
+   const BUTTON_OK_SYNC             = 'ok';
+   const BUTTON_OK_ASYNC            = 'ok_async';
+   const BUTTON_OK_CANCEL           = 'okcancel';
+   const BUTTON_YES_NO              = 'yesno';
+   const BUTTON_ABORT_RETRY_IGNORE  = 'abortretryignore';
+   const BUTTON_RETRY_CANCEL        = 'retrycancel';
+   const BUTTON_YES_NO_CANCEL       = 'yesnocancel';
+   const BUTTON_CANCEL_TRY_CONTINUE = 'canceltrycontinue';
 
    const ICON_NONE                = 'none';
    const ICON_WARNING             = 'warn';
@@ -109,8 +113,8 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
     * @return rand
     */
    function dropdownTypes($type = self::ALERT_WTS) {
-      $types = self::getTypes();
-      return Dropdown::showFromArray('type', $types, ['value' => $type]);
+      return Dropdown::showFromArray('platform', self::getTypes(), 
+                                     ['value' => $type]);
    }
 
    /**
@@ -123,17 +127,23 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
    static function getButtons($interaction_type = '') {
        $interactions =  [ self::ALERT_WTS =>
                            [ self::BUTTON_OK_SYNC
-                                 => __('OK sync', 'fusioninventory'),
-                             self::BUTTON_OK_NOSYNC
-                                 => __('OK no sync', 'fusioninventory'),
+                                 => __('OK', 'fusioninventory'),
+                             self::BUTTON_OK_ASYNC
+                                 => __('OK (asynchronous)', 'fusioninventory'),
                              self::BUTTON_OK_CANCEL
                                  => __('OK - Cancel', 'fusioninventory'),
                              self::BUTTON_YES_NO
                                  => __('Yes - No', 'fusioninventory'),
-                             self::BUTTON_OK_RETRY
-                                 => __('OK - Retry', 'fusioninventory'),
-                             self::BUTTON_OK_RETRY_CANCEL
-                                 => __('OK - Retry - Cancel', 'fusioninventory')
+                             self::BUTTON_ABORT_RETRY_IGNORE
+                                 => __('OK - Abort - Retry', 'fusioninventory'),
+                             self::BUTTON_RETRY_CANCEL
+                                 => __('Retry - Cancel', 'fusioninventory'),
+                             self::BUTTON_ABORT_RETRY_IGNORE
+                                 => __('Abort - Retry - Ignore', 'fusioninventory'),
+                             self::BUTTON_CANCEL_TRY_CONTINUE
+                                 => __('Cancel - Try - Continue', 'fusioninventory'),
+                             self::BUTTON_YES_NO_CANCEL
+                                 => __('Yes - No - Cancel', 'fusioninventory')
                            ]
                        ];
       if (isset($interactions[$interaction_type])) {
@@ -152,7 +162,7 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
     */
    public function dropdownButtons($button = self::BUTTON_OK_SYNC) {
       return Dropdown::showFromArray('buttons',
-                                     self::getButtons(),
+                                     self::getButtons(self::ALERT_WTS),
                                      ['value' => $button]);
    }
 
@@ -187,7 +197,7 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
     * @return rand
     */
    function dropdownIcons($icon = self::ICON_NONE) {
-      return Dropdown::showFromArray('icons',
+      return Dropdown::showFromArray('icon',
                                      self::getIcons(),
                                      ['value' => $icon]);
    }
@@ -199,9 +209,9 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
     * @return array
     */
    static function getBehaviors() {
-      return [self::BEHAVIOR_CONTINUE_DEPLOY => __('Continue'),
-              self::BEHAVIOR_POSTPONE_DEPLOY => __('Retry later', 'fusioninventory'),
-              self::BEHAVIOR_CANCEL_DEPLOY   => __('Cancel')
+      return [self::BEHAVIOR_CONTINUE_DEPLOY => __('Continue job with no user interaction'),
+              self::BEHAVIOR_POSTPONE_DEPLOY => __('Retry job later', 'fusioninventory'),
+              self::BEHAVIOR_STOP_DEPLOY   => __('Cancel job')
              ];
    }
 
@@ -225,9 +235,9 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
    * @return an array of field names
    */
    function getJsonFields() {
-      return  ['type', 'duration', 'buttons', 'icons',
-               'retry_after', 'nb_max_retry', 'action_delay_over',
-               'action_no_active_session', 'action_multiple_action_session'];
+      return  ['platform', 'timeout', 'buttons', 'icon',
+               'retry_after', 'nb_max_retry', 'on_timeout',
+               'on_nouser', 'on_multiusers'];
 
    }
 
@@ -276,6 +286,14 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
             $params[$field] = $fields[$field];
          }
       }
+      //If we deal with an asynchronous OK, then wait must be set to 0
+      if ($params['buttons'] == self::BUTTON_OK_ASYNC) {
+         $params['buttons'] = self::BUTTON_OK_SYNC;
+         $params['wait']    = 'no';
+      } else {
+         //Otherwise wait is 1
+         $params['wait'] = 'yes';
+      }
       return $params;
    }
 
@@ -313,20 +331,20 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
 
       echo "<td>".__('Interaction format', 'fusioninventory')."</td>";
       echo "<td>";
-      $this->dropdownTypes($json_data['type']);
+      $this->dropdownTypes($json_data['platform']);
       echo "</td>";
       echo "</tr>";
 
       echo "<tr class='tab_bg_1'>";
-      echo "<td>".__('Alert display duration', 'fusioninventory')."</td>";
+
+      echo "<td>".__('Interaction type', 'fusioninventory')."</td>";
       echo "<td>";
-      Dropdown::showInteger('duration', $json_data['duration'], 1, 120, 1);
-      echo "&nbsp;"._n('Minute', 'Minutes', 2);
+      $this->dropdownButtons($json_data['buttons']);
       echo "</td>";
 
       echo "<td>".__('Alert icon', 'fusioninventory')."</td>";
       echo "<td>";
-      $this->dropdownIcons($json_data['icons']);
+      $this->dropdownIcons($json_data['icon']);
       echo "</td>";
       echo "</tr>";
 
@@ -345,27 +363,41 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
 
 
       echo "<tr class='tab_bg_1'>";
+      echo "<td>".__('Alert display timeout', 'fusioninventory')."</td>";
+      echo "<td>";
+      Dropdown::showInteger('timeout', $json_data['timeout'], 30,
+                            3600, 10, [0 => __('Never')]);
+      echo "&nbsp;"._n('Second', 'Seconds', 2);
+      echo "</td>";
+      echo "<td colspan='2'></td>";
+      echo "</tr>";
+
+      echo "<tr class='tab_bg_1'>";
       echo "<th colspan='4'>".__('Advanced information')."</th>";
       echo "</tr>";
 
       echo "<tr class='tab_bg_1'>";
-      echo "<td>".__('In case of alert duration exceeded', 'fusioninventory')."</td>";
-      echo "<td>";
-      $this->dropdownBehaviors('action_delay_over', $json_data['action_delay_over']);
-      echo "</td>";
 
       echo "<td>".__('In case of no active session', 'fusioninventory')."</td>";
       echo "<td>";
-      $this->dropdownBehaviors('action_no_active_session', $json_data['action_no_active_session']);
+      $this->dropdownBehaviors('on_nouser',
+                               $json_data['on_nouser']);
       echo "</td>";
+
+      echo "<td>".__('In case of several active sessions', 'fusioninventory')."</td>";
+      echo "<td>";
+      $this->dropdownBehaviors('on_multiusers',
+                               $json_data['on_multiusers']);
+      echo "</td>";
+
       echo "</tr>";
 
       echo "<tr class='tab_bg_1'>";
-      echo "<td>".__('In case of several active sessions', 'fusioninventory')."</td>";
+      echo "<td>".__('In case of alert timeout exceeded', 'fusioninventory')."</td>";
       echo "<td>";
-      $this->dropdownBehaviors('action_multiple_action_session', $json_data['action_multiple_action_session']);
+      $this->dropdownBehaviors('on_timeout',
+                               $json_data['on_timeout']);
       echo "</td>";
-
       echo "<td colspan='2'></td>";
       echo "</tr>";
 

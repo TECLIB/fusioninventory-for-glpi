@@ -61,7 +61,7 @@ include_once(GLPI_ROOT."/inc/includes.php");
 define("PLUGIN_FUSIONINVENTORY_REPOSITORY_DIR",
        GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/repository/");
 define("PLUGIN_FUSIONINVENTORY_MANIFESTS_DIR",
-       GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/"); 
+       GLPI_PLUGIN_DOC_DIR."/fusioninventory/files/manifests/");
 
 /**
  * Check if the script name finish by
@@ -518,7 +518,9 @@ function plugin_fusioninventory_check_prerequisites() {
       $_SESSION['glpi_plugins'] = array();
    }
 
-   if (version_compare(GLPI_VERSION, '9.2', 'lt') || version_compare(GLPI_VERSION, '9.3', 'ge')) {
+   if (version_compare(GLPI_VERSION, '9.2-dev', '!=')
+      && version_compare(GLPI_VERSION, '9.2', 'lt')
+      || version_compare(GLPI_VERSION, '9.3', 'ge')) {
       if (method_exists('Plugin', 'messageIncompatible')) {
          echo Plugin::messageIncompatible('core', '9.2', '9.3');
       } else {
