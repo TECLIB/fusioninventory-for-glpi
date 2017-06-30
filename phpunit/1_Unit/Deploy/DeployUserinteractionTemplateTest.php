@@ -90,26 +90,7 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
     */
    public function testGetButtons() {
       $buttons  = PluginFusioninventoryDeployUserinteractionTemplate::getButtons(PluginFusioninventoryDeployUserinteractionTemplate::ALERT_WTS);
-      $expected =  [ self::WTS_BUTTON_OK_SYNC
-            => __('OK', 'fusioninventory'),
-       self::WTS_BUTTON_OK_ASYNC
-            => __('OK (asynchronous)', 'fusioninventory'),
-       self::WTS_BUTTON_OK_CANCEL
-            => __('OK - Cancel', 'fusioninventory'),
-       self::WTS_BUTTON_YES_NO
-            => __('Yes - No', 'fusioninventory'),
-       self::WTS_BUTTON_ABORT_RETRY_IGNORE
-            => __('OK - Abort - Retry', 'fusioninventory'),
-       self::WTS_BUTTON_RETRY_CANCEL
-            => __('Retry - Cancel', 'fusioninventory'),
-       self::WTS_BUTTON_ABORT_RETRY_IGNORE
-            => __('Abort - Retry - Ignore', 'fusioninventory'),
-       self::WTS_BUTTON_CANCEL_TRY_CONTINUE
-            => __('Cancel - Try - Continue', 'fusioninventory'),
-       self::WTS_BUTTON_YES_NO_CANCEL
-            => __('Yes - No - Cancel', 'fusioninventory')
-      ];
-      $this->assertEquals($buttons, $expected);
+      $this->assertEquals(8, count($buttons));
 
       $buttons = PluginFusioninventoryDeployUserinteractionTemplate::getButtons('foo');
       $this->assertFalse($buttons);
@@ -124,20 +105,38 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
     */
    public function testAddJsonFieldsToArray() {
       $template = new PluginFusioninventoryDeployUserinteractionTemplate();
-      $template->fields['json'] = '{"type":"wts","duration":4,"buttons":"ok_sync","retry_after":4,"nb_max_retry":4,"action_delay_over":"continue","action_no_active_session":"continue","action_multiple_action_session":"cancel"}';
+      $template->fields['json'] = '{"platform":"wts","timeout":4,"buttons":"ok","retry_after":4,"nb_max_retry":4,"on_timeout":"continue","on_nouser":"continue","on_multiusers":"cancel"}';
       $result = ['name' => 'foo'];
       $result = $template->addJsonFieldsToArray($result);
 
       $expected = ['name'          => 'foo',
-                   'type'          => 'wts',
-                   'duration'      => 4,
-                   'buttons'       => 'ok_sync',
+                   'platform'      => 'wts',
+                   'timeout'      => 4,
+                   'buttons'       => 'ok',
                    'retry_after'   => 4,
                    'nb_max_retry'  => 4,
                    'on_timeout'    => 'continue',
                    'on_nouser'     => 'continue',
-                   'on_multiusers' => 'cancel'];
+                   'on_multiusers' => 'cancel',
+                   'wait'          => 'yes'];
       $this->assertEquals($expected, $result);
+
+      $template->fields['json'] = '{"platform":"wts","timeout":4,"buttons":"ok_async","retry_after":4,"nb_max_retry":4,"on_timeout":"continue","on_nouser":"continue","on_multiusers":"cancel"}';
+      $result = ['name' => 'foo'];
+      $result = $template->addJsonFieldsToArray($result);
+
+      $expected = ['name'          => 'foo',
+                   'platform'      => 'wts',
+                   'timeout'      => 4,
+                   'buttons'       => 'ok',
+                   'retry_after'   => 4,
+                   'nb_max_retry'  => 4,
+                   'on_timeout'    => 'continue',
+                   'on_nouser'     => 'continue',
+                   'on_multiusers' => 'cancel',
+                   'wait'          => 'no'];
+      $this->assertEquals($expected, $result);
+
    }
 
    /**
@@ -173,7 +172,7 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
       $behaviors = PluginFusioninventoryDeployUserinteractionTemplate::getBehaviors();
       $expected  = [PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY => __('Continue job with no user interaction'),
                     PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_POSTPONE_DEPLOY => __('Retry job later', 'fusioninventory'),
-                    PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_STOP_DEPLOY   => __('Cancel')
+                    PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_STOP_DEPLOY   => __('Cancel job')
                    ];
       $this->assertEquals($expected, $behaviors);
    }
@@ -195,19 +194,19 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
       $tmp = ['name'         => 'test2',
               'entities_id'  => 0,
               'is_recursive' => 0,
-              'type'                           => PluginFusioninventoryDeployUserinteractionTemplate::ALERT_WTS,
-              'duration'                       => 4,
-              'buttons'                        => PluginFusioninventoryDeployUserinteractionTemplate::WTS_BUTTON_OK_SYNC,
-              'icon'                           => 'warning',
-              'retry_after'                    => 4,
-              'nb_max_retry'                   => 4,
-              'action_delay_over'              => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY,
-              'action_no_active_session'       => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY,
-              'action_multiple_action_session' => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_STOP_DEPLOY
+              'platform'     => PluginFusioninventoryDeployUserinteractionTemplate::ALERT_WTS,
+              'timeout'      => 4,
+              'buttons'      => PluginFusioninventoryDeployUserinteractionTemplate::WTS_BUTTON_OK_SYNC,
+              'icon'         => 'warning',
+              'retry_after'  => 4,
+              'nb_max_retry' => 4,
+              'on_timeout'   => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY,
+              'on_nouser'    => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY,
+              'on_multiusers' => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_STOP_DEPLOY
              ];
       $this->assertEquals(2, $interaction->add($tmp));
       $interaction->getFromDB(2);
-      $expected = '{"type":"wts","duration":4,"buttons":"ok_sync","retry_after":4,"nb_max_retry":4,"action_delay_over":"continue","action_no_active_session":"continue","action_multiple_action_session":"cancel"}';
+      $expected = '{"platform":"win32","timeout":4,"buttons":"ok","icon":"warning","retry_after":4,"nb_max_retry":4,"on_timeout":"continue:continue","on_nouser":"continue:continue","on_multiusers":"stop:stop"}';
       $this->assertEquals($expected, $interaction->fields['json']);
 
    }
@@ -233,20 +232,20 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
     * @test
     */
    public function testSaveToJson() {
-      $values = ['name'                           => 'interaction',
-                 'type'                           => PluginFusioninventoryDeployUserinteractionTemplate::ALERT_WTS,
-                 'duration'                       => 4,
-                 'buttons'                        => PluginFusioninventoryDeployUserinteractionTemplate::WTS_BUTTON_OK_SYNC,
-                 'icon'                           => 'warning',
-                 'retry_after'                    => 4,
-                 'nb_max_retry'                   => 4,
-                 'action_delay_over'              => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY,
-                 'action_no_active_session'       => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY,
-                 'action_multiple_action_session' => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_STOP_DEPLOY
+      $values = ['name'          => 'interaction',
+                 'platform'      => PluginFusioninventoryDeployUserinteractionTemplate::ALERT_WTS,
+                 'timeout'       => 4,
+                 'buttons'       => PluginFusioninventoryDeployUserinteractionTemplate::WTS_BUTTON_OK_SYNC,
+                 'icon'          => 'warning',
+                 'retry_after'   => 4,
+                 'nb_max_retry'  => 4,
+                 'on_timeout'    => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY,
+                 'on_nouser'     => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY,
+                 'on_multiusers' => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_STOP_DEPLOY
                 ];
       $interaction = new PluginFusioninventoryDeployUserinteractionTemplate();
       $result      = $interaction->saveToJson($values);
-      $expected    = '{"type":"wts","duration":4,"buttons":"ok_sync","retry_after":4,"nb_max_retry":4,"action_delay_over":"continue","action_no_active_session":"continue","action_multiple_action_session":"cancel"}';
+      $expected    = '{"platform":"win32","timeout":4,"buttons":"ok","icon":"warning","retry_after":4,"nb_max_retry":4,"on_timeout":"continue:continue","on_nouser":"continue:continue","on_multiusers":"stop:stop"}';
       $this->assertEquals($expected, $result);
 
       $result      = $interaction->saveToJson([]);
@@ -312,34 +311,34 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
       $template = new PluginFusioninventoryDeployUserinteractionTemplate();
 
       $this->assertEquals(['on_timeout', 'on_nouser', 'on_multiusers', 'on_ok'],
-                           PluginFusioninventoryDeployUserinteractionTemplate::WTS_BUTTON_OK_SYNC);
+                           $template->getBehaviorsToDisplay('ok'));
 
       $this->assertEquals(['on_timeout', 'on_nouser', 'on_multiusers', 'on_ok'],
-                           PluginFusioninventoryDeployUserinteractionTemplate::WTS_BUTTON_OK_ASYNC);
+                           $template->getBehaviorsToDisplay('ok_async'));
 
       $this->assertEquals(['on_timeout', 'on_nouser', 'on_multiusers',
                             'on_ok', 'on_cancel'],
-                           PluginFusioninventoryDeployUserinteractionTemplate::WTS_BUTTON_OK_CANCEL);
+                           $template->getBehaviorsToDisplay('okcancel'));
 
       $this->assertEquals(['on_timeout', 'on_nouser', 'on_multiusers',
                             'on_yes', 'on_no'],
-                           PluginFusioninventoryDeployUserinteractionTemplate::WTS_BUTTON_YES_NO);
+                           $template->getBehaviorsToDisplay('yesno'));
 
       $this->assertEquals(['on_timeout', 'on_nouser', 'on_multiusers',
                             'on_yes', 'on_no', 'on_cancel'],
-                           PluginFusioninventoryDeployUserinteractionTemplate::WTS_BUTTON_YES_NO_CANCEL);
+                           $template->getBehaviorsToDisplay('yesnocancel'));
 
       $this->assertEquals(['on_timeout', 'on_nouser', 'on_multiusers',
                             'on_abort', 'on_retry', 'on_ignore'],
-                           PluginFusioninventoryDeployUserinteractionTemplate::WTS_BUTTON_ABORT_RETRY_IGNORE);
+                           $template->getBehaviorsToDisplay('abortretryignore'));
 
       $this->assertEquals(['on_timeout', 'on_nouser', 'on_multiusers',
                            'on_retry', 'on_cancel'],
-                           PluginFusioninventoryDeployUserinteractionTemplate::WTS_BUTTON_RETRY_CANCEL);
+                           $template->getBehaviorsToDisplay('retrycancel'));
 
       $this->assertEquals(['on_timeout', 'on_nouser', 'on_multiusers',
-                           'on_cancel', 'on_retry', 'on_continue'],
-                           PluginFusioninventoryDeployUserinteractionTemplate::WTS_BUTTON_CANCEL_TRY_CONTINUE);
+                           'on_retry', 'on_cancel', 'on_continue'],
+                           $template->getBehaviorsToDisplay('canceltrycontinue'));
 
    }
 
@@ -350,7 +349,7 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
                 'icon'       => PluginFusioninventoryDeployUserinteractionTemplate::WTS_ICON_QUESTION,
                 'on_timeout' => PluginFusioninventoryDeployUserinteractionTemplate::BEHAVIOR_CONTINUE_DEPLOY
                ];
-      $expected = '{"icon":"question","on_timeou...inue"}';
+      $expected = '{"icon":"question","on_timeout":"continue:continue"}';
       $modified = $template->prepareInputForAdd($input);
       $this->assertEquals($expected, $modified['json']);
    }
