@@ -356,7 +356,7 @@ class PluginFusioninventoryDeployUserinteraction extends PluginFusioninventoryDe
       $entry = [
          'name'        => $params['name'],
          'title'       => $params['title'],
-         'text' => $params['text'],
+         'text'        => $params['text'],
          'type'        => $params['userinteractionstype'],
          'template'    => $params['template']
       ];
@@ -390,23 +390,27 @@ class PluginFusioninventoryDeployUserinteraction extends PluginFusioninventoryDe
    * @param type the type of event that triggered the user interaction
    * @param $event the button clicked by the user
    *         (or the what's happened in special cases, as defined in a template)
+   * @param user userid the user who performed the interaction
    * @return string the message to be display in a taskjob log
    */
-   public function getLogMessage($behavior, $type, $event) {
-      $message = self::getTypeName(1);
+   public function getLogMessage($behavior, $type, $event, $user) {
+      $message  = self::getTypeName(1);
       $message .= ': '.$this->getLabelForAType($type);
       $message .= '/';
       switch ($behavior) {
          case self::RESPONSE_STOP:
-            $message .= __('Job cancelled by the user', 'fusioninventory');
+            $message .= sprintf(__('Job cancelled by the user %1s',
+                                   'fusioninventory'), $user);
             break;
 
          case self::RESPONSE_CONTINUE:
-            $message .= __('User confirmed to continue the job', 'fusioninventory');
+            $message .= sprintf(__('User %1s agreed to continue the job',
+                                   'fusioninventory'), $user);
             break;
 
          case self::RESPONSE_POSTPONE:
-            $message .= __('Job postponed by the user', 'fusioninventory');
+            $message .= sprintf(__('Job postponed by the user %1s', 'fusioninventory'),
+                                $user);
             break;
 
          case self::RESPONSE_BAD_EVENT:

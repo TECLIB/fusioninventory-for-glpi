@@ -83,6 +83,50 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
    const ICON_ERROR               = 'error';
 
    /**
+    * @see CommonGLPI::defineTabs()
+   **/
+   function defineTabs($options = []) {
+
+      $ong = [];
+      $this->addStandardTab(__CLASS__, $ong, $options)
+         ->addStandardTab('Log', $ong, $options);
+
+      return $ong;
+   }
+
+   /**
+    * @see CommonGLPI::getTabNameForItem()
+   **/
+   function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
+      $tabs[1] = __('General');
+      $tabs[2] = _n('Behavior', 'Behaviors', 2, 'fusioninventory');
+      return $tabs;
+   }
+
+
+   /**
+    * @param $item         CommonGLPI object
+    * @param $tabnum       (default 1)
+    * @param $withtemplate (default 0)
+   **/
+   static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
+      global $CFG_GLPI;
+
+      if ($item->getType() == __CLASS__) {
+         switch ($tabnum) {
+            case 1 :
+               $item->showForm($item->getID());
+               break;
+
+            case 2 :
+               $item->showBehaviors($item->getID());
+               break;
+         }
+      }
+      return true;
+   }
+
+   /**
     * Get name of this type by language of the user connected
     *
     * @param integer $nb number of elements
@@ -113,7 +157,7 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
     * @return rand
     */
    function dropdownTypes($type = self::ALERT_WTS) {
-      return Dropdown::showFromArray('platform', self::getTypes(), 
+      return Dropdown::showFromArray('platform', self::getTypes(),
                                      ['value' => $type]);
    }
 
@@ -211,7 +255,7 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
    static function getBehaviors() {
       return [self::BEHAVIOR_CONTINUE_DEPLOY => __('Continue job with no user interaction'),
               self::BEHAVIOR_POSTPONE_DEPLOY => __('Retry job later', 'fusioninventory'),
-              self::BEHAVIOR_STOP_DEPLOY   => __('Cancel job')
+              self::BEHAVIOR_STOP_DEPLOY     => __('Cancel job')
              ];
    }
 
@@ -235,9 +279,31 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
    * @return an array of field names
    */
    function getJsonFields() {
+      return  array_merge($this->getMainFormFields(),
+                          $this->getBehaviorsFields());
+
+   }
+
+   /**
+   * Get the fields to be encoded in json
+   * @since 9.2
+   * @return an array of field names
+   */
+   function getMainFormFields() {
       return  ['platform', 'timeout', 'buttons', 'icon',
-               'retry_after', 'nb_max_retry', 'on_timeout',
-               'on_nouser', 'on_multiusers'];
+               'retry_after', 'nb_max_retry'];
+
+   }
+
+   /**
+   * Get the fields to be encoded in json
+   * @since 9.2
+   * @return an array of field names
+   */
+   function getBehaviorsFields() {
+      return  ['on_timeout', 'on_nouser', 'on_multiusers', 'on_ok', 'on_no',
+               'on_yes', 'on_cancel', 'on_abort', 'on_retry', 'on_ignore',
+               'on_continue'];
 
    }
 
@@ -304,15 +370,17 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
    * @param options POST form options
    */
    function showForm($ID, $options = []) {
-      global $CFG_GLPI, $DB;
-
-      $this->initForm($ID, $options);
-      $this->showFormHeader($options);
+      $this->initForm($ID);
+      $this->showFormHeader();
 
       $json_data = json_decode($this->fields['json'], true);
       $json_data = $this->initializeJsonFields($json_data);
 
       echo "<tr class='tab_bg_1'>";
+
+      foreach ($this->getBehaviorsFields() as $field) {
+         echo Html::hidden($field, ['value' => $json_data[$field]]);
+      }
 
       $rand    = mt_rand();
       $tplmark = $this->getAutofillMark('name', $options);
@@ -361,7 +429,6 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
       echo "</td>";
       echo "</tr>";
 
-
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Alert display timeout', 'fusioninventory')."</td>";
       echo "<td>";
@@ -372,39 +439,105 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
       echo "<td colspan='2'></td>";
       echo "</tr>";
 
-      echo "<tr class='tab_bg_1'>";
-      echo "<th colspan='4'>".__('Advanced information')."</th>";
-      echo "</tr>";
-
-      echo "<tr class='tab_bg_1'>";
-
-      echo "<td>".__('In case of no active session', 'fusioninventory')."</td>";
-      echo "<td>";
-      $this->dropdownBehaviors('on_nouser',
-                               $json_data['on_nouser']);
-      echo "</td>";
-
-      echo "<td>".__('In case of several active sessions', 'fusioninventory')."</td>";
-      echo "<td>";
-      $this->dropdownBehaviors('on_multiusers',
-                               $json_data['on_multiusers']);
-      echo "</td>";
-
-      echo "</tr>";
-
-      echo "<tr class='tab_bg_1'>";
-      echo "<td>".__('In case of alert timeout exceeded', 'fusioninventory')."</td>";
-      echo "<td>";
-      $this->dropdownBehaviors('on_timeout',
-                               $json_data['on_timeout']);
-      echo "</td>";
-      echo "<td colspan='2'></td>";
-      echo "</tr>";
-
-      $this->showFormButtons($options);
+      $this->showFormButtons();
 
       return true;
 
+   }
+
+   public function showBehaviors($ID) {
+
+      $json_data = json_decode($this->fields['json'], true);
+      $json_data = $this->initializeJsonFields($json_data);
+
+      $this->initForm($ID);
+      $this->showFormHeader();
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<th colspan='4'>".__('Behaviors', 'fusioninventory')."</th>";
+      echo "</tr>";
+
+      foreach ($this->getMainFormFields() as $field) {
+         echo Html::hidden($field, ['value' => $json_data[$field]]);
+      }
+
+      $events = ['on_ok'     => __('Button ok', 'fusioninventory'),
+                 'on_yes'    => __('Button yes', 'fusioninventory'),
+                 'on_continue'
+                             => __('Button continue', 'fusioninventory'),
+                 'on_retry'
+                             => __('Button retry', 'fusioninventory'),
+                 'on_no'     => __('Button no', 'fusioninventory'),
+                 'on_cancel' => __('Button cancel', 'fusioninventory'),
+                 'on_abort'
+                             => __('Button abort', 'fusioninventory'),
+                 'on_ignore'
+                            => __('Button ignore', 'fusioninventory'),
+                 'on_nouser'
+                             => __('No active session', 'fusioninventory'),
+                 'on_timeout'
+                             => __('Alert timeout exceeded', 'fusioninventory'),
+                 'on_multiusers'
+                            => __('Several active sessions', 'fusioninventory')];
+      foreach ($events as $event => $label) {
+         $display = ['on_timeout', 'on_nouser', 'on_multiusers'];
+         switch ($json_data['buttons']) {
+            case self::BUTTON_OK_SYNC:
+            case self::BUTTON_OK_ASYNC:
+               $display[] = 'on_ok';
+               break;
+
+            case self::BUTTON_YES_NO:
+               $display[] = 'on_yes';
+               $display[] = 'on_no';
+               break;
+
+            case self::BUTTON_YES_NO_CANCEL:
+               $display[] = 'on_yes';
+               $display[] = 'on_no';
+               $display[] = 'on_cancel';
+               break;
+
+            case self::BUTTON_OK_CANCEL:
+               $display[] = 'on_ok';
+               $display[] = 'on_cancel';
+               break;
+
+            case self::BUTTON_ABORT_RETRY_IGNORE:
+               $display[] = 'on_abort';
+               $display[] = 'on_retry';
+               $display[] = 'on_ignore';
+               break;
+
+            case self::BUTTON_RETRY_CANCEL:
+               $display[] = 'on_retry';
+               $display[] = 'on_cancel';
+               break;
+
+            case self::BUTTON_CANCEL_TRY_CONTINUE:
+               $display[] = 'on_retry';
+               $display[] = 'on_cancel';
+               $display[] = 'on_continue';
+               break;
+
+         }
+         if (in_array($event, $display)) {
+            echo "<tr class='tab_bg_1'>";
+
+            echo "<td>$label</td>";
+            echo "<td>";
+            $this->dropdownBehaviors($event, $json_data[$event]);
+            echo "</td>";
+            echo "</tr>";
+         } else {
+            echo Html::hidden($event, $json_data[$event]);
+         }
+
+      }
+
+      $this->showFormButtons();
+
+      return true;
    }
 
    public function prepareInputForAdd($input) {

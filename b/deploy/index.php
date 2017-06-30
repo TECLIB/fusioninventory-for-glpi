@@ -215,26 +215,33 @@ switch (filter_input(INPUT_GET, "action")) {
          'machineid' => filter_input(INPUT_GET, "machineid"),
          'uuid'      => filter_input(INPUT_GET, "uuid")
       ];
-Toolbox::logDebug($_GET);
+
       //Action : postpone, cancel, continue
       $behavior = filter_input(INPUT_GET, "behavior");
 
       //before, after_download, after_download_failure,
       //after_failure, after
-      $type   = filter_input(INPUT_GET, "type");
+      $type    = filter_input(INPUT_GET, "type");
 
       //on_nouser, on_ok, on_cancel, on_abort, on_retry, on_ignore,
       //on_yes, on_no, on_tryagain, on_continue, on_timeout, on_async,
       //on_mutilusers
-      $event    = filter_input(INPUT_GET, "event");
+      $event   = filter_input(INPUT_GET, "event");
 
+      //The user who did the interaction
+      $user    = filter_input(INPUT_GET, "user");
+
+      //Process response if an agent provides a behavior, a type and an event
+      //the user parameter is not mandatory
       if (isset($behavior) && isset($type) && isset($event)) {
          $interaction    = new PluginFusioninventoryDeployUserinteraction();
-         $params['msg']  = $interaction->getLogMessage($behavior, $type, $event);
+         $cancel         = false;
+         $params['msg']  = $interaction->getLogMessage($behavior, $type, $event,
+                                                       $user);
          switch ($behavior) {
             case PluginFusioninventoryDeployUserinteraction::RESPONSE_STOP:
                $params['code'] = 'ko';
-               $taskstate = new PluginFusioninventoryTaskjobstate();
+               $cancel = true;
                break;
 
             case PluginFusioninventoryDeployUserinteraction::RESPONSE_CONTINUE:
@@ -252,7 +259,14 @@ Toolbox::logDebug($_GET);
 
          //Generic method to update logs
          PluginFusioninventoryCommunicationRest::updateLog($params);
-      }
+
+         //If needed : cancel the job
+         if ($cancel) {
+            $taskstate = new PluginFusioninventoryTaskjobstate();
+            $taskstate->getFromDBByUniqID($params['uuid']);
+            $taskstate->cancel();
+         }
+   }
 }
 
 if ($response !== false) {

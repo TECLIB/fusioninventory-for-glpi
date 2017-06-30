@@ -1824,8 +1824,11 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
    }
 
    /**
-   *
+   * Append needed informations to the json job for an agent
    * @since 9.2
+   * @param $agent_task_version the version of the agent's deploy task
+   * @param $job the job as an array
+   * @return array the job plus new needed fields
    */
    function buildJson($agent_task_version, $job) {
 
