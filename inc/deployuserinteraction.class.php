@@ -50,6 +50,7 @@ if (!defined('GLPI_ROOT')) {
 
 /**
  * Manage user interactions.
+ * @since 9.2
  */
 class PluginFusioninventoryDeployUserinteraction extends PluginFusioninventoryDeployPackageItem {
 

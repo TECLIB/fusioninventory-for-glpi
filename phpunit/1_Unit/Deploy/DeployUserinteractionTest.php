@@ -69,7 +69,7 @@ class DeployUserinteractionTest extends RestoreDatabase_TestCase {
    public function testGetLabelForAType() {
       $interaction = new PluginFusioninventoryDeployUserinteraction();
       $this->assertEquals("Alert after audits",
-                          $interaction->getLabelForAType(PluginFusioninventoryDeployUserinteraction::EVENT_AFTER_AUDITS));
+                          $interaction->getLabelForAType(PluginFusioninventoryDeployUserinteraction::EVENT_BEFORE_DOWNLOAD));
       $this->assertEquals("Alert after download",
                           $interaction->getLabelForAType(PluginFusioninventoryDeployUserinteraction::EVENT_AFTER_DOWNLOAD));
 

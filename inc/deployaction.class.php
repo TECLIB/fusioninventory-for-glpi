@@ -80,13 +80,13 @@ class PluginFusioninventoryDeployAction extends PluginFusioninventoryDeployPacka
     * @return array
     */
    function getTypes() {
-       return array(
+       return [
          'cmd'     => __('Command', 'fusioninventory'),
          'move'    => __('Move', 'fusioninventory'),
          'copy'    => __('Copy', 'fusioninventory'),
          'delete'  => __('Delete directory', 'fusioninventory'),
          'mkdir'   => __('Create directory', 'fusioninventory')
-      );
+      ];
    }
 
 
@@ -146,7 +146,7 @@ class PluginFusioninventoryDeployAction extends PluginFusioninventoryDeployPacka
        * Display element's dropdownType in 'create' or 'edit' mode
        */
       if (in_array($mode, [self::CREATE, self::EDIT], true)) {
-         $this->displayDropdownType($config, $rand, $mode);
+         $this->displayDropdownType($package, $config, $rand, $mode);
       }
 
       /*
