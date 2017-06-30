@@ -45,6 +45,25 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
    /**
     * @test
     */
+   public function testDefineTabs() {
+      $expected = [  0 => 'PluginFusioninventoryDeployUserinteractionTemplate',
+                     1 => 'Log'];
+      $template = new PluginFusioninventoryDeployUserinteractionTemplate();
+      $this->assertEquals($expected, $template->defineTabs());
+   }
+
+   /**
+    * @test
+    */
+   public function testGetTabNameForItem() {
+      $expected = [  0 => 'General', 1 => 'Behaviors'];
+      $template = new PluginFusioninventoryDeployUserinteractionTemplate();
+      $this->assertEquals($expected, $template->getTabNameForItem($template));
+   }
+
+   /**
+    * @test
+    */
    public function testGetTypeName() {
       $this->assertEquals('User interaction templates',
                            PluginFusioninventoryDeployUserinteractionTemplate::getTypeName());
