@@ -342,6 +342,9 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
 
    }
 
+   /**
+    * @test
+    */
    public function testPrepareInputForAdd() {
       $template = new PluginFusioninventoryDeployUserinteractionTemplate();
       $input = ['name'       => 'foo',
