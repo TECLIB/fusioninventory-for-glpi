@@ -314,6 +314,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
              ],
              'associatedFiles' => []]);
       }
+
       return parent::prepareInputForAdd($input);
    }
 
@@ -1870,5 +1871,23 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          }
       }
       return $job;
+   }
+
+   /**
+   * Transform \r\n in an userinteraction text
+   * @since 9.2
+   * @param array $params the input parameters
+   * @return array $params input parameters with text modified
+   */
+   public function escapeText($params) {
+      //Hack to keep \r\n in the user interaction text
+      //before going to stripslashes_deep
+      if (isset($params['text'])) {
+         $params['text']
+            = str_replace("\r\n",
+                          PluginFusioninventoryDeployUserinteraction::RN_TRANSFORMATION,
+                          $params['text']);
+      }
+      return $params;
    }
 }

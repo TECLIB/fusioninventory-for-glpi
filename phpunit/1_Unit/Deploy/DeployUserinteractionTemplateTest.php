@@ -356,4 +356,23 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
       $modified = $template->prepareInputForAdd($input);
       $this->assertEquals($expected, $modified['json']);
    }
+
+   /**
+    * @test
+    */
+   public function getDefaultBehaviorForAButton() {
+      $template = new PluginFusioninventoryDeployUserinteractionTemplate();
+      $this->assertEquals('continue:continue', $this->getDefaultBehaviorForAButton('on_ok'));
+      $this->assertEquals('continue:continue', $this->getDefaultBehaviorForAButton('on_yes'));
+      $this->assertEquals('continue:continue', $this->getDefaultBehaviorForAButton('on_multiusers'));
+      $this->assertEquals('continue:continue', $this->getDefaultBehaviorForAButton('on_timeout'));
+
+      $this->assertEquals('stop:stop', $this->getDefaultBehaviorForAButton('on_no'));
+      $this->assertEquals('stop:stop', $this->getDefaultBehaviorForAButton('on_cancel'));
+      $this->assertEquals('stop:stop', $this->getDefaultBehaviorForAButton('on_abort'));
+
+      $this->assertEquals('stop:postpone', $this->getDefaultBehaviorForAButton('on_retry'));
+      $this->assertEquals('stop:postpone', $this->getDefaultBehaviorForAButton('on_ignore'));
+
+   }
 }

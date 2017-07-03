@@ -82,6 +82,8 @@ class PluginFusioninventoryDeployUserinteraction extends PluginFusioninventoryDe
    //The agent recieved a malformed or non existing event
    const RESPONSE_BAD_EVENT       = 'error_bad_event';
 
+   //String to replace a \r\n, to avoid stripcslashes issue
+   const RN_TRANSFORMATION        = "$#r$#n";
    /**
     * Get name of this type by language of the user connected
     *
@@ -223,6 +225,9 @@ class PluginFusioninventoryDeployUserinteraction extends PluginFusioninventoryDe
          $values['template_value']    = isset($data['template'])?$data['template']:"";
       }
 
+      //Trick to add \r\n in the description text area
+      $values['description_value'] = str_replace(self::RN_TRANSFORMATION, "\r\n",
+                                                 $values['description_value']);
       return $values;
    }
 
@@ -296,19 +301,17 @@ class PluginFusioninventoryDeployUserinteraction extends PluginFusioninventoryDe
    function getInteractionDescription($interaction) {
       $text = '';
 
-      if (isset($interaction['name'])) {
+      if (isset($interaction['label']) && !empty($interaction['label'])) {
+         $text = $interaction['label'];
+      } else if (isset($interaction['name'])) {
          $text.= $interaction['name'];
-         $text.= ' (';
       }
-      $text .= $this->getLabelForAType($interaction['type']);
+      $text .= ' - '.$this->getLabelForAType($interaction['type']);
+
       if ($interaction['template']) {
-         $text .= ', ';
+         $text .= ' (';
          $text .= Dropdown::getDropdownName('glpi_plugin_fusioninventory_deployuserinteractiontemplates',
                                            $interaction['template']);
-
-      }
-
-      if (isset($interaction['name'])) {
          $text.= ')';
       }
 

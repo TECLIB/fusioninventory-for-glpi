@@ -431,8 +431,20 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Retry job after', 'fusioninventory')."</td>";
       echo "<td>";
-      Dropdown::showInteger('retry_after', $json_data['retry_after'], 1, 24, 1);
-      echo "&nbsp;"._n('Hour', 'Hours', 2);
+      // Minutes
+      for ($i=5; $i<60; $i+=5) {
+         $values[$i*MINUTE_TIMESTAMP] = sprintf(_n('%d minute', '%d minutes', $i), $i);
+      }
+
+      for ($i = 1; $i < 24; $i++) {
+         $values[$i*HOUR_TIMESTAMP] = sprintf(_n('%d hour', '%d hours', $i), $i);
+      }
+
+      for ($i = 1; $i < 3; $i++) {
+         $values[$i*DAY_TIMESTAMP] = sprintf(_n('%d day', '%d days', $i), $i);
+      }
+      Dropdown::showFromArray('retry_after', $values,
+                              ['value' => $json_data['retry_after']]);
       echo "</td>";
 
       echo "<td>".__('Maximum number of retry allowed', 'fusioninventory')."</td>";
@@ -444,9 +456,22 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Alert display timeout', 'fusioninventory')."</td>";
       echo "<td>";
-      Dropdown::showInteger('timeout', $json_data['timeout'], 30,
-                            3600, 10, [0 => __('Never')]);
-      echo "&nbsp;"._n('Second', 'Seconds', 2);
+      $values    = [];
+      $values[0] = __('Never');
+      for ($i = 30; $i < 60; $i+=10) {
+         $values[$i] = sprintf(_n('%d second', '%d seconds', $i), $i);
+      }
+      // Minutes
+      for ($i=5; $i<60; $i+=5) {
+         $values[$i*MINUTE_TIMESTAMP] = sprintf(_n('%d minute', '%d minutes', $i), $i);
+      }
+
+      for ($i = 1; $i < 5; $i++) {
+         $values[$i*HOUR_TIMESTAMP] = sprintf(_n('%d hour', '%d hours', $i), $i);
+      }
+
+      Dropdown::showFromArray('timeout', $values,
+                              ['value' => $json_data['timeout']]);
       echo "</td>";
       echo "<td colspan='2'></td>";
       echo "</tr>";
@@ -532,6 +557,38 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
    }
 
    /**
+   * Get the default behavior for a button
+   * @since 9.2
+   * @param string $button the button for which the default behavior is request
+   * @return string the behavior
+   */
+   public function getDefaultBehaviorForAButton($button) {
+      $behavior = self::BEHAVIOR_CONTINUE_DEPLOY;
+      switch ($button) {
+         case 'on_yes':
+         case 'on_ok':
+         case 'on_multiusers':
+         case 'on_timeout':
+         case 'on_nouser':
+            $behavior = self::BEHAVIOR_CONTINUE_DEPLOY;
+            break;
+
+         case 'on_no':
+         case 'on_cancel':
+         case 'on_abort':
+            $behavior = self::BEHAVIOR_STOP_DEPLOY;
+            break;
+
+         case 'on_retry':
+         case 'on_ignore':
+            $behavior = self::BEHAVIOR_POSTPONE_DEPLOY;
+            break;
+
+      }
+      return $behavior;
+   }
+
+   /**
    * Show behaviors form
    *
    * @since 9.2
@@ -560,7 +617,12 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
 
             echo "<td>$label</td>";
             echo "<td>";
-            $this->dropdownBehaviors($event, $json_data[$event]);
+            if (empty($json_data[$event])) {
+               $value = $this->getDefaultBehaviorForAButton($event);
+            } else {
+               $value = $json_data[$event];
+            }
+            $this->dropdownBehaviors($event, $value);
             echo "</td>";
             echo "</tr>";
          } else {
