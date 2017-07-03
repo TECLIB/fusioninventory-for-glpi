@@ -159,8 +159,6 @@ function plugin_init_fusioninventory() {
       $Plugin->registerClass('PluginFusioninventoryInventoryComputerComputer',
               array('addtabon' => array('Computer')));
       $Plugin->registerClass('PluginFusioninventoryInventoryComputerInventory');
-      $Plugin->registerClass('PluginFusioninventoryInventoryComputerStorage',
-              array('addtabon' => array('Computer')));
       $Plugin->registerClass('PluginFusioninventoryCollect');
       $Plugin->registerClass('PluginFusioninventoryCollect_Registry',
               array('addtabon' => array('PluginFusioninventoryCollect')));
@@ -179,8 +177,7 @@ function plugin_init_fusioninventory() {
                                         'Computer')));
       $Plugin->registerClass('PluginFusioninventoryComputerLicenseInfo',
               array('addtabon' => array('Computer')));
-      $Plugin->registerClass('PluginFusioninventoryComputerRemoteManagement',
-              array('addtabon' => array('Computer')));
+      $Plugin->registerClass('PluginFusioninventoryComputerRemoteManagement');
 
          //Classes for rulesengine
       $Plugin->registerClass('PluginFusioninventoryInventoryRuleLocation');
@@ -330,6 +327,7 @@ function plugin_init_fusioninventory() {
                                         'showInfo'));
 
       $PLUGIN_HOOKS['post_show_tab']['fusioninventory'] = 'postShowTab';
+      $PLUGIN_HOOKS['post_item_form']['fusioninventory'] = 'postItemForm';
 
       $PLUGIN_HOOKS['use_massive_action']['fusioninventory'] = 1;
 
@@ -385,7 +383,13 @@ function plugin_init_fusioninventory() {
          $pfDeployPackage = new PluginFusioninventoryDeployPackage();
          if ($pfDeployPackage->canUserDeploySelf()) {
             $PLUGIN_HOOKS['helpdesk_menu_entry']['fusioninventory'] = '/front/deploypackage.public.php';
+            $PLUGIN_HOOKS['add_css']['fusioninventory'][]="css/views.css";
          }
+      }
+
+      // load task view css for computer self deploy (tech)
+      if (script_endswith("computer.form.php")) {
+         $PLUGIN_HOOKS['add_css']['fusioninventory'][]="css/views.css";
       }
 
       if (isset($_SESSION["glpiname"])) {
@@ -512,7 +516,11 @@ function plugin_fusioninventory_check_prerequisites() {
       $_SESSION['glpi_plugins'] = array();
    }
 
-   if (version_compare(GLPI_VERSION, '9.2', 'lt') || version_compare(GLPI_VERSION, '9.3', 'ge')) {
+   $prever = true;
+   if (defined('GLPI_PREVER') && PLUGIN_FUSIONINVENTORY_OFFICIAL_RELEASE == 0) {
+      $prever = version_compare(GLPI_PREVER, '9.2', 'lt');
+   }
+   if ($prever && version_compare(GLPI_VERSION, '9.2', 'lt') || version_compare(GLPI_VERSION, '9.3', 'ge')) {
       if (method_exists('Plugin', 'messageIncompatible')) {
          echo Plugin::messageIncompatible('core', '9.2', '9.3');
       } else {

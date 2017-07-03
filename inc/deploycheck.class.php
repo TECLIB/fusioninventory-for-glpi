@@ -60,19 +60,28 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
     * @return array
     */
    static function getTypes() {
-      return array(
-         'winkeyExists'       => __("Registry key exists", 'fusioninventory'),
-         'winkeyMissing'      => __("Registry key missing", 'fusioninventory'),
-         'winkeyEquals'       => __("Registry key value equals to", 'fusioninventory'),
-         'fileExists'         => __("File exists", 'fusioninventory'),
-         'fileMissing'        => __("File is missing", 'fusioninventory'),
-         'fileSizeGreater'    => __("File size is greater than", 'fusioninventory'),
-         'fileSizeEquals'     => __("File size is equal to", 'fusioninventory'),
-         'fileSizeLower'      => __("File size is lower than", 'fusioninventory'),
-         'fileSHA512'         => __("SHA-512 hash value matches", 'fusioninventory'),
-         'fileSHA512mismatch' => __("SHA-512 hash value mismatch", 'fusioninventory'),
-         'freespaceGreater'   => __("Free space is greater than", 'fusioninventory')
-      );
+      return [
+         __('Registry', 'fusioninventory') => [
+                  'winkeyExists'       => __("Registry key exists", 'fusioninventory'),
+                  'winvalueExists'     => __("Registry value exists", 'fusioninventory'),
+                  'winkeyMissing'      => __("Registry key missing", 'fusioninventory'),
+                  'winvalueMissing'    => __("Registry value missing", 'fusioninventory'),
+                  'winkeyEquals'       => __("Registry value equals to", 'fusioninventory'),
+                  'winvalueType'       => __("Type of registry value equals to", 'fusioninventory')
+               ],
+               __('File') => [
+                  'fileExists'         => __("File exists", 'fusioninventory'),
+                  'fileMissing'        => __("File is missing", 'fusioninventory'),
+                  'fileSizeGreater'    => __("File size is greater than", 'fusioninventory'),
+                  'fileSizeEquals'     => __("File size is equal to", 'fusioninventory'),
+                  'fileSizeLower'      => __("File size is lower than", 'fusioninventory'),
+                  'fileSHA512'         => __("SHA-512 hash value matches", 'fusioninventory'),
+                  'fileSHA512mismatch' => __("SHA-512 hash value mismatch", 'fusioninventory'),
+               ],
+             __('Other') => [
+            'freespaceGreater'   => __("Free space is greater than", 'fusioninventory')
+            ]
+      ];
    }
 
 
@@ -82,9 +91,12 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
     * @return the type label
     */
    static function getLabelForAType($type) {
-      $types = self::getTypes();
-      if (isset($types[$type])) {
-         return $types[$type];
+      $alltypes = [];
+      foreach (self::getTypes() as $label => $types) {
+         $alltypes+= $types;
+      }
+      if (isset($alltypes[$type])) {
+         return $alltypes[$type];
       } else {
          return '';
       }
@@ -96,12 +108,12 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
     * @return array
     */
    static function getUnitLabel() {
-      return array(
-         "B"  => __("B", 'fusioninventory'),
-         "KB" => __("KiB", 'fusioninventory'),
-         "MB" => __("MiB", 'fusioninventory'),
-         "GB" => __("GiB", 'fusioninventory')
-      );
+      return [
+               "B"  => __('o'),
+               "KB" => __('Kio'),
+               "MB" => __('Mio'),
+               "GB" => __('Gio')
+             ];
    }
 
 
@@ -141,6 +153,31 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
    }
 
 
+   static function getRegistryTypes() {
+      return ['REG_SZ'                  => 'REG_SZ',
+              'REG_DWORD'               => 'REG_DWORD',
+              'REG_BINARY'              => 'REG_BINARY',
+              'REG_EXPAND_SZ'           => 'REG_EXPAND_SZ',
+              'REG_MULTI_SZ'            => 'REG_MULTI_SZ',
+              'REG_LINK'                => 'REG_LINK',
+              'REG_DWORD_BIG_ENDIAN'    => 'REG_DWORD_BIG_ENDIAN',
+              'REG_NONE'                => 'REG_NONE'
+             ];
+   }
+
+   static function dropdownRegistryTypes($value = 'REG_SZ') {
+      return Dropdown::showFromArray('value', self::getRegistryTypes(),
+                                     ['value' => $value]);
+   }
+
+   static function getRegistryTypeLabel($type) {
+      $types = self::getRegistryTypes();
+      if (isset($types[$type])) {
+         return $types[$type];
+      } else {
+         return '';
+      }
+   }
 
    /**
     * Display form
@@ -222,21 +259,22 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
 
       $checks_types = self::getTypes();
       $package_id   = $package->getID();
+      $canedit      = $package->canUpdateContent();
       echo "<table class='tab_cadrehov package_item_list' id='table_check_$rand'>";
       $i = 0;
       foreach ($datas['jobs']['checks'] as $check) {
-         //specific case for filesystem size
-         if (is_numeric($check['value'])
-            && in_array($check['type'], ['freespaceGreater', 'fileSizeLower',
-                                         'fileSizeEquals', 'fileSizeGreater'])) {
-            if ($check['type'] == "freespaceGreater") {
+         switch ($check['type']) {
+            case 'freespaceGreater':
                $check['value'] = $check['value'] * 1024 * 1024;
-            }
-            $check['value'] = PluginFusioninventoryDeployFile::processFilesize($check['value']);
+            case 'fileSizeLower':
+            case 'fileSizeGreater':
+            case 'fileSizeEquals':
+               $check['value'] = PluginFusioninventoryDeployFile::processFilesize($check['value']);
+               break;
          }
 
          echo Search::showNewLine(Search::HTML_OUTPUT, ($i%2));
-         if ($package->can($package_id, UPDATE)) {
+         if ($canedit) {
             echo "<td class='control'>";
             Html::showCheckbox(array('name' => 'check_entries['.$i.']'));
             echo "</td>";
@@ -251,38 +289,51 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
             $check_label = $text;
          }
          echo "<td>";
-         echo "<a class='edit'".
-            "onclick=\"edit_subtype('check', $package_id, $rand ,this)\">".
-            $check_label."</a><br />";
+         if ($canedit) {
+            echo "<a class='edit'
+                     onclick=\"edit_subtype('check', $package_id, $rand ,this)\">";
+         }
+         echo $check_label;
+         if ($canedit) {
+            echo "</a>";
+         }
+         echo "<br />";
          $type_values = self::getLabelsAndTypes($check['type'], false);
          echo $type_values['path_label'].': '.$check['path'];
-         if (!empty($check['value'])) {
+
+         if (!empty($check['value']) && $check['value'] != NOT_AVAILABLE) {
             echo "&nbsp;&nbsp;&nbsp;<b>";
-            if (strpos($check['type'], "Greater") !== FALSE) {
-               echo "&gt;";
-            } else if (strpos($check['type'], "Lower") !== FALSE) {
-               echo "&lt;";
-            } else {
-               echo "=";
+            switch ($check['type']) {
+               case 'freespaceGreater':
+               case 'fileSizeGreater':
+                  echo "&gt;";
+                  break;
+               case 'fileSizeLower':
+                  echo "&lt;";
+                  break;
+               default:
+                  echo "=";
+                  break;
             }
             echo "</b>&nbsp;&nbsp;&nbsp;";
             echo $check['value'];
          }
+
          echo "</td>";
-         if ($package->can($package_id, UPDATE)) {
+         if ($canedit) {
             echo "<td class='rowhandler control' title='".__('drag', 'fusioninventory').
                "'><div class='drag row'></div></td>";
          }
          echo "</tr>";
          $i++;
       }
-      if ($package->can($package_id, UPDATE)) {
+      if ($canedit) {
          echo "<tr><th>";
          Html::checkAllAsCheckbox("checksList$rand", mt_rand());
          echo "</th><th colspan='3' class='mark'></th></tr>";
       }
       echo "</table>";
-      if ($package->can($package_id, UPDATE)) {
+      if ($canedit) {
          echo "&nbsp;&nbsp;<img src='".$CFG_GLPI["root_doc"]."/pics/arrow-left.png' alt='' />";
          echo "<input type='submit' name='delete' value=\"".
             __('Delete', 'fusioninventory')."\" class='submit' />";
@@ -314,7 +365,14 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
       /*
        * Build actions types list
        */
-      $checks_types = self::getTypes();
+      if ($mode === 'create') {
+         $checks_types = self::getTypes();
+      } else {
+         $checks_types = [];
+         foreach (self::getTypes() as $label => $data) {
+            $checks_types+= $data;
+         }
+      }
       array_unshift($checks_types, "---");
 
       /*
@@ -363,11 +421,13 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
     */
    static function getValues($type, $data, $mode) {
       $values = array(
+         'warning_message' => false,
          'name_value'  => "",
-         'name_label'  => __('Name'),
+         'name_label'  => __('Audit label', 'fusioninventory'),
          'name_type'   => "input",
          'path_label'  => "",
          'path_value'  => "",
+         'path_comment'=> "",
          'value_type'  => "input",
          'value_label' => "",
          'value'       => "",
@@ -388,6 +448,9 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
       return $values;
    }
 
+   static function getMandatoryMark() {
+      return "&nbsp;<span class='red'>*</span>";
+   }
    /**
    *  Get labels and type for a check
    * @param check_type the type of check
@@ -396,23 +459,38 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
    */
    static function getLabelsAndTypes($check_type, $mandatory = false) {
       $values = [];
-      if ($mandatory) {
-         $mandatory_mark = "&nbsp;<span class='red'>*</span>";
-      } else {
-         $mandatory_mark = '';
-      }
+      $mandatory_mark = ($mandatory?self::getMandatoryMark():'');
 
       switch ($check_type) {
          case "winkeyExists":
          case "winkeyMissing":
-            $values['path_label']  = __("Key", 'fusioninventory').$mandatory_mark;
-            $values['value_label'] = FALSE;
+            $values['path_label']         = __("Path to the key", 'fusioninventory').$mandatory_mark;
+            $values['value_label']     = FALSE;
+            $values['path_comment']    = __('Example of registry key').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\\';
+            $values['warning_message'] = __('Fusioninventory-Agent 2.3.20 or higher recommended');
+            break;
+
+         case "winvalueExists":
+         case "winvalueMissing":
+            $values['path_label']      = __("Path to the value", 'fusioninventory').$mandatory_mark;
+            $values['value_label']     = FALSE;
+            $values['path_comment']    = __('Example of registry value').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\server';
+            $values['warning_message'] = __('Fusioninventory-Agent 2.3.20 or higher mandatory');
             break;
 
          case "winkeyEquals":
-            $values['path_label']  = __("Key", 'fusioninventory').$mandatory_mark;
-            $values['value_label'] = __('Key value', 'fusioninventory');
+            $values['path_label']      = __("Path to the value", 'fusioninventory').$mandatory_mark;
+            $values['value_label']     = __('Value', 'fusioninventory');
+            $values['path_comment']    = __('Example of registry value').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\server';
+            $values['warning_message'] = __('Fusioninventory-Agent 2.3.20 or higher recommended');
             break;
+
+         case "winvalueType":
+            $values['path_label']      = __("Path to the value", 'fusioninventory').$mandatory_mark;
+            $values['value_label']     = __('Type of value', 'fusioninventory').$mandatory_mark;
+            $values['value_type']      = 'registry_type';
+            $values['path_comment']    = __('Example of registry value').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\server';
+            $values['warning_message'] = __('Fusioninventory-Agent 2.3.20 or higher mandatory');            break;
 
          case "fileExists":
          case "fileMissing":
@@ -458,6 +536,7 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
     * @return boolean
     */
    static function displayAjaxValues($config, $request_data, $rand, $mode) {
+      global $CFG_GLPI;
 
       $pfDeployPackage = new PluginFusioninventoryDeployPackage();
 
@@ -483,17 +562,24 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
       if ($values === FALSE) {
          return FALSE;
       }
+
       echo "<table class='package_item'>";
       echo "<tr>";
-      echo "<th>".__('Name')."</th>";
+      echo "<th>".__('Audit label', 'fusioninventory')."</th>";
       echo "<td><input type='text' name='name' id='check_name{$rand}' value=\"{$values['name_value']}\" /></td>";
       echo "</tr>";
       echo "<th>{$values['path_label']}</th>";
-      echo "<td><input type='text' name='path' id='check_path{$rand}' value=\"{$values['path_value']}\" /></td>";
+      echo "<td><input type='text' name='path' id='check_path{$rand}' value=\"{$values['path_value']}\" />";
+      if ($values['path_comment']) {
+         echo "<br/><i>".$values['path_comment']."</i>";
+      }
+      echo "</td>";
       echo "</tr>";
+
       if ($values['value_label'] !== FALSE) {
          echo "<tr>";
          echo "<th>{$values['value_label']}</th>";
+
          switch ($values['value_type']) {
 
             case "textarea":
@@ -506,12 +592,19 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
                   $values['value']."' /></td>";
                break;
 
+            case 'registry_type':
+               echo "<td>";
+               self::dropdownRegistryTypes($values['value']);
+               echo "</td>";
+               break;
+
             case "input+unit":
                $value = $values['value'];
                // freespaceGreater check is saved as MiB
                if ($type == 'freespaceGreater') {
                   $value = $value * 1024 * 1024;
                }
+
                $options['value'] = 'KB';
                if ($mode === 'edit') {
                   if ($value >= self::getUnitSize('GB')) {
@@ -563,6 +656,15 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
       echo "</td>";
       echo "</tr>";
 
+      if ($values['warning_message']) {
+         echo "<tr>";
+         echo "<td></td>";
+         echo "<td>";
+         echo "<img src='".$CFG_GLPI['root_doc']."/pics/warning_min.png'>";
+         echo "<span class='red'><i>".$values['warning_message']."</i></span></td>";
+         echo "</tr>";
+      }
+
       echo "<tr>";
       echo "<td>";
       echo "</td>";
@@ -608,12 +710,11 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
    }
 
    /**
-    * Add a new item in checks of the package
-    *
-    * @param array $params list of fields with value of the check
-    */
-   static function add_item($params) {
-
+   * Return an array corresponding to a check, ready to be serialized
+   * @param params the check's parameters
+   * @return array the array to be encoded in json and serialized
+   */
+   static function formatCheckForJson($params) {
       if (!isset($params['value'])) {
          $params['value'] = "";
       }
@@ -621,32 +722,48 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
          $params['name'] = "";
       }
 
-      if (!empty($params['value']) && is_numeric($params['value'])) {
-         $params['value'] = $params['value'] * self::getUnitSize($params['unit']);
+      if (!empty($params['unit'])) {
+         $params['value'] = str_replace(",", ".", $params['value']);
+         if (!empty($params['value']) && is_numeric($params['value'])) {
 
-         //Make an exception for freespaceGreater check which is saved as MiB
-         if ($params['deploy_checktype'] == "freespaceGreater") {
-            $params['value'] = $params['value'] / (1024*1024);
+            //Make an exception for freespaceGreater check which is saved as MiB
+            if ($params['deploy_checktype'] == "freespaceGreater") {
+               $params['value'] = $params['value'] / (1024 * 1024);
+            } else {
+               $params['value'] = $params['value'] * self::getUnitSize($params['unit']);
+            }
+
          }
+
       }
 
-      //prepare new check entry to insert in json
-      $new_entry = array(
+      //prepare updated check entry to insert in json
+      $entry = array(
          'name'   => $params['name'],
          'type'   => $params['deploy_checktype'],
          'path'   => $params['path'],
-         'value'  => $params['value'],
+         'value'  => strval($params['value']),
          'return' => $params['return']
       );
+
+      return $entry;
+   }
+   /**
+    * Add a new item in checks of the package
+    *
+    * @param array $params list of fields with value of the check
+    */
+   static function add_item($params) {
+      $entry = self::formatCheckForJson($params);
 
       //get current order json
       $datas = json_decode(
               PluginFusioninventoryDeployPackage::getJson($params['id']),
-              TRUE
+              true
       );
 
       //add new entry
-      $datas['jobs']['checks'][] = $new_entry;
+      $datas['jobs']['checks'][] = $entry;
 
       //update order
       PluginFusioninventoryDeployPackage::updateOrderJson(
@@ -662,32 +779,7 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
     * @param array $params list of fields with value of the check
     */
    static function save_item($params) {
-
-      if (!isset($params['value'])) {
-         $params['value'] = "";
-      }
-      if (!isset($params['name'])) {
-         $params['name'] = "";
-      }
-
-      if (!empty($params['value']) && is_numeric($params['value'])) {
-         $params['value'] = $params['value'] * self::getUnitSize($params['unit']);
-
-         //Make an exception for freespaceGreater check which is saved as MiB
-         if ($params['deploy_checktype'] == "freespaceGreater") {
-            $params['value'] = $params['value'] / (1024 * 1024);
-         }
-      }
-
-      //prepare updated check entry to insert in json
-      $entry = array(
-         'name'   => $params['name'],
-         'type'   => $params['deploy_checktype'],
-         'path'   => $params['path'],
-         'value'  => $params['value'],
-         'return' => $params['return']
-      );
-
+      $entry = self::formatCheckForJson($params);
       //get current order json
       $datas = json_decode(PluginFusioninventoryDeployPackage::getJson($params['id']), TRUE);
 
@@ -701,8 +793,6 @@ class PluginFusioninventoryDeployCheck extends CommonDBTM {
       //update order
       PluginFusioninventoryDeployPackage::updateOrderJson($params['id'], $datas);
    }
-
-
 
    /**
     * Remove an item

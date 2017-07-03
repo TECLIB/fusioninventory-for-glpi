@@ -80,10 +80,8 @@ class PluginFusioninventoryPrinter extends CommonDBTM {
     * @return string
     */
    static function getType() {
-      return "Printer";
+      return 'Printer';
    }
-
-
 
    /**
     * Get the tab name used for item
@@ -93,7 +91,8 @@ class PluginFusioninventoryPrinter extends CommonDBTM {
     * @return string name of the tab
     */
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
-      if ($this->canView()) {
+      if ($this->canView()
+         && PluginFusioninventoryToolbox::isAFusionInventoryDevice($item)) {
          return self::createTabEntry(__('FusionInventory SNMP', 'fusioninventory'));
       }
       return '';

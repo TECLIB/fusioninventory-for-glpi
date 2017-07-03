@@ -76,10 +76,10 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
       $tab_names = array();
 
-      if ($this->can("plugin_fusioninventory_selfpackage", READ)) {
-         if ($item->getType() == 'Computer') {
-            return __('FusInv', 'fusioninventory').' '. _n('Task', 'Tasks', 2);
-         }
+      if ($this->can("plugin_fusioninventory_selfpackage", READ)
+         && $item->getType() == 'Computer'
+         && PluginFusioninventoryToolbox::isAFusionInventoryDevice($item)) {
+         return __('FusInv', 'fusioninventory').' '. _n('Task', 'Tasks', 2);
       }
       return '';
    }
@@ -469,10 +469,10 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       }
       echo "</td>";
 
-      if ($this->fields['is_active']
-          && $_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
+      if ($this->fields['is_active']) {
          echo "<td>";
-         echo Html::submit(__('Force start', 'fusioninventory'), array('name' => 'forcestart'));
+         echo Html::submit(__('Force start', 'fusioninventory'),
+                           ['name' => 'forcestart']);
          echo "</td>";
       }
 

@@ -54,10 +54,8 @@ if (!defined('GLPI_ROOT')) {
  */
 class PluginFusioninventoryDeployPackage extends CommonDBTM {
 
-   // Tasks running with this package (updated with getRunningTasks method)
    /**
-    * Initialize the tasks running with this package (updated with
-    * getRunningTasks method)
+    * Initialize the tasks running with this package (updated with overrided getFromDB method)
     *
     * @var array
     */
@@ -109,6 +107,40 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       return __('Package', 'fusioninventory');
    }
 
+   function getFromDB($ID) {
+      $found = parent::getFromDB($ID);
+
+      if ($found) {
+         // Get all tasks runnning
+         $this->running_tasks =
+               PluginFusioninventoryTask::getItemsFromDB(
+                  array(
+                      'is_active'   => TRUE,
+                      'is_running'  => TRUE,
+                      'targets'     => array(__CLASS__ => $this->fields['id']),
+                      'by_entities' => FALSE,
+                  )
+               );
+      }
+
+      return $found;
+   }
+
+   /**
+    * Have I the right to "update" the object content (package actions)
+    *
+    * Also call canUpdateItem()
+    *
+    * @return booleen
+   **/
+   function canUpdateContent() {
+      // check if a task is currenlty runnning with this package
+      if (count($this->running_tasks)) {
+         return false;
+      }
+
+      return parent::canUpdateItem();
+   }
 
 
    /**
@@ -239,37 +271,26 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
     * @return string
     */
    function getEditErrorMessage() {
-
-      $this->getRunningTasks();
       $error_message = "";
-      $tasklist = array_filter(
-         $this->running_tasks,
-         create_function('$task', 'return $task["taskjob"]["method"]=="deploy";')
-      );
-
-      if (count($tasklist) > 0) {
+      if (count($this->running_tasks) > 0) {
          // Display error message
-         $error_message .= "<h3 class='red'>";
-         $error_message .=
-            __("Modification Denied", 'fusioninventory');
-         $error_message .= "</h3>\n";
-         $error_message .=
-            "<h4>".
-               _n(
-                  "The following task is running with this package",
-                  "The following tasks are running with this package",
-                  count($this->running_tasks), 'fusioninventory'
-               ).
-            "</h4>\n";
+         $error_message .= "<div class='warning'>";
+         $error_message .= "<i class='fa fa-exclamation-triangle fa-3x'></i>";
+         $error_message .= "<h3>".__("Modification Denied", 'fusioninventory')."</h3>\n";
+         $error_message .= "<h4>".
+                              _n(
+                                 "The following task is running with this package",
+                                 "The following tasks are running with this package",
+                                 count($this->running_tasks), 'fusioninventory'
+                              ).
+                           "</h4>\n";
 
          foreach ($this->running_tasks as $task) {
-            $taskurl_base =
-               Toolbox::getItemTypeFormURL("PluginFusioninventoryTask", TRUE);
-
-            $error_message .= "<a href='$taskurl_base?id=".$task['task']['id']."'>";
-            $error_message .=  $task['task']['name'];
-            $error_message .= "</a>, ";
+            $taskurl =
+               PluginFusioninventoryDeployPackage::getFormURLWithID($task['task']['id'], true);
+            $error_message .= "<a href='$taskurl'>".$task['task']['name']."</a>, ";
          }
+         $error_message .= "</div>";
       }
       return $error_message;
    }
@@ -293,23 +314,6 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
              'associatedFiles' => array()));
       }
       return parent::prepareInputForAdd($input);
-   }
-
-
-
-   /**
-    * Get all tasks runnning
-    */
-   function getRunningTasks() {
-      $this->running_tasks =
-            PluginFusioninventoryTask::getItemsFromDB(
-               array(
-                   'is_active'   => TRUE,
-                   'is_running'  => TRUE,
-                   'targets'     => array(__CLASS__ => $this->fields['id']),
-                   'by_entities' => FALSE,
-               )
-            );
    }
 
 
@@ -419,8 +423,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
     */
    function showMenu($options=array()) {
 
-      $this->displaylist = FALSE;
-
+      $this->displaylist  = FALSE;
       $this->fields['id'] = -1;
       $this->showList();
    }
@@ -451,11 +454,10 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       if ($this->fields['plugin_fusioninventory_deploygroups_id'] > 0) {
          $this->addStandardTab(__CLASS__, $ong, $options);
       }
+
       $ong['no_all_tab'] = TRUE;
       return $ong;
    }
-
-
 
    /**
     * Display form
@@ -520,15 +522,15 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
 
       $datas = json_decode($this->fields['json'], TRUE);
 
+      echo "<table class='tab_cadre_fixe' id='package_order_".$this->getID()."'>";
+
       // Display an error if the package modification is not possible
+      $canedit   = $this->canUpdateContent();
       $error_msg = $this->getEditErrorMessage();
       if (!empty($error_msg)) {
-         Session::addMessageAfterRedirect($error_msg);
-         Html::displayMessageAfterRedirect();
-         echo "<div id='package_order_".$this->getID()."_span'>";
+         echo "<tr><td>$error_msg</td></tr>";
       }
 
-      echo "<table class='tab_cadre_fixe' id='package_order_".$this->getID()."'>";
 
       // Display the lists of each subtypes of a package
       foreach ($subtypes as $subtype => $label) {
@@ -536,7 +538,9 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          echo "<th id='th_title_{$subtype}_$rand'>";
          echo "<img src='".$CFG_GLPI["root_doc"]."/plugins/fusioninventory/pics/$subtype.png' />";
          echo "&nbsp;".__($label, 'fusioninventory');
-         $this->plusButtonSubtype($this->getID(), $subtype, $rand);
+         if ($canedit) {
+            $this->plusButtonSubtype($this->getID(), $subtype, $rand);
+         }
          echo "</th>";
          echo "</tr>";
 
@@ -591,23 +595,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          echo "</tr>";
       }
 
-      if ($_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
-         // === debug ===
-         echo "<tr><td>";
-         echo "<span id='package_json_debug'>";
-         $this->displayJSONDebug();
-         echo "</sp3an>";
-         echo "</td></tr>";
-      }
       echo "</table>";
-      if (!empty($error_msg)) {
-         echo "</div>";
-         echo "<script type='text/javascript'>
-                  Ext.onReady(function() {
-                     Ext.select('#package_order_".$this->getID()."_span').mask();
-                  });
-               </script>";
-      }
    }
 
 
@@ -665,27 +653,17 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
     *
     * @global array $CFG_GLPI
     */
-   function displayJSONDebug() {
+   function showDebug() {
       global $CFG_GLPI;
 
-      if ($_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
-
-         echo "<span class='red'><b>DEBUG</b></span>";
-         echo "<form action='".$CFG_GLPI["root_doc"].
-         "/plugins/fusioninventory/front/deploypackage.form.php' method='POST'>";
-         echo "<textarea cols='132' rows='25' style='border:0' name='json'>";
-         echo PluginFusioninventoryToolbox::formatJson($this->fields['json']);
-         echo "</textarea>";
-         if ($this->can($this->getID(), UPDATE)) {
-            echo "<input type='hidden' name='packages_id' value='{$this->fields['id']}' />";
-            echo "<input type='submit' name='update_json' value=\"".
-               _sx('button', 'Save')."\" class='submit'>";
-         }
-         Html::closeForm();
-      }
+      echo "<table class='tab_cadre_fixe'>";
+      echo "<tr><th>".__('JSON package representation', 'fusioninventory')."</th></tr>";
+      echo "<tr><td>";
+      echo "<textarea cols='132' rows='50' style='border:1' name='json'>";
+      echo PluginFusioninventoryToolbox::formatJson($this->fields['json']);
+      echo "</textarea></td></tr>";
+      echo "</table>";
    }
-
-
 
    /**
     * Update the json structure
@@ -1351,6 +1329,13 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          $my_packages = $this->getPackageForMe($users_id);
       }
 
+      // check current interface
+      $is_tech = isset($_SESSION['glpiactiveprofile']['interface'])
+                  && $_SESSION['glpiactiveprofile']['interface'] == "central";
+
+      // retrieve state name
+      $joblogs_labels = PluginFusioninventoryTaskjoblog::dropdownStateValues();
+
       // Display for each computer, list of packages you can deploy
       $url = $CFG_GLPI['root_doc']."/plugins/fusioninventory";
       echo "<form name='onetimedeploy_form' id='onetimedeploy_form'
@@ -1369,38 +1354,104 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
             .$computer->fields['name']."</i></th>";
          echo "</tr>";
 
-         echo "<tr class='tab_bg_1'>";
-         echo "<td>";
-         echo '<div class="target_block">';
-         echo '<div class="target_details">';
-         echo '<div class="target_stats">';
-         foreach ($data as $packages_id => $package_info) {
-            if (isset($package_info['taskjobs_id'])) {
-               echo '<div class="counter_block '
-                  .$package_info['last_taskjobstate']['state'].'">';
-               echo "<table>";
-               echo "<tr>";
-               echo "<td style='width: 600px'>";
-               echo $package_info['name'];
-               echo "</td>";
-               echo "<td style='width: 200px'>";
-               echo Html::convDateTime($package_info['last_taskjobstate']['date']);
-               echo "</td>";
-               echo "<td style='width: 200px'>";
-               echo self::getDeploymentLabelForAState($package_info['last_taskjobstate']['state']);
-               echo "</td>";
-               echo "</tr>";
-               echo "</table>";
-               echo '</div>';
-            } else {
-               $package_to_install[$packages_id] = $package_info['name'];
+         if (count($data)) {
+            echo "<tr class='tab_bg_1'>";
+            echo "<td>";
+            echo '<div class="target_block">';
+            echo '<div class="target_details">';
+            echo '<div class="target_stats">';
+            foreach ($data as $packages_id => $package_info) {
+               if (isset($package_info['taskjobs_id'])) {
+                  echo '<div class="counter_block '
+                     .$package_info['last_taskjobstate']['state'].'">';
+                  // display deploy informations
+                  echo "<table>";
+                  echo "<tr>";
+                  echo "<td style='width: 600px'>";
+
+                  // add a toggle control
+                  if ($is_tech) {
+                     echo "<a class='toggle_run'
+                              href='#'
+                              id='toggle_run_".$package_info['taskjobs_id']."'>";
+                     echo $package_info['name'];
+                     echo "</a>";
+                  } else {
+                     echo $package_info['name'];
+                  }
+                  echo "</td>";
+                  echo "<td style='width: 200px'>";
+                  echo Html::convDateTime($package_info['last_taskjobstate']['date']);
+                  echo "</td>";
+                  echo "<td style='width: 200px'>";
+                  echo self::getDeploymentLabelForAState($package_info['last_taskjobstate']['state']);
+                  echo "</td>";
+                  echo "</tr>";
+                  echo "</table>";
+
+                  if ($is_tech) {
+                     // display also last log (folded)
+                     echo "<div class='agent_block'
+                                id='run_".$package_info['taskjobs_id']."'
+                                style='display:none;'>";
+
+                     // if job is in error, suggest restart
+                     if ($package_info['last_taskjobstate']['state'] == "agents_error") {
+                        echo "<a class='restart btn'
+                                 href='#'
+                                 title='".__("Restart job", 'fusioninventory')."'
+                                 id='restart_run_".$package_info['taskjobs_id']."'></a>";
+                     }
+
+                     // log list
+                     echo "<table class='runs'>";
+                     foreach($package_info['last_taskjobstate']['logs'] as $log) {
+                        echo "<tr class='run log'>";
+                        echo "<td>".Html::convDateTime($log['log.date'])."</td>";
+                        echo "<td>".$joblogs_labels[$log['log.state']]."</td>";
+                        echo "<td>".$log['log.comment']."</td>";
+                        echo "</tr>";
+                     }
+                     echo "</table>"; // .runs
+                     echo '</div>'; // .agent_block
+                  }
+
+                  echo '</div>'; // .counter_block
+
+                  // js controls (toggle, restart)
+                  echo Html::scriptBlock("$(function() {
+                     $('#toggle_run_".$package_info['taskjobs_id']."').click(function(event){
+                        event.preventDefault();
+                        $('#run_".$package_info['taskjobs_id']."').toggle();
+                        $(this).toggleClass('expand');
+                     });
+
+                     $('#restart_run_".$package_info['taskjobs_id']."').click(function(event){
+                        event.preventDefault();
+                        $.ajax({
+                           url: '".$CFG_GLPI['root_doc'].
+                                   "/plugins/fusioninventory/ajax/restart_job.php',
+                           data: {
+                              'jobstate_id': ".$package_info['last_taskjobstate']['id'].",
+                              'agent_id':    ".$package_info['agent_id']."
+                           },
+                           complete: function() {
+                              document.location.reload();
+                           }
+                        });
+                     });
+                  });");
+               } else {
+                  $package_to_install[$packages_id] = $package_info['name'];
+               }
             }
+            echo '</div>'; // .target_stats
+            echo '</div>'; // .target_details
+            echo '</div>'; // .target_block
+
+            echo "</td>";
+            echo "</tr>";
          }
-         echo '</div>';
-         echo '</div>';
-         echo '</div>';
-         echo "</td>";
-         echo "</tr>";
 
          $p['name']     = 'deploypackages_'.$computers_id;
          $p['display']  = true;
@@ -1442,7 +1493,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          echo "</th>";
          echo "</tr>";
       }
-      echo "</table>";
+      echo "</table>"; // .tab_cadre_fixe
       Html::closeForm();
    }
 
@@ -1496,6 +1547,21 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
             //Browse all computers that are target by a a package installation
             foreach ($mycomputers as $comp_id => $data) {
 
+               //Get computers that can be targeted for this package installation
+               //Check if the package belong to one of the entity that
+               //are currenlty visible
+
+               //The package is recursive, and visible in computer's entity
+               if (!$package['is_recursive']
+                  && $package['entities_id'] != $data['entities_id']) {
+                  continue;
+               } else if($package['is_recursive']
+               && !in_array($package['entities_id'],
+                           getAncestorsOf('glpi_entities', $data['entities_id']))) {
+                  //The package is not recursive, and invisible in the computer's entity
+                  continue;
+               }
+
                //If the agent associated with the computer has not the
                //deploy feature enabled, do not propose to deploy packages on
                if ($pfAgent->getAgentWithComputerid($mycomputers_id) &&
@@ -1512,7 +1578,8 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
                //associated with the package ?
                if (isset($computers[$comp_id])) {
                   $my_packages[$comp_id][$package['id']]
-                     = ['name' => $package['name']];
+                     = ['name'     => $package['name'],
+                        'agent_id' => $pfAgent->getId()];
 
                   //The package has already been deployed or requested to deploy
                   if (isset($packages_used[$comp_id][$package['id']])) {
@@ -1591,9 +1658,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
 
             //Update the job with the new actor
             $pfTaskJob->update($input);
-
-            //Store the task's ID
-            $tasks_id = $data['id'];
+            $tasks_id = $data['plugin_fusioninventory_tasks_id'];
          }
       } else {
       // case 2: if not exist, create a new task + taskjob
@@ -1741,8 +1806,10 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
 
          }
          $logs = $pfTaskJobState->getLogs($taskjobstates['id'], date("Y-m-d H:i:s"));
+         $last_job_state['id']    = $taskjobstates['id'];
          $last_job_state['state'] = $state;
          $last_job_state['date']  = $logs['logs'][0]['log.date'];
+         $last_job_state['logs']  = $logs['logs'];
       }
       return $last_job_state;
    }
@@ -1761,21 +1828,21 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       $table = "glpi_plugin_fusioninventory_deploypackages";
       $where = " WHERE `".$table."`.`plugin_fusioninventory_deploygroups_id` > 0 "
               . " AND (";
-      // groups
+
+      //Include groups
       if (!empty($_SESSION['glpigroups'])) {
          $where .= " `glpi_plugin_fusioninventory_deploypackages_groups`.`groups_id`
-                     IN ('".implode("', '", $_SESSION['glpigroups'])."') OR ";
+                    IN ('".implode("', '", $_SESSION['glpigroups'])."') OR ";
       }
-      // entity
-      $where .= " (`glpi_plugin_fusioninventory_deploypackages_entities`.`entities_id`='".$_SESSION['glpiactive_entity']."') OR "
-              . "(`glpi_plugin_fusioninventory_deploypackages_entities`.`entities_id` IN "
-              . "('".implode("','", getAncestorsOf('glpi_entities', $_SESSION['glpiactive_entity']))."') "
-              . "AND `glpi_plugin_fusioninventory_deploypackages_entities`.`is_recursive`= '1') OR ";
-      // user
-      $where .= " `glpi_plugin_fusioninventory_deploypackages_users`.`users_id`='".$_SESSION['glpiID']."' OR ";
-      // profile
-      $where .= " `glpi_plugin_fusioninventory_deploypackages_profiles`.`profiles_id`='".$_SESSION['glpiactiveprofile']['id']."' ";
 
+      //Include entity
+      $where.= getEntitiesRestrictRequest('', 'glpi_plugin_fusioninventory_deploypackages_entities',
+                                                     'entities_id', $_SESSION['glpiactive_entity'], true);
+      //Include user
+      $where .= " OR `glpi_plugin_fusioninventory_deploypackages_users`.`users_id`='".$_SESSION['glpiID']."' OR ";
+
+      //Include profile
+      $where .= " `glpi_plugin_fusioninventory_deploypackages_profiles`.`profiles_id`='".$_SESSION['glpiactiveprofile']['id']."' ";
       $where .= " )";
 
       $query = "SELECT DISTINCT `".$table."`.*
