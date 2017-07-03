@@ -468,7 +468,7 @@ class DeploycheckTest extends RestoreDatabase_TestCase {
                  'unit'               => 'GB',
                  'return'             => 'info'
               ];
-      PluginFusioninventoryDeployCheck::add_item($params);
+      $check->add_item($params);
       $expected = '{"jobs":{"checks":[{"name":"Value exists","type":"winvalueExists","path":"HKLM\Software\FusionInventory-Agent\debug","value":"","return":"skip"},{"name":"More than 500 Mb","type":"freespaceGreater","path":"/tmp","value":"0.00047683715820312","return":"info"},{"name":"More than 5.5 Gb","type":"freespaceGreater","path":"/tmp","value":"5.2452087402344E-6","return":"info"}],"associatedFiles":[],"actions":[]},"associatedFiles":[]}';
       $json     = Toolbox::stripslashes_deep(PluginFusioninventoryDeployPackage::getJson($packages_id));
       $this->assertEquals($expected, $json);
