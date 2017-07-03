@@ -360,19 +360,19 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
    /**
     * @test
     */
-   public function getDefaultBehaviorForAButton() {
+   public function testGetDefaultBehaviorForAButton() {
       $template = new PluginFusioninventoryDeployUserinteractionTemplate();
-      $this->assertEquals('continue:continue', $this->getDefaultBehaviorForAButton('on_ok'));
-      $this->assertEquals('continue:continue', $this->getDefaultBehaviorForAButton('on_yes'));
-      $this->assertEquals('continue:continue', $this->getDefaultBehaviorForAButton('on_multiusers'));
-      $this->assertEquals('continue:continue', $this->getDefaultBehaviorForAButton('on_timeout'));
+      $this->assertEquals('continue:continue', $template->getDefaultBehaviorForAButton('on_ok'));
+      $this->assertEquals('continue:continue', $template->getDefaultBehaviorForAButton('on_yes'));
+      $this->assertEquals('continue:continue', $template->getDefaultBehaviorForAButton('on_multiusers'));
+      $this->assertEquals('continue:continue', $template->getDefaultBehaviorForAButton('on_timeout'));
 
-      $this->assertEquals('stop:stop', $this->getDefaultBehaviorForAButton('on_no'));
-      $this->assertEquals('stop:stop', $this->getDefaultBehaviorForAButton('on_cancel'));
-      $this->assertEquals('stop:stop', $this->getDefaultBehaviorForAButton('on_abort'));
+      $this->assertEquals('stop:stop', $template->getDefaultBehaviorForAButton('on_no'));
+      $this->assertEquals('stop:stop', $template->getDefaultBehaviorForAButton('on_cancel'));
+      $this->assertEquals('stop:stop', $template->getDefaultBehaviorForAButton('on_abort'));
 
-      $this->assertEquals('stop:postpone', $this->getDefaultBehaviorForAButton('on_retry'));
-      $this->assertEquals('stop:postpone', $this->getDefaultBehaviorForAButton('on_ignore'));
+      $this->assertEquals('stop:postpone', $template->getDefaultBehaviorForAButton('on_retry'));
+      $this->assertEquals('stop:postpone', $template->getDefaultBehaviorForAButton('on_ignore'));
 
    }
 }
