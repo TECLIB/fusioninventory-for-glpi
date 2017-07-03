@@ -374,7 +374,7 @@ function plugin_init_fusioninventory() {
          $PLUGIN_HOOKS["menu_toadd"]['fusioninventory']['assets'] = 'PluginFusioninventoryUnmanaged';
       }
       if (Session::haveRight('plugin_fusioninventory_menu', READ)) {
-         $PLUGIN_HOOKS["menu_toadd"]['fusioninventory']['plugins'] = 'PluginFusioninventoryMenu';
+         $PLUGIN_HOOKS["menu_toadd"]['fusioninventory']['admin'] = 'PluginFusioninventoryMenu';
       }
 
       // For end users
