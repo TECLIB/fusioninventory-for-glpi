@@ -532,7 +532,6 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
       );
 
       $log->add($log_input);
-
       $this->update(array(
          'id' => $this->fields['id'],
          'state' => self::CANCELLED
@@ -565,6 +564,18 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
                     $data['plugin_fusioninventory_taskjobstates_id']."'";
             $DB->query($sql_delete);
          }
+      }
+   }
+
+   /**
+   * Fill a taskjobstate by it's uuid
+   * @since 9.2
+   * @param uniqid taskjobstate's uniqid
+   */
+   function getFromDBByUniqID($uniqid) {
+      $result = $this->find("`uniqid`='$uniqid'");
+      if (!empty($result)) {
+         $this->fields = array_pop($result);
       }
    }
 }
