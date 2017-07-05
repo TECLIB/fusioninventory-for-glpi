@@ -5328,12 +5328,16 @@ function do_deploypackage_migration($migration) {
  * @param object $migration
  */
 function do_deploymirror_migration($migration) {
+   global $DB;
 
    /*
     * glpi_plugin_fusioninventory_deploymirrors
     */
 
    $a_table = array();
+
+   $is_active_exists = (FieldExists('glpi_plugin_fusioninventory_deploymirrors',
+                                    'is_active'));
 
    //table name
    $a_table['name'] = 'glpi_plugin_fusioninventory_deploymirrors';
@@ -5414,6 +5418,13 @@ function do_deploymirror_migration($migration) {
    );
 
    migrateTablesFusionInventory($migration, $a_table);
+
+   //During migration, once the is_active field is added,
+   //all mirrors must be active to keep compatibility
+   if (!$is_active_exists) {
+      $query = "UPDATE `glpi_plugin_fusioninventory_deploymirrors` SET `is_active`='1'";
+      $DB->query($query);
+   }
 }
 
 
