@@ -230,7 +230,7 @@ switch (filter_input(INPUT_GET, "action")) {
 
       //The user who did the interaction
       $user    = filter_input(INPUT_GET, "user");
-
+Toolbox::logDebug($_GET);
       //Process response if an agent provides a behavior, a type and an event
       //the user parameter is not mandatory
       if (isset($behavior) && isset($type) && isset($event)) {

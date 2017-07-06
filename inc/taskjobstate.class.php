@@ -519,6 +519,8 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
    function postpone($reason='') {
       $this->changeState(PluginFusioninventoryTaskjoblog::TASK_INFO,
                          self::POSTPONE, $reason);
+
+       $this->updateMaxRetryCounter();
    }
 
    /**
@@ -539,9 +541,7 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
       ];
 
       $log->add($log_input);
-      if ($this->update([ 'id' => $this->fields['id'], 'state' => $state])) {
-         $this->updateMaxRetryCounter($this->getID());
-      }
+      $this->update([ 'id' => $this->fields['id'], 'state' => $state]);
    }
 
 
@@ -549,14 +549,20 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
     * Update the number of retry counter for a jobstate
     *
     *  @since 9.2
-    * @params integer $jobstates_id the job state ID
     */
-   private function updateMaxRetryCounter($jobstates_id) {
-      if ($this->getFromDB($jobstates_id)) {
-         $params['nb_retry'] += $this->fields['nb_retry'];
-         $params['id'] = $jobstates_id;
-         $this->update($params);
-      }
+   private function updateMaxRetryCounter() {
+      $params['nb_retry'] += $this->fields['nb_retry'];
+      $params['id'] = $this->getID();
+      $this->update($params);
+   }
+
+   /**
+    * Update the next run date for the job
+    *
+    *  @since 9.2
+    */
+   private function updateNextJobNextRun() {
+
    }
 
    /**
