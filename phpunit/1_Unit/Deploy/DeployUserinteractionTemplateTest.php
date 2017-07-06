@@ -269,8 +269,8 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
    function testGetBehaviorsFields() {
       $template = new PluginFusioninventoryDeployUserinteractionTemplate();
       $expected = ['on_timeout', 'on_nouser', 'on_multiusers', 'on_ok', 'on_no',
-                   'on_yes', 'on_cancel', 'on_abort', 'on_retry', 'on_ignore',
-                   'on_continue'];
+                   'on_yes', 'on_cancel', 'on_abort', 'on_retry', 'on_tryagain',
+                   'on_ignore', 'on_continue'];
       $this->assertEquals($expected, $template->getBehaviorsFields());
    }
 
@@ -283,8 +283,8 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
       $expected = ['platform', 'timeout', 'buttons', 'icon',
                    'retry_after', 'nb_max_retry',
                    'on_timeout', 'on_nouser', 'on_multiusers', 'on_ok', 'on_no',
-                   'on_yes', 'on_cancel', 'on_abort', 'on_retry', 'on_ignore',
-                   'on_continue'];
+                   'on_yes', 'on_cancel', 'on_abort', 'on_retry', 'on_tryagain',
+                   'on_ignore', 'on_continue'];
       $this->assertEquals($expected, $template->getJsonFields());
    }
 
@@ -293,7 +293,7 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
     */
    public function testInitializeJsonFields() {
       $template = new PluginFusioninventoryDeployUserinteractionTemplate();
-      $this->assertEquals(17, count($template->initializeJsonFields([])));
+      $this->assertEquals(18, count($template->initializeJsonFields([])));
    }
 
    /**
@@ -301,7 +301,7 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
     */
    public function testGetEvents() {
       $template = new PluginFusioninventoryDeployUserinteractionTemplate();
-      $this->assertEquals(11, count($template->getEvents()));
+      $this->assertEquals(12, count($template->getEvents()));
    }
 
    /**
@@ -337,7 +337,7 @@ class DeployUserinteractionTemplateTest extends RestoreDatabase_TestCase {
                            $template->getBehaviorsToDisplay('retrycancel'));
 
       $this->assertEquals(['on_timeout', 'on_nouser', 'on_multiusers',
-                           'on_retry', 'on_cancel', 'on_continue'],
+                           'on_tryagain', 'on_cancel', 'on_continue'],
                            $template->getBehaviorsToDisplay('canceltrycontinue'));
 
    }
