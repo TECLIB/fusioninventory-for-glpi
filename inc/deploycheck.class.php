@@ -49,6 +49,8 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
+require_once 'deploypackageitem.class.php';
+
 /**
  * Manage the checks before deploy a package.
  */
