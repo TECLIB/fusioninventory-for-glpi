@@ -236,6 +236,7 @@ switch (filter_input(INPUT_GET, "action")) {
       if (isset($behavior) && isset($type) && isset($event)) {
          $interaction    = new PluginFusioninventoryDeployUserinteraction();
          $cancel         = false;
+         $postpone       = false;
          $params['msg']  = $interaction->getLogMessage($behavior, $type, $event,
                                                        $user);
          switch ($behavior) {
@@ -250,6 +251,7 @@ switch (filter_input(INPUT_GET, "action")) {
 
             case PluginFusioninventoryDeployUserinteraction::RESPONSE_POSTPONE:
                $params['code'] = 'running';
+               $postpone = true;
                break;
 
             case PluginFusioninventoryDeployUserinteraction::RESPONSE_BAD_EVENT:
@@ -261,10 +263,14 @@ switch (filter_input(INPUT_GET, "action")) {
          PluginFusioninventoryCommunicationRest::updateLog($params);
 
          //If needed : cancel the job
-         if ($cancel) {
+         if ($cancel || $postpone) {
             $taskstate = new PluginFusioninventoryTaskjobstate();
             $taskstate->getFromDBByUniqID($params['uuid']);
-            $taskstate->cancel();
+            if ($cancel) {
+               $taskstate->cancel();
+            } else {
+               $taskstate->postpone();
+            }
          }
    }
 }

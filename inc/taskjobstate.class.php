@@ -144,7 +144,7 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
          self::FINISHED             => __('Finished', 'fusioninventory'),
          self::IN_ERROR             => __('Error' , 'fusioninventory'),
          self::CANCELLED            => __('Cancelled', 'fusioninventory'),
-         self::RESCHEDULED          => __('Rescheduled', 'fusioninventory')         
+         self::RESCHEDULED          => __('Rescheduled', 'fusioninventory')
       );
    }
 
@@ -495,21 +495,8 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
     * @param string $reason
     */
    function fail($reason='') {
-      $log = new PluginFusioninventoryTaskjoblog();
-
-      $log_input = array(
-         'plugin_fusioninventory_taskjobstates_id' => $this->fields['id'],
-         'items_id' => $this->fields['items_id'],
-         'itemtype' => $this->fields['itemtype'],
-         'date' => date("Y-m-d H:i:s"),
-         'state' => PluginFusioninventoryTaskjoblog::TASK_ERROR,
-         'comment' => Toolbox::addslashes_deep($reason)
-      );
-      $log->add($log_input);
-      $this->update(array(
-         'id' => $this->fields['id'],
-         'state' => self::IN_ERROR
-         ));
+      $this->changeState(PluginFusioninventoryTaskjoblog::TASK_ERROR,
+                         self::IN_ERROR, $reason);
    }
 
 
@@ -520,25 +507,57 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
     * @param string $reason
     */
    function cancel($reason='') {
+      $this->changeState(PluginFusioninventoryTaskjoblog::TASK_INFO,
+                         self::CANCELLED, $reason);
+   }
 
-      $log = new PluginFusioninventoryTaskjoblog();
-      $log_input = array(
-         'plugin_fusioninventory_taskjobstates_id' => $this->fields['id'],
-         'items_id' => $this->fields['items_id'],
-         'itemtype' => $this->fields['itemtype'],
-         'date' => date("Y-m-d H:i:s"),
-         'state' => PluginFusioninventoryTaskjoblog::TASK_INFO,
-         'comment' => Toolbox::addslashes_deep($reason)
-      );
+   /**
+    * Cancel a taskjob
+    *
+    * @param string $reason
+    */
+   function postpone($reason='') {
+      $this->changeState(PluginFusioninventoryTaskjoblog::TASK_INFO,
+                         self::POSTPONE, $reason);
+   }
+
+   /**
+    * Cancel a taskjob
+    *
+    * @param string $reason
+    */
+   function changeState($log_state, $state, $reason='') {
+
+      $log       = new PluginFusioninventoryTaskjoblog();
+      $log_input = [
+                     'plugin_fusioninventory_taskjobstates_id' => $this->fields['id'],
+                     'items_id' => $this->fields['items_id'],
+                     'itemtype' => $this->fields['itemtype'],
+                     'date'     => date("Y-m-d H:i:s"),
+                     'state'    => $state,
+                     'comment'  => Toolbox::addslashes_deep($reason)
+      ];
 
       $log->add($log_input);
-      $this->update(array(
-         'id' => $this->fields['id'],
-         'state' => self::CANCELLED
-         ));
+      if ($this->update([ 'id' => $this->fields['id'], 'state' => $state])) {
+         $this->updateMaxRetryCounter($this->getID());
+      }
    }
 
 
+   /**
+    * Update the number of retry counter for a jobstate
+    *
+    *  @since 9.2
+    * @params integer $jobstates_id the job state ID
+    */
+   private function updateMaxRetryCounter($jobstates_id) {
+      if ($this->getFromDB($jobstates_id)) {
+         $params['nb_retry'] += $this->fields['nb_retry'];
+         $params['id'] = $jobstates_id;
+         $this->update($params);
+      }
+   }
 
    /**
     * Cron task: clean taskjob (retention time)

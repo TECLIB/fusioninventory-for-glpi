@@ -6486,6 +6486,9 @@ function do_taskjobstate_migration($migration) {
    $a_table['fields']['date_rescheduled'] = ['type'    => 'datetime',
                                              'value'   => NULL];
 
+  $a_table['fields']['nb_retry']          = ['type'    => 'integer',
+                                             'value'   => NULL];
+
    $a_table['oldfields']  = [];
 
    $a_table['renamefields'] = [];
