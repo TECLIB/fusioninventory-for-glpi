@@ -53,7 +53,7 @@ if (!defined('GLPI_ROOT')) {
 * in a package
 * @since 9.2
 */
-abstract class PluginFusioninventoryDeployPackageItem extends CommonDBTM {
+class PluginFusioninventoryDeployPackageItem extends CommonDBTM {
 
    //Display modes
    const CREATE      = 'create';
@@ -64,18 +64,6 @@ abstract class PluginFusioninventoryDeployPackageItem extends CommonDBTM {
 
    //The section name in the JSON representation
    public $json_name = '';
-
-   //Add a new item
-   abstract function add_item($params);
-
-   //Save an existing idem
-   abstract function save_item($params);
-
-   abstract function displayAjaxValues($config, $request_data, $rand, $mode);
-
-   abstract function displayList(PluginFusioninventoryDeployPackage $package, $data, $rand);
-
-   abstract function getTypes();
 
    /**
     * Get an event label by it's identifier
