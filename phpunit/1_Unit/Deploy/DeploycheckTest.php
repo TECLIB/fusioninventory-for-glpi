@@ -50,7 +50,7 @@ class DeploycheckTest extends RestoreDatabase_TestCase {
       $check = new PluginFusioninventoryDeployCheck();
       $types = $check->getTypes();
       $this->assertEquals(3, count($types));
-      $this->assertEquals(6, count($types[__('Registry', 'fusioninventory')]));
+      $this->assertEquals(7, count($types[__('Registry', 'fusioninventory')]));
       $this->assertEquals(7, count($types[__('File')]));
       $this->assertEquals(1, count($types[__('Other')]));
 
@@ -277,6 +277,15 @@ class DeploycheckTest extends RestoreDatabase_TestCase {
                   ];
       $this->assertEquals($result, $expected);
 
+      //----------- winkeyNotEquals --------------------------//
+      $result = $check->getLabelsAndTypes('winkeyNotEquals', false);
+      $expected = ['path_label'   => 'Path to the value',
+                   'value_label'  => 'Value',
+                   'path_comment' => 'Example of registry value: HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\server',
+                   'warning_message' => 'Fusioninventory-Agent 2.3.21 or higher mandatory',
+                  ];
+      $this->assertEquals($result, $expected);
+
       //----------- winvalueType --------------------------//
       $result   = $check->getLabelsAndTypes('winvalueType', false);
       $expected = ['path_label'      => 'Path to the value',
@@ -401,12 +410,12 @@ class DeploycheckTest extends RestoreDatabase_TestCase {
    * @test
    */
    public function testGetAllReturnValues() {
-      $check    = new PluginFusioninventoryDeployCheck();
-      $values   = $check->getAllReturnValues();
-      $expected = ["error"   => __('abort job', 'fusioninventory'),
-                  "skip"     => __("skip job", 'fusioninventory'),
-                  "info"     => __("report info", 'fusioninventory'),
-                  "warning"  => __("report warning", 'fusioninventory')
+      $check  = new PluginFusioninventoryDeployCheck();
+      $values = $check->getAllReturnValues();
+      $expected = ["error"    => __('abort job', 'fusioninventory'),
+                   "skip"     => __("skip job", 'fusioninventory'),
+                   "info"     => __("report info", 'fusioninventory'),
+                   "warning"  => __("report warning", 'fusioninventory')
                ];
       $this->assertEquals($values, $expected);
    }
@@ -456,35 +465,35 @@ class DeploycheckTest extends RestoreDatabase_TestCase {
                  'return'             => 'info'
               ];
       $check->add_item($params);
-      $expected = '{"jobs":{"checks":[{"name":"Value exists","type":"winvalueExists","path":"HKLM\Software\FusionInventory-Agent\debug","value":"","return":"skip"},{"name":"More than 500 Mb","type":"freespaceGreater","path":"/tmp","value":"500","return":"info"}],"associatedFiles":[],"actions":[],"userinteractions":[]},"associatedFiles":[]}';
+      $expected = '{"jobs":{"checks":[{"name":"Value exists","type":"winvalueExists","path":"HKLM\Software\FusionInventory-Agent\debug","value":"","return":"skip"},{"name":"More than 500 Mb","type":"freespaceGreater","path":"/tmp","value":"0.00047683715820312","return":"info"}],"associatedFiles":[],"actions":[],"userinteractions":[]},"associatedFiles":[]}';
       $json     = Toolbox::stripslashes_deep($check->getJson($packages_id));
       $this->assertEquals($expected, $json);
 
       $params = ['id'                 => $packages_id,
                  'name'               => 'More than 5.5 Gb',
-                 'deploy_checktype'   => 'freespaceGreater',
+                 'checkstype'         => 'freespaceGreater',
                  'path'               => '/tmp',
                  'value'              => '5.5',
                  'unit'               => 'GB',
                  'return'             => 'info'
               ];
       $check->add_item($params);
-      $expected = '{"jobs":{"checks":[{"name":"Value exists","type":"winvalueExists","path":"HKLM\Software\FusionInventory-Agent\debug","value":"","return":"skip"},{"name":"More than 500 Mb","type":"freespaceGreater","path":"/tmp","value":"0.00047683715820312","return":"info"},{"name":"More than 5.5 Gb","type":"freespaceGreater","path":"/tmp","value":"5.2452087402344E-6","return":"info"}],"associatedFiles":[],"actions":[]},"associatedFiles":[]}';
-      $json     = Toolbox::stripslashes_deep(PluginFusioninventoryDeployPackage::getJson($packages_id));
+      $expected = '{"jobs":{"checks":[{"name":"Value exists","type":"winvalueExists","path":"HKLM\Software\FusionInventory-Agent\debug","value":"","return":"skip"},{"name":"More than 500 Mb","type":"freespaceGreater","path":"/tmp","value":"0.00047683715820312","return":"info"},{"name":"More than 5.5 Gb","type":"freespaceGreater","path":"/tmp","value":"5.2452087402344E-6","return":"info"}],"associatedFiles":[],"actions":[],"userinteractions":[]},"associatedFiles":[]}';
+      $json     = Toolbox::stripslashes_deep($check->getJson($packages_id));
       $this->assertEquals($expected, $json);
 
       //Test that 5,5 is converted in 5.5 before computing the value in byte
       $params = ['id'                 => $packages_id,
                  'name'               => 'More than 5.5 Gb  #2',
-                 'deploy_checktype'   => 'freespaceGreater',
+                 'checkstype'         => 'freespaceGreater',
                  'path'               => '/tmp',
                  'value'              => '5,5',
                  'unit'               => 'GB',
                  'return'             => 'info'
               ];
-      PluginFusioninventoryDeployCheck::add_item($params);
-      $expected = '{"jobs":{"checks":[{"name":"Value exists","type":"winvalueExists","path":"HKLM\Software\FusionInventory-Agent\debug","value":"","return":"skip"},{"name":"More than 500 Mb","type":"freespaceGreater","path":"/tmp","value":"0.00047683715820312","return":"info"},{"name":"More than 5.5 Gb","type":"freespaceGreater","path":"/tmp","value":"5.2452087402344E-6","return":"info"},{"name":"More than 5.5 Gb  #2","type":"freespaceGreater","path":"/tmp","value":"5.2452087402344E-6","return":"info"}],"associatedFiles":[],"actions":[]},"associatedFiles":[]}';
-      $json     = Toolbox::stripslashes_deep(PluginFusioninventoryDeployPackage::getJson($packages_id));
+      $check->add_item($params);
+      $expected = '{"jobs":{"checks":[{"name":"Value exists","type":"winvalueExists","path":"HKLM\Software\FusionInventory-Agent\debug","value":"","return":"skip"},{"name":"More than 500 Mb","type":"freespaceGreater","path":"/tmp","value":"0.00047683715820312","return":"info"},{"name":"More than 5.5 Gb","type":"freespaceGreater","path":"/tmp","value":"5.2452087402344E-6","return":"info"},{"name":"More than 5.5 Gb  #2","type":"freespaceGreater","path":"/tmp","value":"5.2452087402344E-6","return":"info"}],"associatedFiles":[],"actions":[],"userinteractions":[]},"associatedFiles":[]}';
+      $json     = Toolbox::stripslashes_deep($check->getJson($packages_id));
       $this->assertEquals($expected, $json);
 
       //Test that a float value like 9.20 is not converted in 9.2
@@ -497,7 +506,7 @@ class DeploycheckTest extends RestoreDatabase_TestCase {
                  'return'             => 'info'
               ];
       $check->add_item($params);
-      $expected = '{"jobs":{"checks":[{"name":"Value exists","type":"winvalueExists","path":"HKLM\Software\FusionInventory-Agent\debug","value":"","return":"skip"},{"name":"More than 500 Mb","type":"freespaceGreater","path":"/tmp","value":"500","return":"info"},{"name":"Test with float","type":"winkeyEquals","path":"HKEY_LOCAL_MACHINE\SOFTWARE\FusionInventory-Agent\debug","value":"9.20","return":"info"}],"associatedFiles":[],"actions":[],"userinteractions":[]},"associatedFiles":[]}';
+      $expected = '{"jobs":{"checks":[{"name":"Value exists","type":"winvalueExists","path":"HKLM\Software\FusionInventory-Agent\debug","value":"","return":"skip"},{"name":"More than 500 Mb","type":"freespaceGreater","path":"/tmp","value":"0.00047683715820312","return":"info"},{"name":"More than 5.5 Gb","type":"freespaceGreater","path":"/tmp","value":"5.2452087402344E-6","return":"info"},{"name":"More than 5.5 Gb  #2","type":"freespaceGreater","path":"/tmp","value":"5.2452087402344E-6","return":"info"},{"name":"Test with float","type":"winkeyEquals","path":"HKEY_LOCAL_MACHINE\SOFTWARE\FusionInventory-Agent\debug","value":"9.20","return":"info"}],"associatedFiles":[],"actions":[],"userinteractions":[]},"associatedFiles":[]}';
       $json     = Toolbox::stripslashes_deep($check->getJson($packages_id));
       $this->assertEquals($expected, $json);
 

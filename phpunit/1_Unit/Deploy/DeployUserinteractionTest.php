@@ -118,23 +118,6 @@ class DeployUserinteractionTest extends RestoreDatabase_TestCase {
       ];
       $this->assertEquals($expected, $values);
 
-      $data        = ['name' => 'foo', 'title' => 'title', 'text' => 'Hello$#r$#nfoo$#r$#nThank you!', 'template' => 1];
-      $values      = $interaction->getValues([], $data, 'edit');
-      $expected    = ['name_value'        => 'foo',
-                      'name_label'        => 'Interaction label',
-                      'name_type'         => 'input',
-                      'title_label'       => 'Title&nbsp;<span class=\'red\'>*</span>',
-                      'title_value'       => 'title',
-                      'title_type'        => 'input',
-                      'description_label' => 'Message',
-                      'description_type'  => 'text',
-                      'description_value' => 'Hello\r\nfoo\r\nThank you!',
-                      'template_label'    => 'User interaction template&nbsp;<span class=\'red\'>*</span>',
-                      'template_value'    => 1,
-                      'template_type'     => 'dropdown'
-                  ];
-      $this->assertEquals($expected, $values);
-
    }
 
    /**

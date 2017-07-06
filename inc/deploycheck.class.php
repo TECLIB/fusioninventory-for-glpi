@@ -70,6 +70,7 @@ class PluginFusioninventoryDeployCheck extends PluginFusioninventoryDeployPackag
                   'winkeyMissing'      => __("Registry key missing", 'fusioninventory'),
                   'winvalueMissing'    => __("Registry value missing", 'fusioninventory'),
                   'winkeyEquals'       => __("Registry value equals to", 'fusioninventory'),
+                  'winkeyNotEquals'    => __("Registry value not equals to", 'fusioninventory'),
                   'winvalueType'       => __("Type of registry value equals to", 'fusioninventory')
                ],
                __('File') => [
@@ -328,7 +329,7 @@ class PluginFusioninventoryDeployCheck extends PluginFusioninventoryDeployPackag
             $values['path_label']         = __("Path to the key", 'fusioninventory').$mandatory_mark;
             $values['value_label']     = false;
             $values['path_comment']    = __('Example of registry key').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\\';
-            $values['warning_message'] = __('Fusioninventory-Agent 2.3.20 or higher recommended');
+            $values['warning_message'] = sprintf(__('Fusioninventory-Agent %1s or higher recommended'), '2.3.20');
             break;
 
          case "winvalueExists":
@@ -336,14 +337,19 @@ class PluginFusioninventoryDeployCheck extends PluginFusioninventoryDeployPackag
             $values['path_label']      = __("Path to the value", 'fusioninventory').$mandatory_mark;
             $values['value_label']     = false;
             $values['path_comment']    = __('Example of registry value').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\server';
-            $values['warning_message'] = __('Fusioninventory-Agent 2.3.20 or higher mandatory');
+            $values['warning_message'] = sprintf(__('Fusioninventory-Agent %1s or higher mandatory'), '2.3.20');
             break;
 
          case "winkeyEquals":
+         case "winkeyNotEquals":
             $values['path_label']      = __("Path to the value", 'fusioninventory').$mandatory_mark;
             $values['value_label']     = __('Value', 'fusioninventory');
             $values['path_comment']    = __('Example of registry value').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\server';
-            $values['warning_message'] = __('Fusioninventory-Agent 2.3.20 or higher recommended');
+            if ($check_type == 'winkeyEquals') {
+               $values['warning_message'] = sprintf(__('Fusioninventory-Agent %1s or higher recommended'), '2.3.20');
+            } else {
+               $values['warning_message'] = sprintf(__('Fusioninventory-Agent %1s or higher mandatory'), '2.3.21');
+            }
             break;
 
          case "winvalueType":
@@ -351,7 +357,7 @@ class PluginFusioninventoryDeployCheck extends PluginFusioninventoryDeployPackag
             $values['value_label']     = __('Type of value', 'fusioninventory').$mandatory_mark;
             $values['value_type']      = 'registry_type';
             $values['path_comment']    = __('Example of registry value').': HKEY_LOCAL_MACHINE\SOFTWARE\Fusioninventory-Agent\server';
-            $values['warning_message'] = __('Fusioninventory-Agent 2.3.20 or higher mandatory');            break;
+            $values['warning_message'] = sprintf(__('Fusioninventory-Agent %1s or higher mandatory'), '2.3.20');            break;
 
          case "fileExists":
          case "fileMissing":
@@ -562,25 +568,22 @@ class PluginFusioninventoryDeployCheck extends PluginFusioninventoryDeployPackag
     *
     * @param array $params list of fields with value of the check
     */
-   function add_item($params) {
+    function add_item($params) {
       if (!isset($params['value'])) {
          $params['value'] = "";
       }
       if (!isset($params['name'])) {
          $params['name'] = "";
       }
-
       if (!empty($params['value'])
          && is_numeric($params['value'])
             && !empty($params['unit'])) {
          $params['value'] = $params['value'] * $this->getUnitSize($params['unit']);
-
          //Make an exception for freespaceGreater check which is saved as MiB
          if ($params['checkstype'] == "freespaceGreater") {
             $params['value'] = $params['value'] / (1024*1024);
          }
       }
-
       //prepare new check entry to insert in json
       $entry = [
          'name'   => $params['name'],
@@ -589,11 +592,9 @@ class PluginFusioninventoryDeployCheck extends PluginFusioninventoryDeployPackag
          'value'  => strval($params['value']),
          'return' => $params['return']
       ];
-
       //Add to package defintion
       $this->addToPackage($params['id'], $entry, 'checks');
    }
-
 
 
    /**
@@ -601,23 +602,20 @@ class PluginFusioninventoryDeployCheck extends PluginFusioninventoryDeployPackag
     *
     * @param array $params list of fields with value of the check
     */
-   function save_item($params) {
+    function save_item($params) {
       if (!isset($params['value'])) {
          $params['value'] = "";
       }
       if (!isset($params['name'])) {
          $params['name'] = "";
       }
-
       if (!empty($params['value']) && is_numeric($params['value'])) {
          $params['value'] = $params['value'] * $this->getUnitSize($params['unit']);
-
          //Make an exception for freespaceGreater check which is saved as MiB
          if ($params['checkstype'] == "freespaceGreater") {
             $params['value'] = $params['value'] / (1024 * 1024);
          }
       }
-
       //prepare updated check entry to insert in json
       $entry = [
          'name'   => $params['name'],
@@ -626,9 +624,7 @@ class PluginFusioninventoryDeployCheck extends PluginFusioninventoryDeployPackag
          'value'  => $params['value'],
          'return' => $params['return']
       ];
-
       $data = $this->prepareDataToSave($params, $entry);
-
       //update order
       $this->updateOrderJson($params['id'], $data);
    }
