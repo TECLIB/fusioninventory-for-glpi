@@ -6520,12 +6520,19 @@ function do_taskjobstate_migration($migration) {
   $a_table['fields']['max_retry']         = ['type'    => 'integer',
                                              'value'   => NULL];
 
+  $a_table['fields']['is_rescheduled']    = ['type'    => 'bool',
+                                             'value'   => NULL];
+
    $a_table['oldfields']  = [];
 
    $a_table['renamefields'] = [];
 
    $a_table['keys']   = [];
    $a_table['keys'][] = ['field' => 'date_rescheduled',
+                         'name'  => '',
+                         'type'  => 'INDEX'
+                        ];
+   $a_table['keys'][] = ['field' => 'is_rescheduled',
                          'name'  => '',
                          'type'  => 'INDEX'
                         ];
