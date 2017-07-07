@@ -230,7 +230,7 @@ switch (filter_input(INPUT_GET, "action")) {
 
       //The user who did the interaction
       $user    = filter_input(INPUT_GET, "user");
-Toolbox::logDebug($_GET);
+
       //Process response if an agent provides a behavior, a type and an event
       //the user parameter is not mandatory
       if (isset($behavior) && isset($type) && isset($event)) {
@@ -242,7 +242,7 @@ Toolbox::logDebug($_GET);
          switch ($behavior) {
             case PluginFusioninventoryDeployUserinteraction::RESPONSE_STOP:
                $params['code'] = 'ko';
-               $cancel = true;
+               $cancel         = true;
                break;
 
             case PluginFusioninventoryDeployUserinteraction::RESPONSE_CONTINUE:
@@ -251,7 +251,7 @@ Toolbox::logDebug($_GET);
 
             case PluginFusioninventoryDeployUserinteraction::RESPONSE_POSTPONE:
                $params['code'] = 'running';
-               $postpone = true;
+               $postpone       = true;
                break;
 
             case PluginFusioninventoryDeployUserinteraction::RESPONSE_BAD_EVENT:
@@ -269,7 +269,8 @@ Toolbox::logDebug($_GET);
             if ($cancel) {
                $taskstate->cancel();
             } else {
-               $taskstate->postpone();
+               $taskstate->postpone($type,
+                                    __('Job postponed', 'fusioninventory'));
             }
          }
    }

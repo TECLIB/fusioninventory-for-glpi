@@ -108,7 +108,7 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
     *
     * @var integer
     */
-   const RESCHEDULED = 6;
+   const POSTPONED = 6;
 
    /**
     * Initialize the public method
@@ -137,15 +137,15 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
     * @return array
     */
    static function getStateNames() {
-      return array(
+      return [
          self::PREPARED             => __('Prepared', 'fusioninventory'),
          self::SERVER_HAS_SENT_DATA => __('Server has sent data to the agent', 'fusioninventory'),
          self::AGENT_HAS_SENT_DATA  => __('Agent replied with data to the server', 'fusioninventory'),
          self::FINISHED             => __('Finished', 'fusioninventory'),
          self::IN_ERROR             => __('Error' , 'fusioninventory'),
          self::CANCELLED            => __('Cancelled', 'fusioninventory'),
-         self::RESCHEDULED          => __('Rescheduled', 'fusioninventory')
-      );
+         self::POSTPONED            => __('Postponed', 'fusioninventory')
+      ];
    }
 
 
@@ -181,7 +181,7 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
    *
    **/
    function stateTaskjob ($taskjobs_id, $width=930, $return='html', $style='') {
-      $state = array();
+      $state    = [];
       $state[0] = 0;
       $state[1] = 0;
       $state[2] = 0;
@@ -339,8 +339,8 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
     * @param integer $state state to set
     */
    function changeStatus($id, $state) {
-      $input = array();
-      $input['id'] = $id;
+      $input          = [];
+      $input['id']    = $id;
       $input['state'] = $state;
       $this->update($input);
    }
@@ -354,8 +354,8 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
     */
    function getTaskjobsAgent($agent_id) {
 
-      $pfTaskjob = new PluginFusioninventoryTaskjob();
-      $moduleRun = array();
+      $pfTaskjob       = new PluginFusioninventoryTaskjob();
+      $moduleRun       = [];
       $a_taskjobstates = $this->find("`plugin_fusioninventory_agents_id`='".$agent_id.
                                      "' AND `state`='".self::PREPARED."'",
                                      "`id`");
@@ -386,14 +386,14 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
       $id = null;
       $last_date = null;
 
-      if (isset($params['id']) and $params['id'] > 0) {
+      if (isset($params['id']) && $params['id'] > 0) {
          $id = $params['id'];
       }
       if (isset($params['last_date'])) {
          $last_date = $params['last_date'];
       }
 
-      if (!is_null($id) and !is_null($last_date)) {
+      if (!is_null($id) && !is_null($last_date)) {
          echo json_encode($this->getLogs($id, $last_date));
       }
    }
@@ -430,10 +430,10 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
                   AND log.`date` <= '$last_date'
                ORDER BY log.`id` DESC";
 
-      $res = $DB->query($query);
+      $res  = $DB->query($query);
       $logs = [];
       while ($result = $res->fetch_row()) {
-         $run_id = $result[$fields['run.id']];
+         $run_id         = $result[$fields['run.id']];
          $logs['run']    = $run_id;
          $logs['logs'][] = [
             'log.id'      => $result[$fields['log.id']],
@@ -459,28 +459,28 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
    function changeStatusFinish($taskjobstates_id, $items_id, $itemtype, $error=0, $message='') {
 
       $pfTaskjoblog = new PluginFusioninventoryTaskjoblog();
-      $pfTaskjob = new PluginFusioninventoryTaskjob();
+      $pfTaskjob    = new PluginFusioninventoryTaskjob();
 
       $this->getFromDB($taskjobstates_id);
-      $input = array();
-      $input['id'] = $this->fields['id'];
+      $input          = [];
+      $input['id']    = $this->fields['id'];
       $input['state'] = self::FINISHED;
 
-      $log_input = array();
+      $log_input = [];
       if ($error == "1") {
          $log_input['state'] = PluginFusioninventoryTaskjoblog::TASK_ERROR;
-         $input['state'] = self::IN_ERROR;
+         $input['state']     = self::IN_ERROR;
       } else {
          $log_input['state'] = PluginFusioninventoryTaskjoblog::TASK_OK;
-         $input['state'] = self::FINISHED;
+         $input['state']     = self::FINISHED;
       }
 
       $this->update($input);
       $log_input['plugin_fusioninventory_taskjobstates_id'] = $taskjobstates_id;
       $log_input['items_id'] = $items_id;
       $log_input['itemtype'] = $itemtype;
-      $log_input['date'] = date("Y-m-d H:i:s");
-      $log_input['comment'] = $message;
+      $log_input['date']     = date("Y-m-d H:i:s");
+      $log_input['comment']  = $message;
       $log_input = Toolbox::addslashes_deep($log_input);
       $pfTaskjoblog->add($log_input);
 
@@ -516,11 +516,11 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
     *
     * @param string $reason
     */
-   function postpone($reason='') {
+   function postpone($type, $reason='') {
       $this->changeState(PluginFusioninventoryTaskjoblog::TASK_INFO,
-                         self::POSTPONE, $reason);
+                         self::POSTPONED, $reason);
 
-       $this->updateMaxRetryCounter();
+       $this->updateJobStateFromTemplate($type);
    }
 
    /**
@@ -529,14 +529,13 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
     * @param string $reason
     */
    function changeState($log_state, $state, $reason='') {
-
       $log       = new PluginFusioninventoryTaskjoblog();
       $log_input = [
                      'plugin_fusioninventory_taskjobstates_id' => $this->fields['id'],
                      'items_id' => $this->fields['items_id'],
                      'itemtype' => $this->fields['itemtype'],
                      'date'     => date("Y-m-d H:i:s"),
-                     'state'    => $state,
+                     'state'    => $log_state,
                      'comment'  => Toolbox::addslashes_deep($reason)
       ];
 
@@ -544,25 +543,43 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
       $this->update([ 'id' => $this->fields['id'], 'state' => $state]);
    }
 
-
    /**
-    * Update the number of retry counter for a jobstate
+    * Get the next run date for the job
     *
     *  @since 9.2
+    * @param string type the action performed by the agent
     */
-   private function updateMaxRetryCounter() {
-      $params['nb_retry'] += $this->fields['nb_retry'];
-      $params['id'] = $this->getID();
-      $this->update($params);
-   }
+   private function updateJobStateFromTemplate($type) {
+      $pfDeployUserInteraction = new PluginFusioninventoryDeployUserinteraction();
 
-   /**
-    * Update the next run date for the job
-    *
-    *  @since 9.2
-    */
-   private function updateNextJobNextRun() {
+      //Let's browse all user interactions
+      foreach ($pfDeployUserInteraction->getItemValues($this->fields['items_id']) as $interaction) {
 
+         //Look for the user interaction that matches our event
+         if ($interaction['type'] == $type && $interaction['template']) {
+            $params = [];
+
+            //Found, let's load the template
+            $template  = new PluginFusioninventoryDeployUserinteractionTemplate();
+            $template->getFromDB($interaction['template']);
+
+            //Get the template values
+            $template_values = $template->getValues();
+
+            //Compute the next run date for the job. Retry_after value is in seconds
+            $date = new \DateTime('+'.$template_values['retry_after'].' seconds');
+            $params['date_rescheduled'] = $date->format('Y-m-d H:i');
+
+            //Set the max number or retry
+            //(we set it each time a job is postponed because the value
+            //can change in the template)
+            $params['max_retry'] = $template_values['nb_max_retry'];
+            $params['nb_retry']  = $this->fields['nb_retry'] + 1;
+            $params['id']        = $this->getID();
+            $this->update($params);
+         }
+      }
+      return $params;
    }
 
    /**
@@ -573,9 +590,10 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
    static function cronCleantaskjob() {
       global $DB;
 
-      $config = new PluginFusioninventoryConfig();
-      $retentiontime = $config->getValue('delete_task');
+      $config         = new PluginFusioninventoryConfig();
+      $retentiontime  = $config->getValue('delete_task');
       $pfTaskjobstate = new PluginFusioninventoryTaskjobstate();
+
       $sql = "SELECT * FROM `glpi_plugin_fusioninventory_taskjoblogs`
          WHERE  `date` < date_add(now(), interval -".$retentiontime." day)
          GROUP BY `plugin_fusioninventory_taskjobstates_id`";

@@ -153,6 +153,9 @@ CREATE TABLE `glpi_plugin_fusioninventory_taskjoblogs` (
   `items_id` int(11) NOT NULL DEFAULT '0',
   `itemtype` varchar(100) DEFAULT NULL,
   `state` int(11) NOT NULL DEFAULT '0',
+  `date_rescheduled` datetime DEFAULT NULL,
+  `nb_retry` int(11) NOT NULL DEFAULT '0',
+  `max_retry` int(11) NOT NULL DEFAULT '0',
   `comment` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `plugin_fusioninventory_taskjobstates_id` (`plugin_fusioninventory_taskjobstates_id`,`state`)

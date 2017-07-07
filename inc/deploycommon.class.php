@@ -156,7 +156,7 @@ class PluginFusioninventoryDeployCommon extends PluginFusioninventoryCommunicati
                break;
 
             case 'PluginFusioninventoryDeployGroup':
-               $group = new PluginFusioninventoryDeployGroup;
+               $group = new PluginFusioninventoryDeployGroup();
                $group->getFromDB($items_id);
 
                switch ($group->getField('type')) {
@@ -237,7 +237,7 @@ class PluginFusioninventoryDeployCommon extends PluginFusioninventoryCommunicati
       //Remove duplicatas from array
       //We are using isset for faster processing than array_unique because we might have many
       //entries in this list.
-      $tmp_computers = array();
+      $tmp_computers = [];
       foreach ($computers as $computer) {
          if (!isset($tmp_computers[$computer])) {
             $tmp_computers[$computer] = 1;
@@ -245,7 +245,7 @@ class PluginFusioninventoryDeployCommon extends PluginFusioninventoryCommunicati
       }
       $computers = array_keys($tmp_computers);
 
-      $c_input= array();
+      $c_input = [];
       $c_input['plugin_fusioninventory_taskjobs_id'] = $job->fields['id'];
       $c_input['state']                              = 0;
       $c_input['plugin_fusioninventory_agents_id']   = 0;
@@ -260,11 +260,11 @@ class PluginFusioninventoryDeployCommon extends PluginFusioninventoryCommunicati
             $uniqid= uniqid();
             $package->getFromDB($definition['PluginFusioninventoryDeployPackage']);
 
-            $c_input['state'] = 0;
+            $c_input['state']    = 0;
             $c_input['itemtype'] = 'PluginFusioninventoryDeployPackage';
             $c_input['items_id'] = $package->fields['id'];
-            $c_input['date'] = date("Y-m-d H:i:s");
-            $c_input['uniqid'] = $uniqid;
+            $c_input['date']     = date("Y-m-d H:i:s");
+            $c_input['uniqid']   = $uniqid;
 
             //get agent for this computer
             $agents_id = $agent->getAgentWithComputerid($computer_id);
@@ -279,14 +279,15 @@ class PluginFusioninventoryDeployCommon extends PluginFusioninventoryCommunicati
                if ($agentmodule->isAgentCanDo('DEPLOY', $agents_id)) {
                   $c_input['plugin_fusioninventory_agents_id'] = $agents_id;
 
+                  $now = new Datetime();
                   $jobstates_running = $jobstate->find(
                      implode(" ",
-                        array(
+                        [
                            "    `itemtype` = 'PluginFusioninventoryDeployPackage'",
                            "AND `items_id` = ".$package->fields['id'],
                            "AND `state` <> " . PluginFusioninventoryTaskjobstate::FINISHED,
-                           "AND `plugin_fusioninventory_agents_id` = " . $agents_id
-                        )
+                           "AND `plugin_fusioninventory_agents_id` = " . $agents_id,
+                        ]
                      )
                   );
 
@@ -312,6 +313,7 @@ class PluginFusioninventoryDeployCommon extends PluginFusioninventoryCommunicati
       }
       if ($taskvalid > 0) {
          $job->fields['status']= 1;
+         Toolbox::logDebug($job->fields);
          $job->update($job->fields);
       } else {
          $job->reinitializeTaskjobs($job->fields['plugin_fusioninventory_tasks_id']);

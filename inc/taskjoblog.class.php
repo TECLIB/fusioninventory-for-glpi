@@ -112,7 +112,7 @@ class PluginFusioninventoryTaskjoblog extends CommonDBTM {
     */
    static function dropdownStateValues() {
 
-      $elements = array(
+      $elements = [
          self::TASK_PREPARED           => __('Prepared', 'fusioninventory'),
          self::TASK_STARTED            => __('Started', 'fusioninventory'),
          self::TASK_RUNNING            => __('Running'),
@@ -120,7 +120,7 @@ class PluginFusioninventoryTaskjoblog extends CommonDBTM {
          self::TASK_ERROR_OR_REPLANNED => __('Error / rescheduled', 'fusioninventory'),
          self::TASK_ERROR              => __('Error'),
          self::TASK_INFO               => __('Info', 'fusioninventory'),
-      );
+      ];
 
       return $elements;
    }
@@ -138,7 +138,7 @@ class PluginFusioninventoryTaskjoblog extends CommonDBTM {
       if (isset($state_names[$state])) {
          return $state_names[$state];
       } else {
-         return "N/A";
+         return NOT_AVAILABLE;
       }
    }
 
@@ -153,7 +153,7 @@ class PluginFusioninventoryTaskjoblog extends CommonDBTM {
     * @return string
     */
    static function getStateCSSName($state=-1) {
-      $cssnames = array(
+      $cssnames = [
          self::TASK_PREPARED           => "log_prepared",
          self::TASK_STARTED            => "log_started",
          self::TASK_RUNNING            => "log_running",
@@ -161,7 +161,7 @@ class PluginFusioninventoryTaskjoblog extends CommonDBTM {
          self::TASK_ERROR_OR_REPLANNED => "log_error_replanned",
          self::TASK_ERROR              => "log_error",
          self::TASK_INFO               => "log_info",
-      );
+      ];
       if (isset($cssnames[$state])) {
          return $cssnames[$state];
       } else {
@@ -419,7 +419,7 @@ function appear_array(id) {
       $a_jobstates = $pfTaskjobstate->find('`plugin_fusioninventory_agents_id`="'.$agents_id.'" '.
                                               'AND `uniqid`="'.$uniqid.'"',
                                            '`id` DESC');
-      $a_devices_merged = array();
+      $a_devices_merged = [];
 
       foreach ($a_jobstates as $data) {
 
@@ -676,7 +676,7 @@ function appear_array(id) {
    function graphFinish($taskjobs_id) {
       global $DB;
 
-      $finishState = array();
+      $finishState    = [];
       $finishState[2] = 0;
       $finishState[3] = 0;
       $finishState[4] = 0;
@@ -705,12 +705,12 @@ function appear_array(id) {
       $input[__('Ok', 'fusioninventory')] = $finishState[3];
       $input[__('Error / rescheduled', 'fusioninventory')] = $finishState[4];
       $input[__('Error')] = $finishState[5];
-      Stat::showGraph(array('status'=>$input),
-               array('title'  => '',
-                  'unit'      => '',
-                  'type'      => 'pie',
-                  'height'    => 150,
-                  'showtotal' => FALSE));
+      Stat::showGraph(['status' => $input],
+                     ['title'     => '',
+                      'unit'      => '',
+                      'type'      => 'pie',
+                      'height'    => 150,
+                      'showtotal' => FALSE]);
 
    }
 
@@ -729,7 +729,7 @@ function appear_array(id) {
       foreach ($a_datas as $a_data) {
          return $a_data;
       }
-      return array();
+      return [];
    }
 
 
@@ -774,9 +774,9 @@ function appear_array(id) {
          WHERE `uniqid`='".$uniqid."'
          ORDER BY `glpi_plugin_fusioninventory_taskjoblogs`.`id` DESC
          LIMIT 1";
-      $state = 0;
-      $date = '';
-      $comment = '';
+      $state         = 0;
+      $date          = '';
+      $comment       = '';
       $taskstates_id = 0;
 
       $result=$DB->query($query);
@@ -975,16 +975,16 @@ function appear_array(id) {
       if (strstr($comment, "==")) {
          preg_match_all("/==([\w\d]+)==/", $comment, $matches);
          $a_text = array(
-            'devicesqueried'  => __('devices queried', 'fusioninventory'),
-            'devicesfound'    => __('devices found', 'fusioninventory'),
-            'diconotuptodate' => __("SNMP equipment definition isn't up to date on agent. For the next run, it will get new version from server.", 'fusioninventory'),
-            'addtheitem'      => __('Add the item', 'fusioninventory'),
-            'updatetheitem'   => __('Update the item', 'fusioninventory'),
+            'devicesqueried'   => __('devices queried', 'fusioninventory'),
+            'devicesfound'     => __('devices found', 'fusioninventory'),
+            'diconotuptodate'  => __("SNMP equipment definition isn't up to date on agent. For the next run, it will get new version from server.", 'fusioninventory'),
+            'addtheitem'       => __('Add the item', 'fusioninventory'),
+            'updatetheitem'    => __('Update the item', 'fusioninventory'),
             'inventorystarted' => __('Inventory started', 'fusioninventory'),
-            'detail'          => __('Detail', 'fusioninventory'),
-            'badtoken'        => __('Agent communication error, impossible to start agent', 'fusioninventory'),
-            'agentcrashed'    => __('Agent stopped/crashed', 'fusioninventory'),
-            'importdenied'    => __('Import denied', 'fusioninventory')
+            'detail'           => __('Detail', 'fusioninventory'),
+            'badtoken'         => __('Agent communication error, impossible to start agent', 'fusioninventory'),
+            'agentcrashed'     => __('Agent stopped/crashed', 'fusioninventory'),
+            'importdenied'     => __('Import denied', 'fusioninventory')
          );
          foreach ($matches[0] as $num=>$commentvalue) {
             $comment = str_replace($commentvalue, $a_text[$matches[1][$num]], $comment);

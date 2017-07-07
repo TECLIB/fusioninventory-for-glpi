@@ -314,8 +314,8 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
    */
    function getBehaviorsFields() {
       return  ['on_timeout', 'on_nouser', 'on_multiusers', 'on_ok', 'on_no',
-               'on_yes', 'on_cancel', 'on_abort', 'on_retry', 'on_ignore',
-               'on_continue'];
+               'on_yes', 'on_cancel', 'on_abort', 'on_retry', 'on_tryagain',
+               'on_ignore', 'on_continue'];
 
    }
 
@@ -449,7 +449,12 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
 
       echo "<td>".__('Maximum number of retry allowed', 'fusioninventory')."</td>";
       echo "<td>";
-      Dropdown::showInteger('nb_max_retry', $json_data['nb_max_retry'], 1, 20, 1);
+      Dropdown::showNumber('nb_max_retry',
+                           ['value' => $json_data['nb_max_retry'],
+                            'min'   => 1,
+                            'max'   => 20,
+                            'step'  => 1
+                           ]);
       echo "</td>";
       echo "</tr>";
 
@@ -493,6 +498,7 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
               'on_yes'      => __('Button yes', 'fusioninventory'),
               'on_continue' => __('Button continue', 'fusioninventory'),
               'on_retry'    => __('Button retry', 'fusioninventory'),
+              'on_tryagain' => __('Button try', 'fusioninventory'),
               'on_no'       => __('Button no', 'fusioninventory'),
               'on_cancel'   => __('Button cancel', 'fusioninventory'),
               'on_abort'    => __('Button abort', 'fusioninventory'),
@@ -547,7 +553,7 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
             break;
 
          case self::WTS_BUTTON_CANCEL_TRY_CONTINUE:
-            $display[] = 'on_retry';
+            $display[] = 'on_tryagain';
             $display[] = 'on_cancel';
             $display[] = 'on_continue';
             break;
@@ -646,4 +652,12 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
       return $this->prepareInputForAdd($input);
    }
 
+   /**
+   * Get temlate values as an array
+   * @since 9.2
+   * @return array the template values as an array
+   */
+   public function getValues() {
+      return json_decode($this->fields['json'], true);
+   }
 }
