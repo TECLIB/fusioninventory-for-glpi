@@ -315,7 +315,7 @@ class PluginFusioninventoryDeployCheck extends PluginFusioninventoryDeployPackag
       return $values;
    }
 
-   static function getMandatoryMark() {
+   function getMandatoryMark() {
       return "&nbsp;<span class='red'>*</span>";
    }
    /**
