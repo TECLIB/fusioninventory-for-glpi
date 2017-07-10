@@ -30,12 +30,12 @@
  *
  * ------------------------------------------------------------------------
  *
- * This file is used to manage the device import rule list.
+ * This file is used to manage the deploy package form.
  *
  * ------------------------------------------------------------------------
  *
  * @package   FusionInventory
- * @author    David Durieux
+ * @author    Walid Nouh
  * @copyright Copyright (c) 2010-2016 FusionInventory team
  * @license   AGPL License 3.0 or (at your option) any later version
  *            http://www.gnu.org/licenses/agpl-3.0-standalone.html
@@ -45,28 +45,38 @@
  */
 
 include ("../../../inc/includes.php");
-
-Html::header(__('FusionInventory', 'fusioninventory'), $_SERVER["PHP_SELF"],
-        "admin", "pluginfusioninventorymenu", "inventoryruleimport");
-
 Session::checkLoginUser();
-PluginFusioninventoryMenu::displayMenu("mini");
 
-RuleCollection::titleBackup();
-
-$rulecollection = new PluginFusioninventoryInventoryRuleImportCollection();
-
-if (isset($_GET['resetrules'])) {
-   $pfSetup = new PluginFusioninventorySetup();
-   $pfSetup->initRules(1);
+$template = new PluginFusioninventoryDeployUserinteractionTemplate();
+//general form
+if (isset ($_POST["add"])) {
+   Session::checkRight('plugin_fusioninventory_userinteractiontemplate', CREATE);
+   $newID = $template->add($_POST);
+   Html::redirect($template->getFormURLWithID($newID));
+} else if (isset ($_POST["update"])) {
+   Session::checkRight('plugin_fusioninventory_userinteractiontemplate', UPDATE);
+   $template->update($_POST);
    Html::back();
+} else if (isset ($_POST["purge"])) {
+   Session::checkRight('plugin_fusioninventory_userinteractiontemplate', PURGE);
+   $template->delete($_POST, 1);
+   $template->redirectToList();
 }
 
-echo "<center><a href='".$CFG_GLPI['root_doc'] .
-         "/plugins/fusioninventory/front/inventoryruleimport.php?resetrules=1' class='vsubmit'>";
-echo __('Reset import rules (define only default rules)', 'fusioninventory');
-echo "</a></center><br/>";
-
-include (GLPI_ROOT . "/front/rule.common.php");
-
-?>
+if (isset($_GET['_in_modal']) && $_GET['_in_modal']) {
+   Html::nullHeader(__('FusionInventory DEPLOY'), $_SERVER["PHP_SELF"]);
+} else {
+   Html::header(__('FusionInventory DEPLOY'), $_SERVER["PHP_SELF"], "admin",
+      "pluginfusioninventorymenu", "deployuserinteractiontemplate");
+   PluginFusioninventoryMenu::displayMenu("mini");
+}
+$id = "";
+if (isset($_GET["id"])) {
+   $id = $_GET["id"];
+}
+$template->display($_GET);
+if (isset($_GET['_in_modal']) && $_GET['_in_modal']) {
+   Html::nullFooter();
+} else {
+   Html::footer();
+}

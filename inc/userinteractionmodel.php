@@ -30,12 +30,12 @@
  *
  * ------------------------------------------------------------------------
  *
- * This file is used to manage the device import rule list.
+ * This file is used to manage the deploy packages.
  *
  * ------------------------------------------------------------------------
  *
  * @package   FusionInventory
- * @author    David Durieux
+ * @author    Walid Nouh
  * @copyright Copyright (c) 2010-2016 FusionInventory team
  * @license   AGPL License 3.0 or (at your option) any later version
  *            http://www.gnu.org/licenses/agpl-3.0-standalone.html
@@ -44,29 +44,24 @@
  *
  */
 
-include ("../../../inc/includes.php");
-
-Html::header(__('FusionInventory', 'fusioninventory'), $_SERVER["PHP_SELF"],
-        "admin", "pluginfusioninventorymenu", "inventoryruleimport");
-
-Session::checkLoginUser();
-PluginFusioninventoryMenu::displayMenu("mini");
-
-RuleCollection::titleBackup();
-
-$rulecollection = new PluginFusioninventoryInventoryRuleImportCollection();
-
-if (isset($_GET['resetrules'])) {
-   $pfSetup = new PluginFusioninventorySetup();
-   $pfSetup->initRules(1);
-   Html::back();
+if (!defined('GLPI_ROOT')) {
+   die("Sorry. You can't access directly to this file");
 }
 
-echo "<center><a href='".$CFG_GLPI['root_doc'] .
-         "/plugins/fusioninventory/front/inventoryruleimport.php?resetrules=1' class='vsubmit'>";
-echo __('Reset import rules (define only default rules)', 'fusioninventory');
-echo "</a></center><br/>";
+/**
+ * Template for deploy user interactions
+ */
+class PluginFusioninventoryUserinteractionModel extends CommonDBTM {
 
-include (GLPI_ROOT . "/front/rule.common.php");
+   /**
+    * Get the name user interaction
+    *
+    * @param integer $nb number of elements
+    * @return string name of this type
+    */
+   static function getTypeName($nb=0) {
+      return _n('User interaction', 'User interactions', 'fusioninventory');
+   }
 
-?>
+
+}

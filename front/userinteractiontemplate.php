@@ -30,12 +30,12 @@
  *
  * ------------------------------------------------------------------------
  *
- * This file is used to manage the device import rule list.
+ * This file is used to manage the deploy group search list.
  *
  * ------------------------------------------------------------------------
  *
  * @package   FusionInventory
- * @author    David Durieux
+ * @author    Walid Nouh
  * @copyright Copyright (c) 2010-2016 FusionInventory team
  * @license   AGPL License 3.0 or (at your option) any later version
  *            http://www.gnu.org/licenses/agpl-3.0-standalone.html
@@ -45,28 +45,16 @@
  */
 
 include ("../../../inc/includes.php");
-
-Html::header(__('FusionInventory', 'fusioninventory'), $_SERVER["PHP_SELF"],
-        "admin", "pluginfusioninventorymenu", "inventoryruleimport");
-
 Session::checkLoginUser();
+
+Html::header(__('User interaction template', 'fusioninventory'), $_SERVER["PHP_SELF"], "plugins",
+             "pluginfusioninventorymenu", "userinteractiontemplate");
+
+
 PluginFusioninventoryMenu::displayMenu("mini");
 
-RuleCollection::titleBackup();
+Search::show('PluginFusioninventoryDeployUserinteractionTemplate');
 
-$rulecollection = new PluginFusioninventoryInventoryRuleImportCollection();
-
-if (isset($_GET['resetrules'])) {
-   $pfSetup = new PluginFusioninventorySetup();
-   $pfSetup->initRules(1);
-   Html::back();
-}
-
-echo "<center><a href='".$CFG_GLPI['root_doc'] .
-         "/plugins/fusioninventory/front/inventoryruleimport.php?resetrules=1' class='vsubmit'>";
-echo __('Reset import rules (define only default rules)', 'fusioninventory');
-echo "</a></center><br/>";
-
-include (GLPI_ROOT . "/front/rule.common.php");
+Html::footer();
 
 ?>
