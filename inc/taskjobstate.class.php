@@ -126,7 +126,7 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
     * @return string name of the tab
     */
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
-      return __("Job executions");
+      return __("Job executions", "fusioninventory");
    }
 
 

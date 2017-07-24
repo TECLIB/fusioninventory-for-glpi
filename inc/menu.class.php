@@ -117,26 +117,24 @@ class PluginFusioninventoryMenu extends CommonGLPI {
       global $CFG_GLPI;
 
       $elements = array(
-          'iprange'                       => 'PluginFusioninventoryIPRange',
-          'config'                        => 'PluginFusioninventoryConfig',
-          'task'                          => 'PluginFusioninventoryTask',
-          'timeslot'                      => 'PluginFusioninventoryTimeslot',
-          'unmanaged'                     => 'PluginFusioninventoryUnmanaged',
-          'inventoryruleimport'           => 'PluginFusioninventoryInventoryRuleImport',
-          'inventoryruleentity'           => 'PluginFusioninventoryInventoryRuleEntity',
-          'inventoryrulelocation'         => 'PluginFusioninventoryInventoryRuleLocation',
-          'collectrule'                   => 'PluginFusioninventoryCollectRule',
-          'inventorycomputerblacklist'    => 'PluginFusioninventoryInventoryComputerBlacklist',
-          'configsecurity'                => 'PluginFusioninventoryConfigSecurity',
-          'credential'                    => 'PluginFusioninventoryCredential',
-          'credentialip'                  => 'PluginFusioninventoryCredentialIp',
-          'collect'                       => 'PluginFusioninventoryCollect',
-          'deploypackage'                 => 'PluginFusioninventoryDeployPackage',
-          'deploymirror'                  => 'PluginFusioninventoryDeployMirror',
-          'deploygroup'                   => 'PluginFusioninventoryDeployGroup',
-          'deployuserinteractiontemplate' => 'PluginFusioninventoryDeployUserinteractionTemplate',
-          'ignoredimportdevice'           => 'PluginFusioninventoryIgnoredimportdevice',
-          'ruledictionnarycomputerarch'   => 'PluginFusioninventoryRuleDictionnaryComputerArch'
+          'iprange'                    => 'PluginFusioninventoryIPRange',
+          'config'                     => 'PluginFusioninventoryConfig',
+          'task'                       => 'PluginFusioninventoryTask',
+          'timeslot'                   => 'PluginFusioninventoryTimeslot',
+          'unmanaged'                  => 'PluginFusioninventoryUnmanaged',
+          'inventoryruleimport'        => 'PluginFusioninventoryInventoryRuleImport',
+          'inventoryruleentity'        => 'PluginFusioninventoryInventoryRuleEntity',
+          'inventoryrulelocation'      => 'PluginFusioninventoryInventoryRuleLocation',
+          'collectrule'                => 'PluginFusioninventoryCollectRule',
+          'inventorycomputerblacklist' => 'PluginFusioninventoryInventoryComputerBlacklist',
+          'configsecurity'             => 'PluginFusioninventoryConfigSecurity',
+          'credential'                 => 'PluginFusioninventoryCredential',
+          'credentialip'               => 'PluginFusioninventoryCredentialIp',
+          'collect'                    => 'PluginFusioninventoryCollect',
+          'deploypackage'              => 'PluginFusioninventoryDeployPackage',
+          'deploymirror'               => 'PluginFusioninventoryDeployMirror',
+          'deploygroup'                => 'PluginFusioninventoryDeployGroup',
+          'ignoredimportdevice'        => 'PluginFusioninventoryIgnoredimportdevice'
       );
       $options = array();
 
