@@ -503,6 +503,22 @@ CREATE TABLE `glpi_plugin_fusioninventory_networkporttypes` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 
+DROP TABLE IF EXISTS `glpi_plugin_fusioninventory_phones`;
+
+CREATE TABLE `glpi_plugin_fusioninventory_phones` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `phones_id` int(11) NOT NULL DEFAULT '0',
+   `sysdescr` text COLLATE utf8_unicode_ci DEFAULT NULL,
+   `plugin_fusioninventory_configsecurities_id` int(11) NOT NULL DEFAULT '0',
+   `last_fusioninventory_update` datetime DEFAULT NULL,
+   `serialized_inventory` longblob,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `unicity` (`phones_id`),
+   KEY `plugin_fusioninventory_configsecurities_id` (`plugin_fusioninventory_configsecurities_id`),
+   KEY `phones_id` (`phones_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+
+
 DROP TABLE IF EXISTS `glpi_plugin_fusioninventory_printers`;
 
 CREATE TABLE `glpi_plugin_fusioninventory_printers` (

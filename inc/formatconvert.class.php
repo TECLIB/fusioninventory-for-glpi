@@ -2134,6 +2134,58 @@ class PluginFusioninventoryFormatconvert {
       return $a_inventory;
    }
 
+   /**
+    * Convert phone in GLPI prepared data
+    *
+    * @param array $array
+    * @return array
+    */
+   static function phoneInventoryTransformation($array) {
+
+      $a_inventory = [];
+      $thisc       = new self();
+
+      // * INFO
+      $array_tmp = $thisc->addValues($array['INFO'],
+                                     [
+                                        'NAME'         => 'name',
+                                        'SERIAL'       => 'serial',
+                                        'ID'           => 'id',
+                                        'MANUFACTURER' => 'manufacturers_id',
+                                        'LOCATION'     => 'locations_id',
+                                        'MODEL'        => 'phonemodels_id'
+                                      ]);
+      $array_tmp['is_dynamic']    = 1;
+      $array_tmp['have_ethernet'] = 1;
+
+      $a_inventory['Phone']    = $array_tmp;
+      $a_inventory['itemtype'] = 'Phone';
+
+      $array_tmp = $thisc->addValues($array['INFO'], ['COMMENTS' => 'sysdescr']);
+      $array_tmp['last_fusioninventory_update']  = date('Y-m-d H:i:s');
+      $a_inventory['PluginFusioninventoryPhone'] = $array_tmp;
+
+      // * PORTS
+      $a_inventory['networkport'] = [];
+      if (isset($array['PORTS'])) {
+         foreach ($array['PORTS']['PORT'] as $a_port) {
+            if (isset($a_port['IFNUMBER'])) {
+               $array_tmp = $thisc->addValues($a_port,
+                                              [
+                                                 'IFNAME'   => 'name',
+                                                 'IFNUMBER' => 'logical_number',
+                                                 'MAC'      => 'mac',
+                                                 'IP'       => 'ip',
+                                                 'IFTYPE'   => 'iftype'
+                                              ]);
+
+               $a_inventory['networkport'][$a_port['IFNUMBER']] = $array_tmp;
+            }
+         }
+      }
+Toolbox::logDebug($a_inventory);
+      return $a_inventory;
+   }
 
 
    /**

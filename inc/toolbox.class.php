@@ -770,6 +770,11 @@ class PluginFusioninventoryToolbox {
             $fk    = 'printers_id';
             break;
 
+         case 'Phone':
+            $table = 'glpi_plugin_fusioninventory_phones';
+            $fk    = 'phones_id';
+            break;
+
       }
       if ($table) {
          return $item->isDynamic()

@@ -146,6 +146,9 @@ class PluginFusioninventoryLock extends CommonDBTM{
          echo "<td valign='top' width='33%'>";
          $pflock->showFormItemtype('NetworkEquipment');
          echo "</td>";
+         echo "<td valign='top' width='33%'>";
+         $pflock->showFormItemtype('Phone');
+         echo "</td>";
          echo "</tr>";
 
          echo "</table>";
@@ -826,6 +829,8 @@ class PluginFusioninventoryLock extends CommonDBTM{
          $item_extend = new PluginFusioninventoryNetworkEquipment;
       } else if ($itemtype == 'Printer') {
          $item_extend = new PluginFusioninventoryPrinter();
+      } else if ($itemtype == 'Phone') {
+         $item_extend = new PluginFusioninventoryPhone();
       }
 
       if ($item_extend->getType() != 'PluginFusioninventoryLock') {
@@ -931,7 +936,8 @@ class PluginFusioninventoryLock extends CommonDBTM{
          case "manage_locks":
             if ($itemtype == "NetworkEquipment"
                 || $itemtype == "Printer"
-                || $itemtype == "Computer") {
+                || $itemtype == "Computer"
+                || $itemtype == "Phone") {
 
                foreach ($ids as $key) {
                   if (isset($_POST["lockfield_fusioninventory"])

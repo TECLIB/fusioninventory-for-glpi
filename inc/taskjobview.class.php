@@ -950,4 +950,3 @@ class PluginFusioninventoryTaskjobView extends PluginFusioninventoryCommonView {
       }
    }
 }
-

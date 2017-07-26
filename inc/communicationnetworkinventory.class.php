@@ -181,7 +181,9 @@ class PluginFusioninventoryCommunicationNetworkInventory {
                         $a_inventory = PluginFusioninventoryFormatconvert::networkequipmentInventoryTransformation($dchild);
                      } else if ($dchild['INFO']['TYPE'] == "PRINTER") {
                         $a_inventory = PluginFusioninventoryFormatconvert::printerInventoryTransformation($dchild);
-                     }
+                    } else if ($dchild['INFO']['TYPE'] == "PHONE") {
+                       $a_inventory = PluginFusioninventoryFormatconvert::phoneInventoryTransformation($dchild);
+                    }
                   }
                   if (isset($dchild['ERROR'])) {
                      $itemtype = "";
@@ -189,6 +191,8 @@ class PluginFusioninventoryCommunicationNetworkInventory {
                         $itemtype = "NetworkEquipment";
                      } else if ($dchild['ERROR']['TYPE'] == "PRINTER") {
                         $itemtype = "Printer";
+                     } else if ($dchild['ERROR']['TYPE'] == "PHONE") {
+                        $itemtype = "Phone";
                      }
                      $_SESSION['plugin_fusinvsnmp_taskjoblog']['comment'] = '[==detail==] '.
                              $dchild['ERROR']['MESSAGE'].' [['.$itemtype.'::'.
@@ -297,6 +301,13 @@ class PluginFusioninventoryCommunicationNetworkInventory {
             $pfiNetworkEquipmentLib->updateNetworkEquipment($a_inventory, $items_id);
             break;
 
+            case 'Phone':
+               $pfiPhoneLib = new PluginFusioninventoryInventoryPhoneLib();
+               $a_inventory['PluginFusioninventoryPhone']['serialized_inventory'] =
+                           Toolbox::addslashes_deep($serialized);
+               $pfiPhoneLib->updatePhone($a_inventory, $items_id);
+               break;
+
          default:
             return __('Unattended element in', 'fusioninventory').' TYPE : '.$a_inventory['itemtype']."\n";
       }
@@ -337,6 +348,11 @@ class PluginFusioninventoryCommunicationNetworkInventory {
                $input['mac'][] = $a_inventory[$a_inventory['itemtype']]['mac'];
             }
             $input['itemtype'] = "NetworkEquipment";
+         } else if ($a_inventory['itemtype'] == 'Phone') {
+               if (!empty($a_inventory[$a_inventory['itemtype']]['mac'])) {
+                  $input['mac'][] = $a_inventory[$a_inventory['itemtype']]['mac'];
+               }
+               $input['itemtype'] = "Phone";
          } else if ($a_inventory['itemtype'] == 'Printer') {
             $input['itemtype'] = "Printer";
             if (isset($a_inventory['networkport'])) {

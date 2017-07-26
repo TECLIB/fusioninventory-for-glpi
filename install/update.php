@@ -374,7 +374,6 @@ function pluginFusioninventoryUpdate($current_version, $migrationname='Migration
       do_task_migration($migration);
 
 
-
    // ********* Migration SNMP discovery and inventory ********************** //
 
       // ********* Rename tables ******************************************** //
@@ -418,6 +417,7 @@ function pluginFusioninventoryUpdate($current_version, $migrationname='Migration
       do_statediscovery_migration($migration);
       do_mapping_migration($migration);
       do_snmpmodel_migration($migration);
+      do_phone_migration($migration);
 
 
    // ********* Migration deploy ******************************************** //
@@ -2706,7 +2706,7 @@ function do_biosascomponentmigration() {
  */
 function do_computerstat_migration($migration) {
    global $DB;
-   
+
    /*
     * Table glpi_plugin_fusioninventory_inventorycomputerstats
     */
@@ -4100,7 +4100,26 @@ function do_printer_migration($migration) {
 
 }
 
+function do_phone_migration($migration) {
+   global $DB;
 
+   if (!$DB->tableExists('glpi_plugin_fusioninventory_phones')) {
+      $query = "CREATE TABLE `glpi_plugin_fusioninventory_phones` (
+         `id` int(11) NOT NULL AUTO_INCREMENT,
+         `phones_id` int(11) NOT NULL DEFAULT '0',
+         `sysdescr` text COLLATE utf8_unicode_ci DEFAULT NULL,
+         `plugin_fusioninventory_configsecurities_id` int(11) NOT NULL DEFAULT '0',
+         `last_fusioninventory_update` datetime DEFAULT NULL,
+         `serialized_inventory` longblob,         
+         PRIMARY KEY (`id`),
+         UNIQUE KEY `unicity` (`phones_id`),
+         KEY `plugin_fusioninventory_configsecurities_id` (`plugin_fusioninventory_configsecurities_id`),
+         KEY `phones_id` (`phones_id`)
+      ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;";
+
+      $DB->query($query);
+   }
+}
 
 /**
  * Manage the network equipment part migration

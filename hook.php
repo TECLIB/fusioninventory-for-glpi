@@ -253,6 +253,46 @@ function plugin_fusioninventory_getAddSearchOptions($itemtype) {
       $sopt[5196]['datatype']      = 'text';
    }
 
+   if ($itemtype == 'Printer') {
+      // Switch
+      $sopt[5197]['table']='glpi_plugin_fusioninventory_networkequipments';
+      $sopt[5197]['field']='name';
+      $sopt[5197]['linkfield']='';
+      $sopt[5197]['name']=__('FusInv', 'fusioninventory')." - ".__('Switch');
+      $sopt[5197]['itemlink_type'] = 'NetworkEquipment';
+
+      // Port of switch
+      $sopt[5198]['table']='glpi_plugin_fusioninventory_networkports';
+      $sopt[5198]['field']='id';
+      $sopt[5198]['linkfield']='';
+      $sopt[5198]['name']=__('FusInv', 'fusioninventory')." - ".__('Hardware ports');
+      $sopt[5198]['forcegroupby']='1';
+
+      $sopt[5199]['table']='glpi_plugin_fusioninventory_configsecurities';
+      $sopt[5199]['field']='name';
+      $sopt[5199]['linkfield']='plugin_fusioninventory_configsecurities_id';
+      $sopt[5199]['name']=__('FusInv', 'fusioninventory')." - ".
+                             __('SNMP authentication', 'fusioninventory');
+      $sopt[5200]['datatype'] = 'itemlink';
+      $sopt[5200]['itemlink_type'] = 'PluginFusioninventoryConfigSecurity';
+      $sopt[5200]['massiveaction'] = FALSE;
+
+
+      $sopt[5194]['table']='glpi_plugin_fusioninventory_phones';
+      $sopt[5194]['field']='last_fusioninventory_update';
+      $sopt[5194]['linkfield']='';
+      $sopt[5194]['name']=__('FusInv', 'fusioninventory')." - ".
+         __('Last inventory', 'fusioninventory');
+      $sopt[5194]['datatype'] = 'datetime';
+      $sopt[5194]['massiveaction'] = FALSE;
+
+      $sopt[5196]['table']         = 'glpi_plugin_fusioninventory_phones';
+      $sopt[5196]['field']         = 'sysdescr';
+      $sopt[5196]['linkfield']     = '';
+      $sopt[5196]['name']          = __('Sysdescr', 'fusioninventory');
+      $sopt[5196]['datatype']      = 'text';
+   }
+
    if ($itemtype == 'NetworkEquipment') {
 
       $sopt[5191]['table']='glpi_plugin_fusioninventory_configsecurities';
@@ -885,6 +925,7 @@ function plugin_fusioninventory_MassiveActions($type) {
          break;
 
       case "NetworkEquipment":
+      case "Phone":
       case "Printer":
          if (Session::haveRight('plugin_fusioninventory_lock', UPDATE)) {
             $ma["PluginFusioninventoryLock".$sep."manage_locks"]
@@ -1026,6 +1067,7 @@ function plugin_fusioninventory_addSelect($type, $id, $num) {
 
       // * PRINTER List (front/printer.php)
       case 'Printer':
+      case 'Phone':
          switch ($table.".".$field) {
 
          // ** FusionInventory - switch
