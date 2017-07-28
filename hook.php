@@ -1670,6 +1670,22 @@ function plugin_item_purge_fusioninventory($parm) {
 
    switch (get_class($parm)) {
 
+      case 'Computer':
+         // Delete link between computer and agent fusion
+         $query = "UPDATE `glpi_plugin_fusioninventory_agents`
+                     SET `computers_id` = '0'
+                     WHERE `computers_id` = '".$parm->getField('id')."'";
+         $DB->query($query);
+         $clean = array('PluginFusioninventoryInventoryComputerComputer',
+                        'PluginFusioninventoryComputerLicenseInfo',
+                        'PluginFusioninventoryCollect_File_Content',
+                        'PluginFusioninventoryCollect_Registry_Content',
+                        'PluginFusioninventoryCollect_Wmi_Content');
+         foreach ($clean as $obj) {
+            $obj::cleanComputer($parm->getID());
+         }
+         break;
+
       case 'NetworkPort_NetworkPort':
          // If remove connection of a hub port (unknown device), we must delete this port too
          $NetworkPort = new NetworkPort();
