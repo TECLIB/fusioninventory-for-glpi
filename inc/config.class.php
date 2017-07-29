@@ -422,7 +422,7 @@ class PluginFusioninventoryConfig extends CommonDBTM {
       echo "<tr class='tab_bg_1'><td colspan=2></td>";
       echo "<td>";
       echo "<span id='blocaction1' style='display:none'>";
-      echo __('Change the status', 'fusioninventory') . "&nbsp;:";
+      echo __('Change the status', 'fusioninventory');
       echo "</span>";
       echo "</td>";
       echo "<td width='20%'>";
@@ -483,109 +483,63 @@ class PluginFusioninventoryConfig extends CommonDBTM {
       $pfConfig->showFormHeader($options);
 
       echo "<tr>";
-      echo "<th colspan='2'>";
+      echo "<th colspan='4'>";
       echo __('Import options', 'fusioninventory');
-      echo "</th>";
-      echo "<th colspan='2' width='30%'>";
-      echo _n('Component', 'Components', 2);
       echo "</th>";
       echo "</tr>";
 
       echo "<tr class='tab_bg_1'>";
       echo "<td>";
-      echo _n('Volume', 'Volumes', 2)."&nbsp;:";
+      echo _n('Volume', 'Volumes', 2);
       echo "</td>";
       echo "<td width='360'>";
       Dropdown::showYesNo("import_volume", $pfConfig->getValue('import_volume'));
       echo "</td>";
-      echo "<td>";
-      echo _n('Processor', 'Processors', 2)."&nbsp;:";
-      echo "</td>";
-      echo "<td>";
-      Dropdown::showYesNo("component_processor", $pfConfig->getValue('component_processor'));
-      echo "</td>";
-      echo "</tr>";
 
-      echo "<tr class='tab_bg_1'>";
       echo "<td>";
-      echo _n('Software', 'Software', 2)."&nbsp;:";
+      echo _n('Software', 'Software', 2);
       echo "</td>";
       echo "<td>";
       Dropdown::showYesNo("import_software", $pfConfig->getValue('import_software'));
       echo "</td>";
-      echo "<td>";
-      echo _n('Memory', 'Memories', 2)."&nbsp;:";
-      echo "</td>";
-      echo "<td>";
-      Dropdown::showYesNo("component_memory", $pfConfig->getValue('component_memory'));
-      echo "</td>";
       echo "</tr>";
 
       echo "<tr class='tab_bg_1'>";
       echo "<td>";
-      echo _n('Virtual machine', 'Virtual machines', 2)."&nbsp;:";
+      echo _n('Virtual machine', 'Virtual machines', 2);
       echo "</td>";
       echo "<td>";
       Dropdown::showYesNo("import_vm", $pfConfig->getValue('import_vm'));
       echo "</td>";
-      echo "<td>";
-      echo _n('Hard drive', 'Hard drives', 2)."&nbsp;:";
-      echo "</td>";
-      echo "<td>";
-      Dropdown::showYesNo("component_harddrive", $pfConfig->getValue('component_harddrive'));
-      echo "</td>";
-      echo "</tr>";
 
-      echo "<tr class='tab_bg_1'>";
       echo "<td>";
-      echo __('Antivirus', 'fusioninventory')."&nbsp;:";
+      echo __('Antivirus', 'fusioninventory');
       echo "</td>";
       echo "<td>";
       Dropdown::showYesNo("import_antivirus",
                           $pfConfig->getValue('import_antivirus'));
       echo "</td>";
-      echo "<td>";
-      echo _n('Network card', 'Network cards', 2)."&nbsp;:";
-      echo "</td>";
-      echo "<td>";
-      Dropdown::showYesNo("component_networkcard", $pfConfig->getValue('component_networkcard'));
-      echo "</td>";
       echo "</tr>";
 
       echo "<tr class='tab_bg_1'>";
       echo "<td>";
-      echo _n('Location', 'Locations', 2)."&nbsp;:";
+      echo _n('Location', 'Locations', 2);
       echo "</td>";
       echo "<td>";
       Dropdown::showFromArray("location",
-                              array("0"=>"------",
+                              array("0"=> Dropdown::EMPTY_VALUE,
                                     "1"=>__('FusionInventory tag', 'fusioninventory')),
                               array('value'=>$pfConfig->getValue('location')));
       echo "</td>";
-      echo "<td>";
-      echo __('Virtual network card', 'fusioninventory')."&nbsp;:";
-      echo "</td>";
-      echo "<td>";
-      Dropdown::showYesNo("component_networkcardvirtual",
-                          $pfConfig->getValue('component_networkcardvirtual'));
-      echo "</td>";
-      echo "</tr>";
 
-      echo "<tr class='tab_bg_1'>";
       echo "<td>";
-      echo _n('Group', 'Groups', 2)."&nbsp;:";
+      echo _n('Group', 'Groups', 2);
       echo "</td>";
       echo "<td>";
       Dropdown::showFromArray("group",
-                              array("0"=>"------",
+                              array("0"=> Dropdown::EMPTY_VALUE,
                                     "1"=>__('FusionInventory tag', 'fusioninventory')),
                               array('value'=>$pfConfig->getValue('group')));
-      echo "</td>";
-      echo "<td>";
-      echo _n('Graphics card', 'Graphics cards', 2)."&nbsp;:";
-      echo "</td>";
-      echo "<td>";
-      Dropdown::showYesNo("component_graphiccard", $pfConfig->getValue('component_graphiccard'));
       echo "</td>";
       echo "</tr>";
 
@@ -596,8 +550,9 @@ class PluginFusioninventoryConfig extends CommonDBTM {
                      array('name'   => 'states_id_default',
                            'value'  => $pfConfig->getValue('states_id_default')));
       echo "</td>";
+
       echo "<td>";
-      echo _n('Soundcard', 'Soundcards', 2)."&nbsp;:";
+      echo _n('Soundcard', 'Soundcards', 2);
       echo "</td>";
       echo "<td>";
       Dropdown::showYesNo("component_soundcard", $pfConfig->getValue('component_soundcard'));
@@ -606,34 +561,21 @@ class PluginFusioninventoryConfig extends CommonDBTM {
 
       echo "<tr class='tab_bg_1'>";
       echo "<td>";
-      echo __('Inventory number')."&nbsp;:";
+      echo __('Inventory number');
       echo "</td>";
       echo "<td>";
       Dropdown::showFromArray("otherserial",
-                              array("0"=>"------",
+                              array("0"=> Dropdown::EMPTY_VALUE,
                                     "1"=>__('FusionInventory tag', 'fusioninventory')),
                               array('value'=>$pfConfig->getValue('otherserial')));
       echo "</td>";
-      echo "<td>";
-      echo _n('Drive', 'Drives', 2)."&nbsp;:";
-      echo "</td>";
-      echo "<td>";
-      Dropdown::showYesNo("component_drive", $pfConfig->getValue('component_drive'));
-      echo "</td>";
-      echo "</tr>";
 
-      echo "<tr class='tab_bg_1'>";
       echo "<td>";
-      echo __('Create computer based on virtual machine information ( only when the virtual machine has no inventory agent ! )', 'fusioninventory')."&nbsp;:";
+      echo __('Create computer based on virtual machine information ( only when the virtual machine has no inventory agent ! )', 'fusioninventory');
       echo "</td>";
+
       echo "<td>";
       Dropdown::showYesNo("create_vm", $pfConfig->getValue('create_vm'));
-      echo "</td>";
-      echo "<td>";
-      echo __('Network drives', 'fusioninventory')."&nbsp;:";
-      echo "</td>";
-      echo "<td>";
-      Dropdown::showYesNo("component_networkdrive", $pfConfig->getValue('component_networkdrive'));
       echo "</td>";
       echo "</tr>";
 
@@ -644,37 +586,120 @@ class PluginFusioninventoryConfig extends CommonDBTM {
       echo "<td>";
       Dropdown::showYesNo("manage_osname", $pfConfig->getValue('manage_osname'));
       echo "</td>";
+      echo "<td colspan='2'></td>";
+      echo "</tr>";
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<th colspan='4' width='30%'>";
+      echo _n('Component', 'Components', 2);
+      echo "</th>";
+      echo "</tr>";
+
+      echo "<tr class='tab_bg_1'>";
       echo "<td>";
-      echo _n('Controller', 'Controllers', 2)."&nbsp;:";
+      echo _n('Processor', 'Processors', 2);
       echo "</td>";
       echo "<td>";
-      Dropdown::showYesNo("component_control", $pfConfig->getValue('component_control'));
+      Dropdown::showYesNo("component_processor",
+                          $pfConfig->getValue('component_processor'));
+      echo "</td>";
+
+      echo "<td>";
+      echo _n('Hard drive', 'Hard drives', 2);
+      echo "</td>";
+      echo "<td>";
+      Dropdown::showYesNo("component_harddrive",
+                          $pfConfig->getValue('component_harddrive'));
       echo "</td>";
       echo "</tr>";
 
       echo "<tr class='tab_bg_1'>";
-      echo "<td colspan='2'>";
+      echo "<td>";
+      echo _n('Memory', 'Memories', 2);
       echo "</td>";
       echo "<td>";
-      echo _n('Battery', 'Batteries', 2)."&nbsp;:";
+      Dropdown::showYesNo("component_memory",
+                          $pfConfig->getValue('component_memory'));
+      echo "</td>";
+
+      echo "<td>";
+      echo _n('Network card', 'Network cards', 2);
       echo "</td>";
       echo "<td>";
-      Dropdown::showYesNo("component_battery", $pfConfig->getValue('component_battery'));
+      Dropdown::showYesNo("component_networkcard",
+                          $pfConfig->getValue('component_networkcard'));
       echo "</td>";
       echo "</tr>";
 
       echo "<tr class='tab_bg_1'>";
-      echo "<td colspan='2'>";
+      echo "<td>";
+      echo _n('Graphics card', 'Graphics cards', 2);
       echo "</td>";
       echo "<td>";
-      echo _n('Removable medias', 'Removable medias', 2, "fusioninventory")."&nbsp;:";
+      Dropdown::showYesNo("component_graphiccard",
+                          $pfConfig->getValue('component_graphiccard'));
+      echo "</td>";
+
+      echo "<td>";
+      echo __('Virtual network card', 'fusioninventory');
       echo "</td>";
       echo "<td>";
-      Dropdown::showYesNo("component_removablemedia", $pfConfig->getValue('component_removablemedia'));
+      Dropdown::showYesNo("component_networkcardvirtual",
+                          $pfConfig->getValue('component_networkcardvirtual'));
       echo "</td>";
       echo "</tr>";
 
-      $options['candel'] = FALSE;
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>";
+      echo _n('Drive', 'Drives', 2);
+      echo "</td>";
+      echo "<td>";
+      Dropdown::showYesNo("component_drive",
+                          $pfConfig->getValue('component_drive'));
+      echo "</td>";
+
+      echo "<td>";
+      echo __('Network drives', 'fusioninventory');
+      echo "</td>";
+      echo "<td>";
+      Dropdown::showYesNo("component_networkdrive",
+                          $pfConfig->getValue('component_networkdrive'));
+      echo "</td>";
+      echo "</tr>";
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>";
+      echo _n('Controller', 'Controllers', 2);
+      echo "</td>";
+      echo "<td>";
+      Dropdown::showYesNo("component_control",
+                          $pfConfig->getValue('component_control'));
+      echo "</td>";
+
+      echo "</td>";
+      echo "<td>";
+      echo _n('Battery', 'Batteries', 2);
+      echo "</td>";
+      echo "<td>";
+      Dropdown::showYesNo("component_battery",
+                          $pfConfig->getValue('component_battery'));
+      echo "</td>";
+      echo "</tr>";
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>";
+      echo _n('Removable medias', 'Removable medias', 2, "fusioninventory");
+      echo "</td>";
+      echo "<td>";
+      Dropdown::showYesNo("component_removablemedia",
+                          $pfConfig->getValue('component_removablemedia'));
+      echo "</td>";
+
+      echo "<td colspan='2'></td>";
+
+      echo "</tr>";
+
+      $options['candel'] = false;
       $pfConfig->showFormButtons($options);
 
       return true;
