@@ -199,12 +199,6 @@ function plugin_init_fusioninventory() {
               ['rulecollections_types'=>true]);
       $Plugin->registerClass('PluginFusioninventoryConstructDevice');
 
-      //Computer arch dictionnary
-      $Plugin->registerClass('PluginFusioninventoryRuleDictionnaryComputerArch');
-      $Plugin->registerClass('PluginFusioninventoryRuleDictionnaryComputerArchCollection',
-              ['rulecollections_types'=>true]);
-      array_push($CFG_GLPI["dictionnary_types"], 'PluginFusioninventoryRuleDictionnaryComputerArchCollection');
-
       // Networkinventory and networkdiscovery
       $Plugin->registerClass('PluginFusioninventorySnmpmodel');
       $Plugin->registerClass('PluginFusioninventoryNetworkEquipment',
@@ -325,7 +319,7 @@ function plugin_init_fusioninventory() {
             'Printer' => ['PluginFusioninventoryPrinter',
                                         'showInfo']];
 
-      $PLUGIN_HOOKS['post_show_tab']['fusioninventory'] = 'postShowTab';
+      $PLUGIN_HOOKS['post_item_form']['fusioninventory'] = 'postItemForm';
       $PLUGIN_HOOKS['post_item_form']['fusioninventory'] = 'postItemForm';
 
       $PLUGIN_HOOKS['use_massive_action']['fusioninventory'] = 1;
@@ -544,7 +538,7 @@ function plugin_fusioninventory_check_prerequisites() {
 
    $plugin = new Plugin();
    if ($plugin->isActivated("fusioninventory")
-           && !TableExists("glpi_plugin_fusioninventory_configs")) {
+           && !$DB->tableExists("glpi_plugin_fusioninventory_configs")) {
       return false;
    }
 
