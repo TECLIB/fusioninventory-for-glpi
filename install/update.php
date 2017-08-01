@@ -5669,12 +5669,6 @@ function pluginFusioninventoryUpdate($current_version, $migrationname='Migration
                                'comment'=>'Clean agents not contacted since xxx days'));
    }
 
-   // remove old crontasks
-   if ($crontask->getFromDBbyName('PluginFusioninventoryTaskjob', 'updatedynamictasks')) {
-      $DB->query("DELETE FROM glpi_crontasks WHERE itemtype = 'glpi_crontasks'
-                                             AND name = 'updatedynamictasks'");
-   }
-
    /*
     * Update task's agents list from dynamic group periodically in order to automatically target new
     * computer.
