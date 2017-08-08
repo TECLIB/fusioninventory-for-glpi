@@ -418,7 +418,6 @@ class PluginFusioninventoryDeployAction extends PluginFusioninventoryDeployPacka
                echo "</table>";
             }
          }
-<<<<<<< HEAD
          echo "<table class='table_retchecks template' style='display:none'>";
          echo "<tr>";
          echo "<td>";
@@ -428,14 +427,6 @@ class PluginFusioninventoryDeployAction extends PluginFusioninventoryDeployPacka
          echo "<td><a class='edit' onclick='removeLine(this)'><img src='".
                $CFG_GLPI["root_doc"]."/pics/delete.png' /></a></td>";
          echo "</tr>";
-=======
-         echo "<div class='table_retchecks template' style='display:none'>";
-         Dropdown::showFromArray('retchecks_type[]', self::getReturnActionNames(), ['width' => '200px']);
-         echo "<input type='text' name='retchecks_value[]' />";
-         echo "<a class='edit' onclick='removeLine(this)'><img src='".
-               $CFG_GLPI["root_doc"]."/pics/delete.png' /></a>";
-         echo "</div>";
->>>>>>> master
 
          echo "</span>";
          echo "</td>";
