@@ -272,8 +272,10 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
 
       $a_taskjobs = array();
       if (isset($search)) {
-         $query = "SELECT * FROM `".$this->getTable()."`
-                   WHERE `items_id`='".$items_id."' AND `itemtype`='".$itemtype."'".$search."
+         $query = "SELECT *
+                   FROM `".$this->getTable()."`
+                   WHERE `items_id`='".$items_id."'
+                       AND `itemtype`='".$itemtype."'".$search."
                    ORDER BY `".$this->getTable()."`.`id` DESC";
          $a_taskjobs = array();
          $result = $DB->query($query);
@@ -603,8 +605,8 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
             $pfTaskjobstate->getFromDB($data['plugin_fusioninventory_taskjobstates_id']);
             $pfTaskjobstate->delete($pfTaskjobstate->fields, 1);
             $sql_delete = "DELETE FROM `glpi_plugin_fusioninventory_taskjoblogs`
-               WHERE `plugin_fusioninventory_taskjobstates_id` = '".
-                    $data['plugin_fusioninventory_taskjobstates_id']."'";
+                           WHERE `plugin_fusioninventory_taskjobstates_id` = '".
+                              $data['plugin_fusioninventory_taskjobstates_id']."'";
             $DB->query($sql_delete);
          }
       }
@@ -618,9 +620,7 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
    function getFromDBByUniqID($uniqid) {
       $result = $this->find("`uniqid`='$uniqid'");
       if (!empty($result)) {
-         $this->fields = array_pop($result);
+         $this->fields = current($result);
       }
    }
 }
-
-?>
