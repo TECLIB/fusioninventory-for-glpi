@@ -652,4 +652,40 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
       return $this->prepareInputForAdd($input);
    }
 
+   /**
+    * Get autofill mark for/from templates
+    * Backport from CommonDBTM::getAutofillMark from GLPI 9.2
+    *
+    * @param string $field   Field name
+    * @param array  $options Withtemplate parameter
+    * @param string $value   Optional value (if field to check is not part of current itemtype)
+    *
+    * @return string
+    */
+   public function getAutofillMark($field, $options, $value = null) {
+      $mark = '';
+      $title = null;
+      if (($this->isTemplate() || $this->isNewItem()) && $options['withtemplate'] == 1) {
+         $title = __('You can define an autofill template');
+      } else if ($this->isTemplate()) {
+         if ($value === null) {
+            $value = $this->getField($field);
+         }
+         $len = Toolbox::strlen($value);
+         if ($len > 8
+            && Toolbox::substr($value, 0, 4) === '&lt;'
+            && Toolbox::substr($value, $len -4, 4) === '&gt;'
+            && preg_match("/\\#{1,10}/", Toolbox::substr($value, 4, $len - 8))
+         ) {
+            $title = __('Autofilled from template');
+         } else {
+            return '';
+         }
+      }
+      if ($title !== null) {
+         $mark = "<i class='fa fa-magic' title='$title'></i>";
+      }
+      return $mark;
+   }
+
 }

@@ -8926,11 +8926,8 @@ function migrateTablesFromFusinvDeploy ($migration) {
          //print("deployorders fixer : create missing required 'associatedFiles' property\n");
          $json_order->associatedFiles = new stdClass();
       }
-      //print(
-         //"deployorders fixer : final order structure for ID ".$order_config['id']."\n" .
-      //   json_encode($json_order,JSON_PRETTY_PRINT) ."\n"
-      //);
-      $pfDeployPackage::updateOrderJson($order_config['id'], $json_order);
+      $pfDeployItem = new PluginFusioninventoryDeployPackageItem();
+      $pfDeployItem->updateOrderJson($order_config['id'], $json_order);
    }
 
    /**
