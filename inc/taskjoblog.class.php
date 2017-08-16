@@ -207,8 +207,6 @@ class PluginFusioninventoryTaskjoblog extends CommonDBTM {
       return '';
    }
 
-
-
    /**
     * Get search function for the class
     *
