@@ -5403,10 +5403,10 @@ function do_deploymirror_migration($migration) {
    $a_table = array();
 
    //If table doesn't exists, then we're sure the is_active field is not present
-   if (!$DB->tableExists('glpi_plugin_fusioninventory_deploymirrors')) {
+   if (TableExists('glpi_plugin_fusioninventory_deploymirrors')) {
       $is_active_exists = false;
    } else {
-      $is_active_exists = ($DB->fieldExists('glpi_plugin_fusioninventory_deploymirrors',
+      $is_active_exists = ($DB->FieldExists('glpi_plugin_fusioninventory_deploymirrors',
                                        'is_active'));
    }
 
