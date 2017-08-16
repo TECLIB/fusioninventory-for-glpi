@@ -5406,7 +5406,7 @@ function do_deploymirror_migration($migration) {
    if (TableExists('glpi_plugin_fusioninventory_deploymirrors')) {
       $is_active_exists = false;
    } else {
-      $is_active_exists = ($DB->FieldExists('glpi_plugin_fusioninventory_deploymirrors',
+      $is_active_exists = (FieldExists('glpi_plugin_fusioninventory_deploymirrors',
                                        'is_active'));
    }
 
