@@ -2349,8 +2349,17 @@ function plugin_fusioninventory_postItemForm($params) {
          case 'Item_OperatingSystem':
             if ($params['item']->fields['itemtype'] == 'Computer') {
                PluginFusioninventoryInventoryComputerComputer::showFormOS($params['item']);
-            }
+         }
       }
+   }
+}
+
+function plugin_fusioninventory_postShowTab($params) {
+   switch($params['options']['itemtype']) {
+      case 'Computer':
+         if ($params['options']['tabnum'] == 1) {
+            PluginFusioninventoryInventoryComputerComputer::showFormOS($params['item']);
+         }
    }
 }
 ?>

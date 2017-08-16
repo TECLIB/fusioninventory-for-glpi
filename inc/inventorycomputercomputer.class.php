@@ -199,14 +199,15 @@ class PluginFusioninventoryInventoryComputerComputer extends CommonDBTM {
    static function showFormOS($item) {
       $pfComputer = new self();
       $a_computerextend = current(
-         $pfComputer->find("`computers_id`='".$item->fields['items_id']."'","",1)
+         $pfComputer->find("`computers_id`='".$item->fields['id']."'","",1)
       );
       if (empty($a_computerextend)) {
          return;
       }
 
+      echo '<table class="tab_cadre_fixe tab_glpi" width="100%">';
       echo '<tr class="tab_bg_1">';
-      echo "<th colspan='4'></th>";
+      echo "<th colspan='4'>".__('FusionInventory', 'fusionInventory')."</th>";
       echo "</tr>";
 
       echo '<tr class="tab_bg_1">';
@@ -230,6 +231,7 @@ class PluginFusioninventoryInventoryComputerComputer extends CommonDBTM {
       echo $a_computerextend['hostid'];
       echo "</td><colspan='2'></td>";
       echo "</tr>";
+      echo "</table>";
 
       return true;
    }
