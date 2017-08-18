@@ -239,7 +239,7 @@ class PluginFusioninventoryDeployAction extends PluginFusioninventoryDeployPacka
             foreach ($action[$action_type]['retChecks'] as $retCheck) {
                echo "<li>";
                $getReturnActionNames = $this->getReturnActionNames();
-               echo $getReturnActionNames[$retCheck['type']]." ".array_shift($retCheck['values']);
+               echo $getReturnActionNames[$retCheck['type']]." ".array_shift($retCheck['value']);
                echo "</li>";
             }
             echo "</ul>";
