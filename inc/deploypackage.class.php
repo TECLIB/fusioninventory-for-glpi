@@ -953,6 +953,11 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
                   }
                }
 
+            case 'Computer':
+               if (Session::haveRight("plugin_fusioninventory_selfpackage", READ)
+                  && PluginFusioninventoryToolbox::isAFusionInventoryDevice($item)) {
+                  return __('Package deploy', 'fusioninventory');
+               }
          }
       }
       return '';
@@ -969,14 +974,18 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
     * @return boolean
     */
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
-
-      if ($item->getType() == __CLASS__) {
-         switch($tabnum) {
-
-            case 1:
-               $item->showVisibility();
-               return true;
+      switch ($item->getType()) {
+         case __CLASS__ :
+            switch($tabnum) {
+               case 1:
+                  $item->showVisibility();
+                  return true;
          }
+
+         case 'Computer':
+            $package = new self();
+            $package->showPackageForMe($_SESSION['glpiID'], $item);
+            return true;
       }
       return false;
    }
@@ -1407,6 +1416,9 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
             echo "</td>";
             echo "</tr>";
          }
+      }
+
+      if (count($package_to_install)) {
 
          $p['name']     = 'deploypackages_'.$computers_id;
          $p['display']  = true;
@@ -1421,8 +1433,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
          Dropdown::showFromArray($p['name'], $package_to_install, $p);
          echo "</td>";
          echo "</tr>";
-      }
-      if (count($my_packages)) {
+
          echo "<tr>";
          echo "<th colspan='2'>";
          echo Html::submit(__('Prepare for install', 'fusioninventory'),

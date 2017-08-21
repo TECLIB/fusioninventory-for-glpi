@@ -577,13 +577,17 @@ class PluginFusioninventoryDeployCheck extends PluginFusioninventoryDeployPackag
       if (!isset($params['name'])) {
          $params['name'] = "";
       }
-      if (!empty($params['value'])
-         && is_numeric($params['value'])
-            && !empty($params['unit'])) {
-         $params['value'] = $params['value'] * $this->getUnitSize($params['unit']);
-         //Make an exception for freespaceGreater check which is saved as MiB
-         if ($params['checkstype'] == "freespaceGreater") {
-            $params['value'] = $params['value'] / (1024*1024);
+
+      if (!empty($params['unit'])) {
+         $params['value'] = str_replace(",", ".", $params['value']);
+         if (!empty($params['value']) && is_numeric($params['value'])) {
+
+            //Make an exception for freespaceGreater check which is saved as MiB
+            if ($params['checkstype'] == "freespaceGreater") {
+               $params['value'] = $params['value'] / (1024 * 1024);
+            } else {
+               $params['value'] = $params['value'] * self::getUnitSize($params['unit']);
+            }
          }
       }
       //prepare new check entry to insert in json
@@ -604,30 +608,19 @@ class PluginFusioninventoryDeployCheck extends PluginFusioninventoryDeployPackag
     *
     * @param array $params list of fields with value of the check
     */
-    function save_item($params) {
-      if (!isset($params['value'])) {
-         $params['value'] = "";
-      }
-      if (!isset($params['name'])) {
-         $params['name'] = "";
-      }
-      if (!empty($params['value']) && is_numeric($params['value'])) {
-         $params['value'] = $params['value'] * $this->getUnitSize($params['unit']);
-         //Make an exception for freespaceGreater check which is saved as MiB
-         if ($params['checkstype'] == "freespaceGreater") {
-            $params['value'] = $params['value'] / (1024 * 1024);
-         }
-      }
-      //prepare updated check entry to insert in json
-      $entry = [
-         'name'   => $params['name'],
-         'type'   => $params['checkstype'],
-         'path'   => $params['path'],
-         'value'  => $params['value'],
-         'return' => $params['return']
-      ];
-      $data = $this->prepareDataToSave($params, $entry);
+   function save_item($params) {
+      $entry = self::formatCheckForJson($params);
+      //get current order json
+      $datas = json_decode($this->getJson($params['id']), TRUE);
+
+      //unset index
+      unset($datas['jobs']['checks'][$params['index']]);
+
+      //add new datas at index position
+      //(array_splice for insertion, ex : http://stackoverflow.com/a/3797526)
+      array_splice($datas['jobs']['checks'], $params['index'], 0, array($entry));
+
       //update order
-      $this->updateOrderJson($params['id'], $data);
+      $this->updateOrderJson($params['id'], $datas);
    }
 }

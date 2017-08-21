@@ -421,7 +421,8 @@ class PluginFusioninventoryDeployAction extends PluginFusioninventoryDeployPacka
          echo "<table class='table_retchecks template' style='display:none'>";
          echo "<tr>";
          echo "<td>";
-         Dropdown::showFromArray('retchecks_type[]', $this->getReturnActionNames());
+         Dropdown::showFromArray('retchecks_type[]', $this->getReturnActionNames(),
+                                 ['width' => '200px']);
          echo "</td>";
          echo "<td><input type='text' name='retchecks_value[]' /></td>";
          echo "<td><a class='edit' onclick='removeLine(this)'><img src='".
