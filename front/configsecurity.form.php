@@ -49,18 +49,21 @@ include ("../../../inc/includes.php");
 Session::checkRight('plugin_fusioninventory_configsecurity', READ);
 
 $pfConfigSecurity = new PluginFusioninventoryConfigSecurity();
-$config = new PluginFusioninventoryConfig();
+$config           = new PluginFusioninventoryConfig();
 
-Html::header(__('FusionInventory', 'fusioninventory'), $_SERVER["PHP_SELF"], "admin",
-         "pluginfusioninventorymenu", "configsecurity");
+Html::header(PluginFusioninventoryConfigSecurity::getTypeName(),
+             $_SERVER["PHP_SELF"], "admin",
+            "pluginfusioninventorymenu", "configsecurity");
 
 PluginFusioninventoryMenu::displayMenu("mini");
 
-
 if (isset ($_POST["add"])) {
    Session::checkRight('plugin_fusioninventory_configsecurity', CREATE);
-   $new_ID = 0;
-   $new_ID = $pfConfigSecurity->add($_POST);
+   $newID = 0;
+   $newID = $pfConfigSecurity->add($_POST);
+   if ($_SESSION['glpibackcreated']) {
+      Html::redirect($pfConfigSecurity->getFormURL()."?id=".$newID);
+   }
    Html::back();
 } else if (isset ($_POST["update"])) {
    Session::checkRight('plugin_fusioninventory_configsecurity', UPDATE);
@@ -77,12 +80,6 @@ if (isset($_GET["id"])) {
    $id = $_GET["id"];
 }
 
-if (strstr($_SERVER['HTTP_REFERER'], "wizard.php")) {
-   Html::redirect($_SERVER['HTTP_REFERER']."&id=".$id);
-}
-
-$pfConfigSecurity->showForm($id);
+$pfConfigSecurity->display($_GET);
 
 Html::footer();
-
-?>

@@ -59,7 +59,7 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
     *
     * @var boolean
     */
-   public $dohistory = TRUE;
+   public $dohistory = true;
 
    /**
     * The right name for this class
@@ -68,6 +68,14 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
     */
    static $rightname = 'plugin_fusioninventory_configsecurity';
 
+   /**
+    * Name of the type
+    *
+    * @param $nb  integer  number of item in the type (default 0)
+   **/
+   static function getTypeName($nb = 0) {
+      return __('SNMP authentication', 'fusioninventory');
+   }
 
    /**
     * Define tabs to display on form page
@@ -75,13 +83,93 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
     * @param array $options
     * @return array containing the tabs name
     */
-   function defineTabs($options=array()) {
-      $ong = array();
-      $this->addStandardTab('Log', $ong, $options);
+   function defineTabs($options= []) {
+      $ong = [];
+      $this->addDefaultFormTab($ong)
+         ->addStandardTab('Log', $ong, $options);
       return $ong;
    }
 
+   function getSearchOptionsNew() {
+      global $CFG_GLPI;
 
+      $tab = [];
+
+      $tab[] = [
+         'id'                 => 'common',
+         'name'               => __('Characteristics')
+      ];
+
+      $tab[] = [
+         'id'                 => '1',
+         'table'              => $this->getTable(),
+         'field'              => 'name',
+         'name'               => __('Name'),
+         'datatype'           => 'itemlink',
+         'massiveaction'      => false
+      ];
+
+      $tab[] = [
+         'id'                 => '2',
+         'table'              => $this->getTable(),
+         'field'              => 'id',
+         'name'               => __('ID'),
+         'massiveaction'      => false,
+         'datatype'           => 'number'
+      ];
+
+      $tab[] = [
+         'id'                 => '3',
+         'table'              => $this->getTable(),
+         'field'              => 'snmpversion',
+         'name'               => __('SNMP version', 'fusioninventory'),
+         'massiveaction'      => false
+      ];
+
+      $tab[] = [
+         'id'                 => '4',
+         'table'              => $this->getTable(),
+         'field'              => 'username',
+         'name'               => _n('User', 'Users', 1),
+         'massiveaction'      => false, // implicit field is id
+      ];
+
+      $tab[] = [
+         'id'                 => '5',
+         'table'              => $this->getTable(),
+         'field'              => 'authentication',
+         'name'               => __('Encryption protocol for authentication ',
+                                    'fusioninventory'),
+         'massiveaction'      => false
+      ];
+
+      $tab[] = [
+         'id'                 => '6',
+         'table'              => $this->getTable(),
+         'field'              => 'auth_passphrase',
+         'name'               => __('Authentication password', 'fusioninventory'),
+         'massiveaction'      => false
+      ];
+
+      $tab[] = [
+         'id'                 => '7',
+         'table'              => $this->getTable(),
+         'field'              => 'encryption',
+         'name'               => __('Encryption protocol for data',
+                                    'fusioninventory'),
+         'massiveaction'      => false
+      ];
+
+      $tab[] = [
+         'id'                 => '8',
+         'table'              => $this->getTable(),
+         'field'              => 'priv_passphrase',
+         'name'               => __('Encryption password', 'fusioninventory'),
+         'massiveaction'      => false
+      ];
+
+      return $tab;
+   }
 
    /**
     * Display form
@@ -90,81 +178,84 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
     * @param array $options
     * @return true
     */
-   function showForm($id, $options=array()) {
+   function showForm($id, $options=[]) {
       Session::checkRight('plugin_fusioninventory_configsecurity', READ);
       $this->initForm($id, $options);
       $this->showFormHeader($options);
 
+      if (($this->isNewID($id)
+         && isset($options['snmpv3'])) || $this->fields["snmpversion"] == 3) {
+         $show_v3 = true;
+      } else {
+         $show_v3 = false;
+      }
       echo "<tr class='tab_bg_1'>";
-      echo "<td align='center' colspan='2'>" . __('Name') . "</td>";
-      echo "<td align='center' colspan='2'>";
+      echo "<td align='center'>" . __('Name') . "</td>";
+      echo "<td align='center'>";
       Html::autocompletionTextField($this,'name');
       echo "</td>";
-      echo "</tr>";
 
-      echo "<tr class='tab_bg_1'>";
-      echo "<td align='center' colspan='2'>" . __('SNMP version', 'fusioninventory') . "</td>";
-      echo "<td align='center' colspan='2'>";
-         $this->showDropdownSNMPVersion($this->fields["snmpversion"]);
-      echo "</td>";
-      echo "</tr>";
+      if (!$show_v3) {
 
-      echo "<tr class='tab_bg_1'>";
-      echo "<th colspan='2'>v 1 & v 2c</th>";
-      echo "<th colspan='2'>v 3</th>";
-      echo "</tr>";
+         echo "<td align='center'>" . __('SNMP version', 'fusioninventory') . "</td>";
+         echo "<td align='center'>";
+            $this->showDropdownSNMPVersion($this->fields["snmpversion"], $show_v3);
+         echo "</td>";
+         echo "</tr>";
 
-      echo "<tr class='tab_bg_1'>";
-      echo "<td align='center'>" . __('Community', 'fusioninventory') . "</td>";
-      echo "<td align='center'>";
-      Html::autocompletionTextField($this,'community');
-      echo "</td>";
+         echo "<tr class='tab_bg_1'>";
+         echo "<td align='center'>" . __('Community', 'fusioninventory') . "</td>";
+         echo "<td align='center'>";
+         Html::autocompletionTextField($this, 'community');
+         echo "</td>";
+         $url = $this->getLinkURL(true).'&snmpv3=on';
+         echo "<td colspan='2'><a href='$url'>".__('Enable SNMP v3', 'fusioninventory')."</a></td>";
+         echo "</tr>";
 
-      echo "<td align='center'>" . __('User') . "</td>";
-      echo "<td align='center'>";
-      Html::autocompletionTextField($this,'username');
-      echo "</td>";
-      echo "</tr>";
+      } else {
 
-      echo "<tr class='tab_bg_1'>";
-      echo "<td colspan='2'></td>";
-      echo "<td align='center'>".__('Encryption protocol for authentication ', 'fusioninventory').
-              "</td>";
-      echo "<td align='center'>";
-         $this->showDropdownSNMPAuth($this->fields["authentication"]);
-      echo "</td>";
-      echo "</tr>";
+         echo "<td align='center' colspan='2'><input type='hidden' name='snmpversion' value='3'></td>";
+         echo "</tr>";
 
-      echo "<tr class='tab_bg_1'>";
-      echo "<td colspan='2'></td>";
-      echo "<td align='center'>" . __('Password') . "</td>";
-      echo "<td align='center'>";
-      Html::autocompletionTextField($this,'auth_passphrase');
-      echo "</td>";
-      echo "</tr>";
+         echo "<tr class='tab_bg_1'>";
+         echo "<td align='center'>" . __('User') . "</td>";
+         echo "<td align='center'>";
+         Html::autocompletionTextField($this,'username');
+         echo "</td>";
 
-      echo "<tr class='tab_bg_1'>";
-      echo "<td colspan='2'></td>";
-      echo "<td align='center'>" . __('Encryption protocol for data', 'fusioninventory') . "</td>";
-      echo "<td align='center'>";
-         $this->showDropdownSNMPEncryption($this->fields["encryption"]);
-      echo "</td>";
-      echo "</tr>";
+         echo "<td align='center'>".__('Encryption protocol for authentication ', 'fusioninventory').
+                 "</td>";
+         echo "<td align='center'>";
+            $this->showDropdownSNMPAuth($this->fields["authentication"]);
+         echo "</td>";
+         echo "</tr>";
 
-      echo "<tr class='tab_bg_1'>";
-      echo "<td colspan='2'></td>";
-      echo "<td align='center'>" . __('Password') . "</td>";
-      echo "<td align='center'>";
-      Html::autocompletionTextField($this,'priv_passphrase');
-      echo "</td>";
-      echo "</tr>";
+         echo "<tr class='tab_bg_1'>";
+         echo "<td align='center'>" . __('Authentication password', 'fusioninventory') . "</td>";
+         echo "<td align='center'>";
+         Html::passwordField('auth_passphrase', ['value' => $this->fields['auth_passphrase']]);
+         echo "</td>";
+
+         echo "<td align='center'>" . __('Encryption protocol for data', 'fusioninventory') . "</td>";
+         echo "<td align='center'>";
+            $this->showDropdownSNMPEncryption($this->fields["encryption"]);
+         echo "</td>";
+         echo "</tr>";
+
+         echo "<tr class='tab_bg_1'>";
+         echo "<td align='center'>" . __('Encryption password', 'fusioninventory') . "</td>";
+         echo "<td align='center'>";
+         Html::passwordField('priv_passphrase', ['value' => $this->fields['priv_passphrase']]);
+         echo "</td>";
+         echo "<td colspan='2'></td>";
+         echo "</tr>";
+
+      }
+
 
       $this->showFormButtons($options);
 
-      echo "<div id='tabcontent'></div>";
-      echo "<script type='text/javascript'>loadDefaultTab();</script>";
-
-      return TRUE;
+      return true;
    }
 
 
@@ -174,13 +265,9 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
     *
     * @param null|string $p_value
     */
-   function showDropdownSNMPVersion($p_value=NULL) {
-      $snmpVersions = array(0 => '-----', '1', '2c', '3');
-      $options = array();
-      if (!is_null($p_value)) {
-         $options = array('value' => $p_value);
-      }
-      Dropdown::showFromArray("snmpversion", $snmpVersions, $options);
+   function showDropdownSNMPVersion($p_value='v1') {
+      Dropdown::showFromArray("snmpversion", ['1' => 'v1', '2c' => 'v2c'],
+                              ['value' => $p_value]);
    }
 
 
@@ -214,13 +301,9 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
     *
     * @param null|string $p_value
     */
-   function showDropdownSNMPAuth($p_value=NULL) {
-      $authentications = array(0=>'-----', 'MD5', 'SHA');
-      $options = array();
-      if (!is_null($p_value)) {
-         $options = array('value'=>$p_value);
-      }
-      Dropdown::showFromArray("authentication", $authentications, $options);
+   function showDropdownSNMPAuth($p_value = 'MD5') {
+      Dropdown::showFromArray("authentication", ['MD5', 'SHA'],
+                              ['value' => $p_value]);
    }
 
 
@@ -244,7 +327,35 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
       return '';
    }
 
+   /**
+    * display a value according to a field
+    *
+    * @since version 0.83
+    *
+    * @param $field     String         name of the field
+    * @param $values    String / Array with the value to display
+    * @param $options   Array          of option
+    *
+    * @return a string
+   **/
+   static function getSpecificValueToDisplay($field, $values, array $options = []) {
 
+      if (!is_array($values)) {
+         $values = [$field => $values];
+      }
+      switch ($field) {
+         case 'encryption':
+            $security = new self();
+            return $security->getSNMPEncryption($values[$field]);
+
+         case 'authentication':
+            $security = new self();
+            return $security->getSNMPAuthProtocol($values[$field]);
+
+      }
+      return parent::getSpecificValueToDisplay($field, $values, $options);
+
+   }
 
    /**
     * Show dropdown of SNMP encryption protocol
@@ -252,10 +363,10 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
     * @param string $p_value
     */
    function showDropdownSNMPEncryption($p_value=NULL) {
-      $encryptions = array(0 => '-----', 'DES', 'AES128', 'AES192', 'AES256', 'Triple-DES');
-      $options = array();
+      $encryptions = ['DES', 'AES128', 'AES192', 'AES256', 'Triple-DES'];
+      $options     = [];
       if (!is_null($p_value)) {
-         $options = array('value' => $p_value);
+         $options = ['value' => $p_value];
       }
       Dropdown::showFromArray("encryption", $encryptions, $options);
    }
@@ -302,7 +413,7 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
       Dropdown::show("PluginFusioninventoryConfigSecurity",
                       array('name' => "plugin_fusioninventory_configsecurities_id",
                            'value' => $selected,
-                           'comment' => FALSE));
+                           'comment' => false));
    }
 
 
@@ -317,9 +428,9 @@ class PluginFusioninventoryConfigSecurity extends CommonDBTM {
       if ($ma->getAction() == 'assign_auth') {
          PluginFusioninventoryConfigSecurity::authDropdown();
          echo Html::submit(_x('button','Post'), array('name' => 'massiveaction'));
-         return TRUE;
+         return true;
       }
-      return FALSE;
+      return false;
    }
 
 
