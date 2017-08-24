@@ -195,7 +195,7 @@ class PluginFusioninventoryInventoryComputerLib extends CommonDBTM {
             $history = FALSE;
          }
          $input['_no_history'] = $no_history;
-         PluginFusioninventoryInventoryComputerInventory::addDefaultStateIfNeeded($input);
+         $input = PluginFusioninventoryToolbox::addDefaultStateIfNeeded('computer', $input);
          $computer->update($input, !$no_history);
 
       $this->computer = $computer;
@@ -2516,7 +2516,7 @@ class PluginFusioninventoryInventoryComputerLib extends CommonDBTM {
       $input = array(
           'id' => $computers_id
       );
-      PluginFusioninventoryInventoryComputerInventory::addDefaultStateIfNeeded($input);
+      $input = PluginFusioninventoryToolbox::addDefaultStateIfNeeded('computer', $input);
       $computer->update($input);
 
       $DB->query("UPDATE `glpi_computerdisks` SET `is_dynamic`='1'
