@@ -107,25 +107,8 @@ switch (filter_input(INPUT_GET, "action")) {
                   $deploycommon = new PluginFusioninventoryDeployCommon();
                   // Get taskjob json order
                   $jobstate_order = $deploycommon->run($taskjobstate);
-                  if( isset($jobstate_order['job']['actions'])){
-                      foreach($jobstate_order['job']['actions'] as $key => $value){
-                          if(isset($value['cmd']) && isset($value['cmd']['exec'])){
-                              $jobstate_order['job']['actions'][$key]['cmd']['exec']= Toolbox::unclean_cross_side_scripting_deep( $value['cmd']['exec'] );
-                          }
-                      }
-                  }
+                  //$jobstate_order = PluginFusioninventoryDeployAction::cleanActionBeforeSend($jobstate_order);
 
-                  //If task doesn't support checks skip, info, warning,
-                  //send an ignore instead
-                  //tasks version needs to be at least 2.2
-                  if (version_compare($deploy_task_version, '2.2', 'lt')
-                     && isset($jobstate_order['job']['checks'])) {
-                     foreach ($jobstate_order['job']['checks'] as $key => $value) {
-                        if (in_array($value['return'], ['skip', 'info', 'warning'])) {
-                           $jobstate_order['job']['checks'][$key]['return'] = 'ignore';
-                        }
-                     }
-                  }
                   // Append order to the final json
                   $order->jobs[] = $jobstate_order['job'];
 

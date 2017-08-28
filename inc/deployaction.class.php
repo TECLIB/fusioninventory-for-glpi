@@ -673,6 +673,36 @@ class PluginFusioninventoryDeployAction extends CommonDBTM {
       //update order
       PluginFusioninventoryDeployPackage::updateOrderJson($params['id'], $datas);
    }
+
+   /**
+   * Clean command action & checks before sending it to the agent
+   * @since 9.2
+   *
+   * @param array $jobstate_order the list of jobs to send
+   * @return array the list of jobs modified if needed
+   */
+   static function cleanActionBeforeSend($jobstate_order) {
+      if( isset($jobstate_order['job']['actions'])){
+          foreach($jobstate_order['job']['actions'] as $key => $value){
+             if(isset($value['cmd']) && isset($value['cmd']['exec'])){
+                  $jobstate_order['job']['actions'][$key]['cmd']['exec']= Toolbox::unclean_cross_side_scripting_deep( $value['cmd']['exec'] );
+             }
+          }
+      }
+
+      //If task doesn't support checks skip, info, warning,
+      //send an ignore instead
+      //tasks version needs to be at least 2.2
+      if (version_compare($deploy_task_version, '2.2', 'lt')
+         && isset($jobstate_order['job']['checks'])) {
+         foreach ($jobstate_order['job']['checks'] as $key => $value) {
+            if (in_array($value['return'], ['skip', 'info', 'warning'])) {
+               $jobstate_order['job']['checks'][$key]['return'] = 'ignore';
+            }
+         }
+      }
+      return $jobstate_order;
+   }
 }
 
 ?>
