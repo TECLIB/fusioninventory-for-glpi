@@ -308,6 +308,10 @@ class PluginFusioninventoryProfile extends Profile {
                 'label'     => __('Computer information rules', 'fusioninventory'),
                 'field'     => 'plugin_fusioninventory_rulecollect'
           ),
+          array('itemtype'  => 'PluginFusioninventoryRuleState',
+                'label'     => __('Status rules', 'fusioninventory'),
+                'field'     => 'plugin_fusioninventory_rulestate'
+          ),
           array('itemtype'  => 'PluginFusioninventoryIgnoredimportdevice',
                 'label'     =>  __('Equipment ignored on import', 'fusioninventory'),
                 'field'     => 'plugin_fusioninventory_ignoredimportdevice'

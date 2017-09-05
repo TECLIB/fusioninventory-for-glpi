@@ -126,6 +126,7 @@ class PluginFusioninventoryMenu extends CommonGLPI {
           'inventoryruleentity'        => 'PluginFusioninventoryInventoryRuleEntity',
           'inventoryrulelocation'      => 'PluginFusioninventoryInventoryRuleLocation',
           'collectrule'                => 'PluginFusioninventoryCollectRule',
+          'rulestate'                  => 'PluginFusioninventoryRuleState',
           'inventorycomputerblacklist' => 'PluginFusioninventoryInventoryComputerBlacklist',
           'configsecurity'             => 'PluginFusioninventoryConfigSecurity',
           'credential'                 => 'PluginFusioninventoryCredential',
@@ -362,6 +363,13 @@ class PluginFusioninventoryMenu extends CommonGLPI {
                                  "/plugins/fusioninventory/pics/menu_blacklist.png";
          $a_menu[6]['link'] = $CFG_GLPI['root_doc'].
                                  "/plugins/fusioninventory/front/inventorycomputerblacklist.php";
+      }
+
+      if (Session::haveRight("plugin_fusioninventory_rulestate", READ)) {
+         $a_menu[7]['name'] = __('Status rules', 'fusioninventory');
+         $a_menu[7]['pic']  = $CFG_GLPI['root_doc']."/plugins/fusioninventory/pics/menu_rules.png";
+         $a_menu[7]['link'] = $CFG_GLPI['root_doc'].
+                                 "/plugins/fusioninventory/front/rulestate.php";
       }
 
       if (!empty($a_menu)) {
