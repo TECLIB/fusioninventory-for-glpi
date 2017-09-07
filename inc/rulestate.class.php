@@ -139,42 +139,42 @@ class PluginFusioninventoryRuleState extends Rule {
 
       $criterias = [];
 
-      $criterias['entities_id']['table']     = 'glpi_entities';
-      $criterias['entities_id']['field']     = 'entities_id';
-      $criterias['entities_id']['name']      = _n('Entity', 'Entities', 1);
-      $criterias['entities_id']['linkfield'] = 'entities_id';
-      $criterias['entities_id']['type']      = 'dropdown';
-      $criterias['entities_id']['allow_condition'] = array(Rule::PATTERN_IS,
-                                                           Rule::PATTERN_IS_NOT,
-                                                           Rule::PATTERN_CONTAIN,
-                                                           Rule::PATTERN_NOT_CONTAIN,
-                                                           Rule::PATTERN_BEGIN,
-                                                           Rule::PATTERN_END,
-                                                           Rule::REGEX_MATCH,
-                                                           Rule::REGEX_NOT_MATCH);
+      $criterias['entities_id']['table']           = 'glpi_entities';
+      $criterias['entities_id']['field']           = 'entities_id';
+      $criterias['entities_id']['name']            = _n('Entity', 'Entities', 1);
+      $criterias['entities_id']['linkfield']       = 'entities_id';
+      $criterias['entities_id']['type']            = 'dropdown';
+      $criterias['entities_id']['allow_condition'] = [Rule::PATTERN_IS,
+                                                      Rule::PATTERN_IS_NOT,
+                                                      Rule::PATTERN_CONTAIN,
+                                                      Rule::PATTERN_NOT_CONTAIN,
+                                                      Rule::PATTERN_BEGIN,
+                                                      Rule::PATTERN_END,
+                                                      Rule::REGEX_MATCH,
+                                                      Rule::REGEX_NOT_MATCH];
 
-      $criterias['itemtype']['field']       = 'itemtype';
-      $criterias['itemtype']['name']        = __('Itemtype');
+      $criterias['itemtype']['field']  = 'itemtype';
+      $criterias['itemtype']['name']   = __('Itemtype');
 
-      $criterias['name']['field']       = 'name';
-      $criterias['name']['name']        = __('Name');
+      $criterias['name']['field']      = 'name';
+      $criterias['name']['name']       = __('Name');
 
-      $criterias['serial']['field']     = 'serial';
-      $criterias['serial']['name']      = __('Serial number');
+      $criterias['serial']['field']    = 'serial';
+      $criterias['serial']['name']     = __('Serial number');
 
-      $criterias['comment']['field']    = 'comment';
-      $criterias['comment']['name']     = __('Comments');
+      $criterias['comment']['field']   = 'comment';
+      $criterias['comment']['name']    = __('Comments');
 
-      $criterias['states_id']['field']  = 'states_id';
-      $criterias['states_id']['name']   = __('Status');
+      $criterias['states_id']['field'] = 'states_id';
+      $criterias['states_id']['name']  = __('Status');
 
-      $criterias['date_last_inventory']['field']  = 'date_last_inventory';
-      $criterias['date_last_inventory']['name']   = __('Last inventory', 'fusioninventory');
+      $criterias['_last_inventory']['field']  = '_last_inventory';
+      $criterias['_last_inventory']['name']   = __('Last inventory', 'fusioninventory');
 
-      $criterias['itemtype']['name'] = __('Item type');
-      $criterias['itemtype']['type']        = 'dropdown_itemtype';
+      $criterias['itemtype']['name']            = __('Item type');
+      $criterias['itemtype']['type']            = 'dropdown_itemtype';
       $criterias['itemtype']['is_global']       = false;
-      $criterias['itemtype']['allow_condition'] = array(Rule::PATTERN_IS, Rule::PATTERN_IS_NOT);
+      $criterias['itemtype']['allow_condition'] = [Rule::PATTERN_IS, Rule::PATTERN_IS_NOT];
 
       return $criterias;
    }
@@ -192,9 +192,9 @@ class PluginFusioninventoryRuleState extends Rule {
 
       $actions['states_id']['name']  = __('State');
 
-      $actions['states_id']['type']  = 'dropdown';
-      $actions['states_id']['table'] = 'glpi_states';
-      $actions['states_id']['force_actions'] = array('assign');
+      $actions['states_id']['type']          = 'dropdown';
+      $actions['states_id']['table']         = 'glpi_states';
+      $actions['states_id']['force_actions'] = ['assign'];
 
       return $actions;
    }
