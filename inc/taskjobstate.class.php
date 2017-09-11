@@ -522,7 +522,7 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
          'date' => date("Y-m-d H:i:s"),
          'state' => PluginFusioninventoryTaskjoblog::TASK_INFO,
          'comment' => Toolbox::addslashes_deep($reason)
-      );
+      ];
 
       $log->add($log_input);
       $this->update(array(
