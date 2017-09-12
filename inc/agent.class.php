@@ -1221,45 +1221,62 @@ class PluginFusioninventoryAgent extends CommonDBTM {
     * @return boolean true if successfull, otherwise false
     */
    static function cronCleanoldagents($task=NULL) {
-      global $DB;
+      global $DB, $CFG_GLPI;
 
-      $pfConfig = new PluginFusioninventoryConfig();
-      $pfAgent  = new PluginFusioninventoryAgent();
+      $pfAgent     = new PluginFusioninventoryAgent();
+      $pfRuleState = new PluginFusioninventoryRuleStateCollection();
+      $index       = 0;
 
-      $retentiontime = $pfConfig->getValue('agents_old_days');
-      if ($retentiontime == 0) {
-         return TRUE;
-      }
-      $sql = "SELECT * FROM `glpi_plugin_fusioninventory_agents`
-                   WHERE `last_contact` < date_add(now(), interval -".$retentiontime." day)";
-      $result = $DB->query($sql);
-
-      if ($result) {
-         $cron_status = FALSE;
-         $action = $pfConfig->getValue('agents_action');
-         if ($action == PluginFusioninventoryConfig::ACTION_CLEAN) {
-            //delete agents
-            while ($data = $DB->fetch_array($result)) {
-               $pfAgent->delete($data);
-               $task->addVolume(1);
-               $cron_status = TRUE;
+      foreach ($CFG_GLPI["state_types"] as $itemtype) {
+         if (class_exists($itemtype)) {
+            switch ($itemtype) {
+               case 'Computer':
+                  $from = 'glpi_plugin_fusioninventory_inventorycomputercomputers';
+                  break;
+               case 'NetworkEquipment':
+                  $from = 'glpi_plugin_fusioninventory_networkequipment';
+                  break;
+               case 'Printer':
+                  $from = 'glpi_plugin_fusioninventory_printer';
+                  break;
             }
-         } else {
-            //change status of agents
-            while ($data = $DB->fetch_array($result)) {
-               $computer = new Computer();
-               if ($computer->getFromDB($data['computers_id'])) {
-                  $computer->update(array(
-                      'id' => $data['computers_id'],
-                      'states_id' => $pfConfig->getValue('agents_status')));
-                  $task->addVolume(1);
-                  $cron_status = TRUE;
+
+            $table            = getItemTypeForTable($itemtype);
+            $fk               = getForeignKeyFieldForTable($table);
+            $item             = new $itemtype();
+            $agents_to_delete = [];
+            $params           = [];
+
+            $query = "SELECT `i`.`entities_id`, `i`.`states_id`,
+                             `a`.`last_contact` AS `_last_inventory`,
+                             `$itemtype` AS `itemtype`
+                      FROM $from AS `a`
+                      LEFT JOIN `$table` AS `i`
+                      WHERE `i`.`id`=`a`.`$fk`
+                         AND `is_deleted`='0'";
+            foreach ($DB->request($query) as $data) {
+               $result = $pfRuleState->processAllRules(null, $data);
+               if (!empty($result)) {
+                  if (isset($result['states_id'])) {
+                     $params[] = ['states_id' => $result['states_id'],
+                                  'id'        => $data['id']
+                                 ];
+                  }
+                  if (isset($result['_delete_agent']) && $itemtype == 'Computer') {
+                     $agents_to_delete[] = $data['id'];
+                  }
                }
             }
+            if (!empty($params)) {
+               $item->update($params);
+            }
+            if (!empty($agents_to_delete)) {
+               $pfAgent->deleteByCriteria(['id' => $agents_to_delete]);
+            }
+            $index+= count($params) + count($agents_to_delete);
          }
       }
-      return $cron_status;
+      $task->addVolume($index);
+      return true;
    }
 }
-
-?>

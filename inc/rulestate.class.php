@@ -92,7 +92,7 @@ class PluginFusioninventoryRuleState extends Rule {
     * @return integer
     */
    function maxActionsCount() {
-      return 1;
+      return 2;
    }
 
 
@@ -139,37 +139,20 @@ class PluginFusioninventoryRuleState extends Rule {
 
       $criterias = [];
 
-      $criterias['entities_id']['table']           = 'glpi_entities';
-      $criterias['entities_id']['field']           = 'entities_id';
-      $criterias['entities_id']['name']            = _n('Entity', 'Entities', 1);
-      $criterias['entities_id']['linkfield']       = 'entities_id';
-      $criterias['entities_id']['type']            = 'dropdown';
-      $criterias['entities_id']['allow_condition'] = [Rule::PATTERN_IS,
-                                                      Rule::PATTERN_IS_NOT,
-                                                      Rule::PATTERN_CONTAIN,
-                                                      Rule::PATTERN_NOT_CONTAIN,
-                                                      Rule::PATTERN_BEGIN,
-                                                      Rule::PATTERN_END,
-                                                      Rule::REGEX_MATCH,
-                                                      Rule::REGEX_NOT_MATCH];
+      $criterias['entities_id']['table']     = 'glpi_entities';
+      $criterias['entities_id']['field']     = 'name';
+      $criterias['entities_id']['name']      = __('Entity');
+      $criterias['entities_id']['linkfield'] = 'entities_id';
+      $criterias['entities_id']['type']      = 'dropdown';
 
-      $criterias['itemtype']['field']  = 'itemtype';
-      $criterias['itemtype']['name']   = __('Itemtype');
-
-      $criterias['name']['field']      = 'name';
-      $criterias['name']['name']       = __('Name');
-
-      $criterias['serial']['field']    = 'serial';
-      $criterias['serial']['name']     = __('Serial number');
-
-      $criterias['comment']['field']   = 'comment';
-      $criterias['comment']['name']    = __('Comments');
-
-      $criterias['states_id']['field'] = 'states_id';
       $criterias['states_id']['name']  = __('Status');
+      $criterias['states_id']['type']  = 'dropdown';
+      $criterias['states_id']['table'] = 'glpi_states';
 
       $criterias['_last_inventory']['field']  = '_last_inventory';
-      $criterias['_last_inventory']['name']   = __('Last inventory', 'fusioninventory');
+      $criterias['_last_inventory']['name']   = __('Last contact', 'fusioninventory');
+      $criterias['_last_inventory']['type']   = 'date_last_inventory';
+      $criterias['_last_inventory']['allow_condition'] = [Rule::PATTERN_IS, Rule::PATTERN_IS_NOT];
 
       $criterias['itemtype']['name']            = __('Item type');
       $criterias['itemtype']['type']            = 'dropdown_itemtype';
@@ -190,51 +173,42 @@ class PluginFusioninventoryRuleState extends Rule {
 
       $actions = [];
 
-      $actions['states_id']['name']  = __('State');
+      $actions['states_id']['name'] = __('Status');
+      $actions['states_id']['type'] = 'dropdown';
+      $actions['states_id']['table'] = 'glpi_states';
 
-      $actions['states_id']['type']          = 'dropdown';
-      $actions['states_id']['table']         = 'glpi_states';
-      $actions['states_id']['force_actions'] = ['assign'];
+      $actions['_delete_agent']['name'] = __('Remove agent', 'fusioninventory');
+      $actions['_delete_agent']['type'] = 'yesonly';
 
       return $actions;
    }
 
+   function displayAdditionalRuleCondition($condition, $criteria, $name, $value, $test = false) {
+      Toolbox::logDebug($condition, $criteria, $name, $value, $test);
+      return false;
+   }
 
 
    /**
-    * Display more conditions
+    * Get itemtypes have state_type and unmanaged devices
     *
-    * @param integer $condition
-    * @param object $criteria
-    * @param string $name
-    * @param string $value
-    * @param boolean $test
-    * @return boolean
+    * @global array $CFG_GLPI
+    * @return array
     */
-   function displayAdditionalRuleCondition($condition, $criteria, $name, $value, $test=false) {
-      if ($test) {
-         return false;
+   function getTypes() {
+      global $CFG_GLPI;
+
+      $types = [];
+      foreach ($CFG_GLPI["state_types"] as $itemtype) {
+         if (class_exists($itemtype)) {
+            $item = new $itemtype();
+            $types[$itemtype] = $item->getTypeName();
+         }
       }
-
-      switch ($condition) {
-         case Rule::PATTERN_FIND:
-            return false;
-
-         case PluginFusioninventoryInventoryRuleImport::PATTERN_IS_EMPTY :
-            Dropdown::showYesNo($name, 0, 0);
-            return true;
-
-         case Rule::PATTERN_EXISTS:
-            echo Dropdown::showYesNo($name, 1, 0);
-            return true;
-
-         case Rule::PATTERN_DOES_NOT_EXISTS:
-            echo Dropdown::showYesNo($name, 1, 0);
-            return true;
-
-      }
-
-      return false;
+      $types["PluginFusioninventoryUnmanaged"] =
+                     PluginFusioninventoryUnmanaged::getTypeName();
+      $types[""] = __('No itemtype defined', 'fusioninventory');
+      return $types;
    }
 
 }
