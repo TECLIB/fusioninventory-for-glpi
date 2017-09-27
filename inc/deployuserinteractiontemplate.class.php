@@ -395,7 +395,7 @@ class PluginFusioninventoryDeployUserinteractionTemplate extends CommonDropdown 
       }
 
       $rand    = mt_rand();
-      $tplmark = $this->getAutofillMark('name', $options);
+      $tplmark = '*';
 
       //TRANS: %1$s is a string, %2$s a second one without spaces between them : to change for RTL
       echo "<td><label for='textfield_name$rand'>".sprintf(__('%1$s%2$s'), __('Name'), $tplmark) .
