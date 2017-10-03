@@ -432,14 +432,14 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
                ORDER BY log.`id` DESC";
       $res = $DB->query($query);
       $logs = [];
-      while ($result = $res->fetch_row()) {
-         $run_id = $result[$fields['run.id']];
+      while ($result = $res->fetch_assoc()) {
+         $run_id = $result['run.id'];
          $logs['run']    = $run_id;
          $logs['logs'][] = [
             'log.id'      => $result['log.id'],
             'log.comment' => PluginFusioninventoryTaskjoblog::convertComment($result['log.comment']),
             'log.date'    => $result['log.date'],
-            'log.f_date'  => Html::convDateTime($result[$fields['log.date']]),
+            'log.f_date'  => Html::convDateTime($result['log.date']),
             'log.state'   => $result['log.state']
          ];
       }
