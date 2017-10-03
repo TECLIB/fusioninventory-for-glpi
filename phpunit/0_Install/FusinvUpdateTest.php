@@ -171,7 +171,7 @@ class UpdateTest extends RestoreDatabase_TestCase {
       global $DB;
 
       //check is the field is_active has correctly been added to mirror servers
-      $this->assertTrue($DB->fieldExists('glpi_plugin_fusioninventory_deploymirrors',
+      $this->assertTrue(FieldExists('glpi_plugin_fusioninventory_deploymirrors',
                                     'is_active'));
 
    }
