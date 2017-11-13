@@ -231,7 +231,7 @@ class PluginFusioninventoryTaskView extends PluginFusioninventoryCommonView {
       $Computer     = new Computer();
 
       echo Html::scriptBlock("$(document).ready(function() {
-         taskjobs.task_id        = '".$json_task_id."';
+         taskjobs.task_id        = ".$json_task_id.";
          taskjobs.ajax_url       = '".$this->getBaseUrlFor('fi.job.logs')."';
          taskjobs.agents_url     = '".$pfAgent->getFormUrl()."';
          taskjobs.includeoldjobs = '".$_SESSION['glpi_plugin_fusioninventory']['includeoldjobs']."';
