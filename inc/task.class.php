@@ -1274,11 +1274,6 @@ class PluginFusioninventoryTask extends PluginFusioninventoryTaskView {
                         $counters['agents_success'][$agent_id] = $run_id;
                         $agent_state = 'success';
                         break;
-
-                     case PluginFusioninventoryTaskjobstate::POSTPONED :
-                        $counters['agents_postponed'][$agent_id] = $run_id;
-                        $agent_state = 'postponed';
-                        break;
                   }
                }
 
