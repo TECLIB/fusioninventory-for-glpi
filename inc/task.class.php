@@ -1299,7 +1299,6 @@ class PluginFusioninventoryTask extends PluginFusioninventoryTaskView {
 
                      $agent_state = 'success';
                      break;
-
                }
                if (!isset($counters['agents_error'][$agent_id])
                        and !isset($counters['agents_success'][$agent_id])) {
