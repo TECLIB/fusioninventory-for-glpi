@@ -508,6 +508,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
    function displayOrderTypeForm() {
       global $CFG_GLPI;
 
+<<<<<<< HEAD
       $subtypes = [
          'check'           => __("Audits", 'fusioninventory'),
          'file'            => __("Files", 'fusioninventory'),
@@ -522,6 +523,20 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       ];
 
       $rand  = mt_rand();
+=======
+      $subtypes = array(
+         'check'  => __("Audits", 'fusioninventory'),
+         'file'   => __("Files", 'fusioninventory'),
+         'action' => __("Actions", 'fusioninventory')
+      );
+      $json_subtypes = array(
+         'check'  => 'checks',
+         'file'   => 'associatedFiles',
+         'action' => 'actions'
+      );
+      $rand = mt_rand();
+
+>>>>>>> master-9.1
       $datas = json_decode($this->fields['json'], true);
 
       echo "<table class='tab_cadre_fixe' id='package_order_".$this->getID()."'>";
