@@ -117,25 +117,26 @@ class PluginFusioninventoryMenu extends CommonGLPI {
       global $CFG_GLPI;
 
       $elements = array(
-          'iprange'                    => 'PluginFusioninventoryIPRange',
-          'config'                     => 'PluginFusioninventoryConfig',
-          'task'                       => 'PluginFusioninventoryTask',
-          'timeslot'                   => 'PluginFusioninventoryTimeslot',
-          'unmanaged'                  => 'PluginFusioninventoryUnmanaged',
-          'inventoryruleimport'        => 'PluginFusioninventoryInventoryRuleImport',
-          'inventoryruleentity'        => 'PluginFusioninventoryInventoryRuleEntity',
-          'inventoryrulelocation'      => 'PluginFusioninventoryInventoryRuleLocation',
-          'collectrule'                => 'PluginFusioninventoryCollectRule',
-          'inventorycomputerblacklist' => 'PluginFusioninventoryInventoryComputerBlacklist',
-          'configsecurity'             => 'PluginFusioninventoryConfigSecurity',
-          'credential'                 => 'PluginFusioninventoryCredential',
-          'credentialip'               => 'PluginFusioninventoryCredentialIp',
-          'collect'                    => 'PluginFusioninventoryCollect',
-          'deploypackage'              => 'PluginFusioninventoryDeployPackage',
-          'deploymirror'               => 'PluginFusioninventoryDeployMirror',
-          'deploygroup'                => 'PluginFusioninventoryDeployGroup',
-          'ignoredimportdevice'        => 'PluginFusioninventoryIgnoredimportdevice',
-          'ruledictionnarycomputerarch'=> 'PluginFusioninventoryRuleDictionnaryComputerArch'
+          'iprange'                       => 'PluginFusioninventoryIPRange',
+          'config'                        => 'PluginFusioninventoryConfig',
+          'task'                          => 'PluginFusioninventoryTask',
+          'timeslot'                      => 'PluginFusioninventoryTimeslot',
+          'unmanaged'                     => 'PluginFusioninventoryUnmanaged',
+          'inventoryruleimport'           => 'PluginFusioninventoryInventoryRuleImport',
+          'inventoryruleentity'           => 'PluginFusioninventoryInventoryRuleEntity',
+          'inventoryrulelocation'         => 'PluginFusioninventoryInventoryRuleLocation',
+          'collectrule'                   => 'PluginFusioninventoryCollectRule',
+          'inventorycomputerblacklist'    => 'PluginFusioninventoryInventoryComputerBlacklist',
+          'configsecurity'                => 'PluginFusioninventoryConfigSecurity',
+          'credential'                    => 'PluginFusioninventoryCredential',
+          'credentialip'                  => 'PluginFusioninventoryCredentialIp',
+          'collect'                       => 'PluginFusioninventoryCollect',
+          'deploypackage'                 => 'PluginFusioninventoryDeployPackage',
+          'deploymirror'                  => 'PluginFusioninventoryDeployMirror',
+          'deploygroup'                   => 'PluginFusioninventoryDeployGroup',
+          'deployuserinteractiontemplate' => 'PluginFusioninventoryDeployUserinteractionTemplate',
+          'ignoredimportdevice'           => 'PluginFusioninventoryIgnoredimportdevice',
+          'ruledictionnarycomputerarch'   => 'PluginFusioninventoryRuleDictionnaryComputerArch'
       );
       $options = array();
 
@@ -203,7 +204,7 @@ class PluginFusioninventoryMenu extends CommonGLPI {
                  "wiki/Beta_test'>";
          echo "<img src='".$CFG_GLPI['root_doc']."/plugins/fusioninventory/pics/beta.png'/></a>";
          echo "&nbsp;<a href='https://www.transifex.com/projects/p/FusionInventory/resource/".
-                 "plugin-fusioninventory-084/'>";
+                 "plugin-fusioninventory-92/'>";
          echo "<img src='".$CFG_GLPI['root_doc']."/plugins/fusioninventory/pics/Translate.png'/>".
                  "</a>";
          echo "<H1>Version '".PLUGIN_FUSIONINVENTORY_REALVERSION."'</H1></center><br/>\n";
@@ -466,6 +467,13 @@ class PluginFusioninventoryMenu extends CommonGLPI {
          $a_menu[1]['name'] = __('Mirror servers', 'fusioninventory');
          $a_menu[1]['pic']  = $CFG_GLPI['root_doc']."/plugins/fusioninventory/pics/menu_files.png";
          $a_menu[1]['link'] = $CFG_GLPI['root_doc']."/plugins/fusioninventory/front/deploymirror.php";
+      }
+
+      if (Session::haveRight('plugin_fusioninventory_userinteractiontemplate', READ)) {
+         $a_menu[2]['name'] = _n('User interaction template',
+                                 'User interaction templates', 2, 'fusioninventory');
+         $a_menu[2]['pic']  = $CFG_GLPI['root_doc']."/plugins/fusioninventory/pics/menu_files.png";
+         $a_menu[2]['link'] = $CFG_GLPI['root_doc']."/plugins/fusioninventory/front/deployuserinteractiontemplate.php";
       }
 
       if (!empty($a_menu)) {

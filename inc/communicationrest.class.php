@@ -232,7 +232,11 @@ class PluginFusioninventoryCommunicationRest {
       );
 
       $taskjobstate = new PluginFusioninventoryTaskjobstate();
-      foreach ($taskjobstates as $jobstate) {
+
+      //Get task job status : identifier is the uuid given by the agent
+      $table = getTableForItemType('PluginFusioninventoryTaskjobstate');
+      $sql = "`uniqid`='".$p['uuid']."'";
+      foreach ($DB->request($table, $sql) as $jobstate) {
          $taskjobstate->getFromDB($jobstate['id']);
 
          //Get taskjoblog associated

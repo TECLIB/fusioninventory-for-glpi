@@ -1299,7 +1299,6 @@ class PluginFusioninventoryTask extends PluginFusioninventoryTaskView {
 
                      $agent_state = 'success';
                      break;
-
                }
                if (!isset($counters['agents_error'][$agent_id])
                        and !isset($counters['agents_success'][$agent_id])) {
@@ -1543,7 +1542,7 @@ class PluginFusioninventoryTask extends PluginFusioninventoryTaskView {
 
       // Filter by entity
       if (isset($filter['by_entities'])
-              && is_bool($filter['by_entities'])) {
+	      && (bool)$filter['by_entities']) {
          $where[] = getEntitiesRestrictRequest("", 'task');
       }
 

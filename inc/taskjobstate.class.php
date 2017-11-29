@@ -423,15 +423,15 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
 
       $res = $DB->query($query);
       $logs = [];
-      while ($result = $res->fetch_row()) {
-         $run_id = $result[$fields['run.id']];
+      while ($result = $res->fetch_assoc()) {
+         $run_id = $result['run.id'];
          $logs['run']    = $run_id;
          $logs['logs'][] = [
-            'log.id'      => $result[$fields['log.id']],
-            'log.comment' => PluginFusioninventoryTaskjoblog::convertComment($result[$fields['log.comment']]),
-            'log.date'    => $result[$fields['log.date']],
-            'log.f_date'  => Html::convDateTime($result[$fields['log.date']]),
-            'log.state'   => $result[$fields['log.state']]
+            'log.id'      => $result['log.id'],
+            'log.comment' => PluginFusioninventoryTaskjoblog::convertComment($result['log.comment']),
+            'log.date'    => $result['log.date'],
+            'log.f_date'  => Html::convDateTime($result['log.date']),
+            'log.state'   => $result['log.state']
          ];
       }
 
@@ -514,25 +514,93 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
     */
    function cancel($reason='') {
 
-      $log = new PluginFusioninventoryTaskjoblog();
-      $log_input = array(
+      $log       = new PluginFusioninventoryTaskjoblog();
+      $log_input = [
          'plugin_fusioninventory_taskjobstates_id' => $this->fields['id'],
          'items_id' => $this->fields['items_id'],
          'itemtype' => $this->fields['itemtype'],
          'date' => date("Y-m-d H:i:s"),
          'state' => PluginFusioninventoryTaskjoblog::TASK_INFO,
          'comment' => Toolbox::addslashes_deep($reason)
-      );
+      ];
 
       $log->add($log_input);
-
       $this->update(array(
          'id' => $this->fields['id'],
          'state' => self::CANCELLED
          ));
    }
 
+   private function processPostonedJob($type) {
 
+      $pfDeployUserInteraction = new PluginFusioninventoryDeployUserinteraction();
+      //Let's browse all user interactions
+      foreach ($pfDeployUserInteraction->getItemValues($this->fields['items_id']) as $interaction) {
+         //Look for the user interaction that matches our event
+         if ($interaction['type'] == $type && $interaction['template']) {
+            $params = $this->fields;
+
+            //Found, let's load the template
+            $template  = new PluginFusioninventoryDeployUserinteractionTemplate();
+            if ($template->getFromDB($interaction['template'])) {
+               //Get the template values
+               $template_values = $template->getValues();
+               //Compute the next run date for the job. Retry_after value is in seconds
+               $date = new \DateTime('+'.$template_values['retry_after'].' seconds');
+               $params['date_start'] = $date->format('Y-m-d H:i');
+               //Set the max number or retry
+               //(we set it each time a job is postponed because the value
+               //can change in the template)
+               $params['max_retry'] = $template_values['nb_max_retry'];
+               $params['nb_retry']  = $params['nb_retry'] + 1;
+               $params['state']     = self::PREPARED;
+               $states_id           = $params['id'];
+               $this->update($params);
+
+               $reason    = '-----------------------------------------------------';
+               $log       = new PluginFusioninventoryTaskjoblog();
+               $log_input = [
+                  'plugin_fusioninventory_taskjobstates_id' => $states_id,
+                  'items_id' => $this->fields['items_id'],
+                  'itemtype' => $this->fields['itemtype'],
+                  'date'     => $_SESSION['glpi_currenttime'],
+                  'state'    => PluginFusioninventoryTaskjoblog::TASK_INFO,
+                  'comment'  => Toolbox::addslashes_deep($reason)
+               ];
+               $log->add($log_input);
+
+               $reason = sprintf(__('Job available for next execution at %s', 'fusioninventory'),
+                            Html::convDateTime($params['date_start'], 'fusioninventory'));
+
+               $log_input = [
+                  'plugin_fusioninventory_taskjobstates_id' => $states_id,
+                  'items_id' => $this->fields['items_id'],
+                  'itemtype' => $this->fields['itemtype'],
+                  'date'     => $_SESSION['glpi_currenttime'],
+                  'state'    => PluginFusioninventoryTaskjoblog::TASK_STARTED,
+                  'comment'  => Toolbox::addslashes_deep($reason)
+               ];
+               $log->add($log_input);
+
+               if ($params['nb_retry'] < $params['max_retry']) {
+                  $reason= ' '.sprintf(__('Retry #%d', 'fusioninventory'), $params['nb_retry']);
+               } else {
+                  $reason= ' '.sprintf(__('Maximum number of retry reached: force deployment', 'fusioninventory'));
+               }
+               $log_input = [
+                  'plugin_fusioninventory_taskjobstates_id' => $states_id,
+                  'items_id' => $this->fields['items_id'],
+                  'itemtype' => $this->fields['itemtype'],
+                  'date'     => $_SESSION['glpi_currenttime'],
+                  'state'    => PluginFusioninventoryTaskjoblog::TASK_INFO,
+                  'comment'  => Toolbox::addslashes_deep($reason)
+               ];
+               $log->add($log_input);
+
+            }
+         }
+      }
+   }
 
    /**
     * Cron task: clean taskjob (retention time)
@@ -558,6 +626,18 @@ class PluginFusioninventoryTaskjobstate extends CommonDBTM {
                     $data['plugin_fusioninventory_taskjobstates_id']."'";
             $DB->query($sql_delete);
          }
+      }
+   }
+
+   /**
+   * Fill a taskjobstate by it's uuid
+   * @since 9.2
+   * @param uniqid taskjobstate's uniqid
+   */
+   function getFromDBByUniqID($uniqid) {
+      $result = $this->find("`uniqid`='$uniqid'");
+      if (!empty($result)) {
+         $this->fields = array_pop($result);
       }
    }
 }

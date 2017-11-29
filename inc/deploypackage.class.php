@@ -305,14 +305,16 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
     */
    function prepareInputForAdd($input) {
       if (!isset($input['json'])) {
-         $input['json'] = json_encode(array(
-             'jobs' => array(
-                 'checks'          => [],
-                 'associatedFiles' => [],
-                 'actions'         => []
-             ),
-             'associatedFiles' => []));
+         $input['json'] = json_encode([
+             'jobs' => [
+                 'checks'           => [],
+                 'associatedFiles'  => [],
+                 'actions'          => [],
+                 'userinteractions' => []
+             ],
+             'associatedFiles' => []]);
       }
+
       return parent::prepareInputForAdd($input);
    }
 
@@ -402,15 +404,13 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
    /**
     * Clean orders after delete the package
     *
-    * @global type $DB
     */
    function post_deleteFromDB() {
-      global $DB;
-
+      $pfDeployFile = new PluginFusioninventoryDeployFile();
       // remove file in repo
       $json = json_decode($this->fields['json'], true);
       foreach ($json['associatedFiles'] as $sha512 => $file) {
-         PluginFusioninventoryDeployFile::removeFileInRepo($sha512);
+         $pfDeployFile->removeFileInRepo($sha512);
       }
    }
 
@@ -508,6 +508,22 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
    function displayOrderTypeForm() {
       global $CFG_GLPI;
 
+<<<<<<< HEAD
+      $subtypes = [
+         'check'           => __("Audits", 'fusioninventory'),
+         'file'            => __("Files", 'fusioninventory'),
+         'action'          => __("Actions", 'fusioninventory'),
+         'userinteraction' => __("User interactions", 'fusioninventory')
+      ];
+      $json_subtypes = [
+         'check'           => 'checks',
+         'file'            => 'associatedFiles',
+         'action'          => 'actions',
+         'userinteraction' => 'userinteractions'
+      ];
+
+      $rand  = mt_rand();
+=======
       $subtypes = array(
          'check'  => __("Audits", 'fusioninventory'),
          'file'   => __("Files", 'fusioninventory'),
@@ -520,6 +536,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       );
       $rand = mt_rand();
 
+>>>>>>> master-9.1
       $datas = json_decode($this->fields['json'], true);
 
       echo "<table class='tab_cadre_fixe' id='package_order_".$this->getID()."'>";
@@ -564,7 +581,8 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
             ucfirst($subtype)."' />";
 
          $classname = "PluginFusioninventoryDeploy".ucfirst($subtype);
-         $classname::displayForm($this, $datas, $rand, "init");
+         $class     = new $classname();
+         $class->displayForm($this, $datas, $rand, "init");
          Html::closeForm();
 
          $json_subtype = $json_subtypes[$subtype];
@@ -577,10 +595,10 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
             echo  "<form name='remove" . $subtype. "s' ".
                   "method='post' action='deploypackage.form.php' ".
                   "id='" . $subtype . "sList" . $rand . "'>";
-            echo "<input type='hidden' name='remove_item' />";
-            echo "<input type='hidden' name='itemtype' value='". $classname . "' />";
-            echo "<input type='hidden' name='packages_id' value='".$this->getID()."' />";
-            $classname::displayList($this, $datas, $rand);
+            echo Html::hidden('remove_item');
+            echo Html::hidden('itemtype', ['value' => $classname]);
+            echo Html::hidden('packages_id', ['value' => $this->getID()]);
+            $class->displayList($this, $datas, $rand);
             Html::closeForm();
             echo "</div>";
          }
@@ -675,30 +693,29 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       //route to sub class
       $item_type = $params['itemtype'];
 
-      if (
-         in_array(
-            $item_type,
-            array(
-               'PluginFusioninventoryDeployCheck',
-               'PluginFusioninventoryDeployFile',
-               'PluginFusioninventoryDeployAction'
-            ))) {
+      if (in_array($item_type, [
+                                 'PluginFusioninventoryDeployCheck',
+                                 'PluginFusioninventoryDeployFile',
+                                 'PluginFusioninventoryDeployAction',
+                                 'PluginFusioninventoryDeployUserinteraction'
+                              ])) {
+         $class = new $item_type();
          switch ($action_type) {
 
             case "add_item" :
-               $item_type::add_item($params);
+               $class->add_item($params);
                break;
 
             case "save_item" :
-               $item_type::save_item($params);
+               $class->save_item($params);
                break;
 
             case "remove_item" :
-               $item_type::remove_item($params);
+               $class->remove_item($params);
                break;
 
             case "move_item" :
-               $item_type::move_item($params);
+               $class->move_item($params);
                break;
 
          }
@@ -924,8 +941,6 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       return NULL;
    }
 
-
-
    /**
     * Get the json
     *
@@ -991,7 +1006,6 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       }
       return $error;
    }
-
 
 
    /**
@@ -1797,9 +1811,7 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
 
             //Update the job with the new actor
             $pfTaskJob->update($input);
-
-            //Store the task's ID
-	    $tasks_id = $data['plugin_fusioninventory_tasks_id'];
+            $tasks_id = $data['plugin_fusioninventory_tasks_id'];
          }
       } else {
       // case 2: if not exist, create a new task + taskjob
@@ -1946,7 +1958,8 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
                break;
 
          }
-         $logs = $pfTaskJobState->getLogs($taskjobstates['id'], date("Y-m-d H:i:s"));
+         $logs = $pfTaskJobState->getLogs($taskjobstates['id'],
+                                          $_SESSION['glpi_currenttime']);
          $last_job_state['id']    = $taskjobstates['id'];
          $last_job_state['state'] = $state;
          $last_job_state['date']  = $logs['logs'][0]['log.date'];
@@ -2029,6 +2042,80 @@ class PluginFusioninventoryDeployPackage extends CommonDBTM {
       }
       return $result;
    }
-}
 
-?>
+   /**
+   * Append needed informations to the json job for an agent
+   * @since 9.2
+   * @param $agent_task_version the version of the agent's deploy task
+   * @param $job the job as an array
+   * @return array the job plus new needed fields
+   */
+   function buildJson($agent_task_version, $job) {
+
+      //If task doesn't support checks skip, info, warning,
+      //send an ignore instead
+      //tasks version needs to be at least 2.2
+      if (version_compare($agent_task_version, '2.2', 'lt')
+         && isset($job['job']['checks'])) {
+         foreach ($job['job']['checks'] as $key => $value) {
+            if (in_array($value['return'], ['skip', 'info', 'warning'])) {
+               $job['job']['checks'][$key]['return'] = 'ignore';
+            }
+         }
+      }
+
+      $do_interaction = true;
+      $jobstate       = new PluginFusioninventoryTaskjobstate();
+
+      //Job has reached the maximum number of retries, do not interact with the user
+      //and execute the job
+      $jobstate->getFromDBByUniqID($job['job']['uuid']);
+      if (isset($jobstate->fields['nb_retry'])
+         && $jobstate->fields['max_retry'] > 0) {
+         if ($jobstate->fields['nb_retry'] >= $jobstate->fields['max_retry']) {
+            $do_interaction = false;
+         }
+      }
+
+      //If the number of retries has been met,
+      //remove all userinteractions directives
+      if (!$do_interaction) {
+         unset($job['job']['userinteractions']);
+      } else if (isset($job['job']['userinteractions'])) {
+         $template = new PluginFusioninventoryDeployUserinteractionTemplate();
+         foreach ($job['job']['userinteractions'] as $key => $value) {
+            if (isset($value['template']) && $value['template']) {
+               if ($template->getFromDB($value['template'])) {
+                  $job['job']['userinteractions'][$key]
+                     = $template->addJsonFieldsToArray($job['job']['userinteractions'][$key]);
+                  unset ($job['job']['userinteractions'][$key]['template']);
+
+                  $job['job']['userinteractions'][$key]['text']
+                     = str_replace(PluginFusioninventoryDeployUserinteraction::RN_TRANSFORMATION, "\r\n",
+                                   $job['job']['userinteractions'][$key]['text']);
+
+               }
+            }
+         }
+      }
+      return $job;
+   }
+
+   /**
+   * Transform \r\n in an userinteraction text
+   * @since 9.2
+   * @param array $params the input parameters
+   * @return array $params input parameters with text modified
+   */
+   public function escapeText($params) {
+      //Hack to keep \r\n in the user interaction text
+      //before going to stripslashes_deep
+      if (isset($params['text'])) {
+         $params['text']
+            = str_replace('\r\n',
+                          PluginFusioninventoryDeployUserinteraction::RN_TRANSFORMATION,
+                          $params['text']);
+      }
+      return $params;
+   }
+}

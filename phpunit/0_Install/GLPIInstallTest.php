@@ -34,18 +34,19 @@ class GLPIInstallTest extends PHPUnit_Framework_TestCase {
          $glpisql = '9.1.3';
       }
 
+      $sql_file = $glpisql === null ? "glpi-empty.sql" : "glpi-$glpisql-empty.sql";
       $result = load_mysql_file(
          $DBvars['dbuser'],
          $DBvars['dbhost'],
          $DBvars['dbdefault'],
          $DBvars['dbpassword'],
-         GLPI_ROOT ."/install/mysql/glpi-".$glpisql."-empty.sql"
+         GLPI_ROOT ."/install/mysql/$sql_file"
       );
 
       $output = array();
       $returncode = 0;
       exec(
-         "php -f ".GLPI_ROOT. "/tools/cliupdate.php -- --upgrade",
+         "php ".GLPI_ROOT. "/tools/cliupdate.php --dev --force",
          $output, $returncode
       );
       $this->assertEquals(0,$returncode,

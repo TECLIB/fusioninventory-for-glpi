@@ -236,13 +236,11 @@ class PluginFusioninventoryRulematchedlog extends CommonDBTM {
          $start = 0;
       }
 
-      $params = ['FROM'  => 'glpi_plugin_fusioninventory_rulematchedlogs',
-                 'WHERE' => ['itemtype' => $itemtype,
-                             'items_id' => intval($items_id)],
-                 'COUNT' => 'cpt'
+      $params = ['WHERE' => ['itemtype' => $itemtype,
+                             'items_id' => intval($items_id)]
                 ];
-      $iterator = $DB->request($params);
-      $number   = $iterator->next()['cpt'];
+      $iterator = $DB->request("glpi_plugin_fusioninventory_rulematchedlogs", $params);
+      $number   = iterator_count($iterator);
 
       // Display the pager
       Html::printAjaxPager(self::getTypeName(2), $start, $number);
@@ -275,13 +273,15 @@ class PluginFusioninventoryRulematchedlog extends CommonDBTM {
       echo "</th>";
       echo "</tr>";
 
-      $params = ['FROM'  => 'glpi_plugin_fusioninventory_rulematchedlogs',
-                 'WHERE' => ['itemtype' => $itemtype, 'items_id' => intval($items_id)],
+      $params = ['WHERE' => [
+                     'itemtype' => $itemtype,
+                     'items_id' => intval($items_id)
+                 ],
                  'ORDER' => 'date DESC',
                  'START' => intval($start),
                  'LIMIT' => intval($_SESSION['glpilist_limit'])
                 ];
-      foreach ($DB->request($params) as $data) {
+      foreach ($DB->request("glpi_plugin_fusioninventory_rulematchedlogs", $params) as $data) {
          echo "<tr class='tab_bg_1'>";
          echo "<td align='center'>";
          echo Html::convDateTime($data['date']);
