@@ -107,6 +107,7 @@ class PluginFusioninventoryInventoryPrinterLib extends CommonDBTM {
       if (count($db_printer) == '0') { // Add
          $a_inventory['PluginFusioninventoryPrinter']['printers_id'] =
             $printers_id;
+         $a_inventory['PluginFusioninventoryPrinter']['is_dynamic'] = 1;
          $pfPrinter->add($a_inventory['PluginFusioninventoryPrinter']);
       } else { // Update
          $idtmp = $db_printer['id'];

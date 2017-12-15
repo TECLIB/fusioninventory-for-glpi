@@ -524,15 +524,16 @@ class PluginFusioninventoryInventoryComputerInventory {
          // * New
          $setdynamic = 1;
          if ($items_id == '0') {
-            $input = array();
+            $input                = [];
             $input['entities_id'] = $entities_id;
+            $input['is_dynamic']  = 1;
             $input = PluginFusioninventoryToolbox::addDefaultStateIfNeeded('computer', $input);
             if (isset($input['states_id'])) {
                 $a_computerinventory['Computer']['states_id'] = $input['states_id'];
             } else {
                 $a_computerinventory['Computer']['states_id'] = 0;
             }
-            $items_id = $computer->add($input);
+            $items_id   = $computer->add($input);
             $no_history = TRUE;
             $setdynamic = 0;
             $_SESSION['glpi_fusionionventory_nolock'] = True;

@@ -122,6 +122,7 @@ class PluginFusioninventoryInventoryNetworkEquipmentLib extends CommonDBTM {
       if (count($db_networkequipment) == '0') { // Add
          $a_inventory['PluginFusioninventoryNetworkEquipment']['networkequipments_id'] =
             $items_id;
+         $a_inventory['PluginFusioninventoryNetworkEquipment']['is_dynamic'] = 1;
          $pfNetworkEquipment->add($a_inventory['PluginFusioninventoryNetworkEquipment']);
       } else { // Update
          $idtmp = $db_networkequipment['id'];
