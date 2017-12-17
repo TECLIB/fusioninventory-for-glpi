@@ -305,6 +305,7 @@ class PluginFusioninventoryFormatconvert {
             $array['OPERATINGSYSTEM']['SERVICE_PACK'] = $array['HARDWARE']['OSCOMMENTS'];
          }
       }
+      /*
       if (isset($array_tmp['users_id'])) {
          if ($array_tmp['users_id'] == '') {
             unset($array_tmp['users_id']);
@@ -323,7 +324,7 @@ class PluginFusioninventoryFormatconvert {
                $array_tmp['users_id'] = 0;
             }
          }
-      }
+      }*/
       $array_tmp['is_dynamic'] = 1;
 
       $a_inventory['Computer'] = $array_tmp;
@@ -1246,6 +1247,7 @@ class PluginFusioninventoryFormatconvert {
       }
 
       // * USERS
+      /*
       $cnt = 0;
       if (isset($array['USERS'])) {
          if (count($array['USERS']) > 0) {
@@ -1297,7 +1299,7 @@ class PluginFusioninventoryFormatconvert {
          if (empty($a_inventory['Computer']['contact'])) {
             $a_inventory['Computer']['contact'] = $user_temp;
          }
-      }
+      }*/
 
       // * VIRTUALMACHINES
       $a_inventory['virtualmachine'] = array();
@@ -1715,6 +1717,7 @@ class PluginFusioninventoryFormatconvert {
             $a_inventory['Computer']['computertypes_id'] = $data['computertypes_id'];
          }
          // Update computer user
+         /*
          if (isset($data['user'])) {
             $query = "SELECT `id`
                       FROM `glpi_users`
@@ -1724,15 +1727,16 @@ class PluginFusioninventoryFormatconvert {
             if ($DB->numrows($result) == 1) {
                $a_inventory['Computer']['users_id'] = $DB->result($result, 0, 0);
             }
-         }
+         }*/
+
          // Update computer location
          if (isset($data['locations_id'])) {
             $a_inventory['Computer']['locations_id'] = $data['locations_id'];
          }
          // Update computer status
-         if (isset($data['states_id'])) {
-            $a_inventory['Computer']['states_id'] = $data['states_id'];
-         }
+         //if (isset($data['states_id'])) {
+         //   $a_inventory['Computer']['states_id'] = $data['states_id'];
+         //}
          // Add software
          if (isset($data['software'])
                  && isset($data['softwareversion'])) {

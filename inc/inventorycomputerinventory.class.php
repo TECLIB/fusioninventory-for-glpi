@@ -387,6 +387,7 @@ class PluginFusioninventoryInventoryComputerInventory {
          $inputdb['name'] = $input['name'];
          $inputdb['date'] = date("Y-m-d H:i:s");
          $inputdb['itemtype'] = "Computer";
+         $inputdb['_auto']    = 1;
 
          if ((isset($a_computerinventory['Computer']['domains_id']))
                     AND (!empty($a_computerinventory['Computer']['domains_id']))) {
@@ -471,12 +472,12 @@ class PluginFusioninventoryInventoryComputerInventory {
             $_SESSION['glpiactive_entity']         = $entities_id;
          } else {
             $computer->getFromDB($items_id);
-            $a_computerinventory['Computer']['states_id'] = $computer->fields['states_id'];
+            //$a_computerinventory['Computer']['states_id'] = $computer->fields['states_id'];
             $input = array();
-            $input = PluginFusioninventoryToolbox::addDefaultStateIfNeeded('computer', $input);
-            if (isset($input['states_id'])) {
-                $a_computerinventory['Computer']['states_id'] = $input['states_id'];
-            }
+            //$input = PluginFusioninventoryToolbox::addDefaultStateIfNeeded('computer', $input);
+            //if (isset($input['states_id'])) {
+            //    $a_computerinventory['Computer']['states_id'] = $input['states_id'];
+            //}
 
             if ($entities_id == -1) {
                $entities_id = $computer->fields['entities_id'];
@@ -527,12 +528,13 @@ class PluginFusioninventoryInventoryComputerInventory {
             $input                = [];
             $input['entities_id'] = $entities_id;
             $input['is_dynamic']  = 1;
-            $input = PluginFusioninventoryToolbox::addDefaultStateIfNeeded('computer', $input);
-            if (isset($input['states_id'])) {
-                $a_computerinventory['Computer']['states_id'] = $input['states_id'];
-            } else {
-                $a_computerinventory['Computer']['states_id'] = 0;
-            }
+            $input['_auto']       = 1;
+            //$input = PluginFusioninventoryToolbox::addDefaultStateIfNeeded('computer', $input);
+            //if (isset($input['states_id'])) {
+            //    $a_computerinventory['Computer']['states_id'] = $input['states_id'];
+            //} else {
+            //    $a_computerinventory['Computer']['states_id'] = 0;
+            //}
             $items_id   = $computer->add($input);
             $no_history = TRUE;
             $setdynamic = 0;
