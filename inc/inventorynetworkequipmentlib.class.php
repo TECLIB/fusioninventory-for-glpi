@@ -123,6 +123,7 @@ class PluginFusioninventoryInventoryNetworkEquipmentLib extends CommonDBTM {
          $a_inventory['PluginFusioninventoryNetworkEquipment']['networkequipments_id'] =
             $items_id;
          $a_inventory['PluginFusioninventoryNetworkEquipment']['is_dynamic'] = 1;
+         $a_inventory['PluginFusioninventoryNetworkEquipment']['_auto']      = 1;
          $pfNetworkEquipment->add($a_inventory['PluginFusioninventoryNetworkEquipment']);
       } else { // Update
          $idtmp = $db_networkequipment['id'];
@@ -134,8 +135,9 @@ class PluginFusioninventoryInventoryNetworkEquipmentLib extends CommonDBTM {
                      $a_inventory['PluginFusioninventoryNetworkEquipment'],
                      $db_networkequipment);
          $a_inventory['PluginFusioninventoryNetworkEquipment'] = $a_ret[0];
-         $input = $a_inventory['PluginFusioninventoryNetworkEquipment'];
-         $input['id'] = $idtmp;
+         $input          = $a_inventory['PluginFusioninventoryNetworkEquipment'];
+         $input['id']    = $idtmp;
+         $input['_auto'] = 1;
          $pfNetworkEquipment->update($input);
       }
 

@@ -305,12 +305,13 @@ class PluginFusioninventoryFormatconvert {
             $array['OPERATINGSYSTEM']['SERVICE_PACK'] = $array['HARDWARE']['OSCOMMENTS'];
          }
       }
-      /*
+
       if (isset($array_tmp['users_id'])) {
          if ($array_tmp['users_id'] == '') {
             unset($array_tmp['users_id']);
          } else {
             $array_tmp['contact'] = $array_tmp['users_id'];
+            /*
             $tmp_users_id = $array_tmp['users_id'];
             $split_user = explode("@", $tmp_users_id);
             $query = "SELECT `id`
@@ -322,9 +323,9 @@ class PluginFusioninventoryFormatconvert {
                $array_tmp['users_id'] = $DB->result($result, 0, 0);
             } else {
                $array_tmp['users_id'] = 0;
-            }
+            }*/
          }
-      }*/
+      }
       $array_tmp['is_dynamic'] = 1;
 
       $a_inventory['Computer'] = $array_tmp;
@@ -1247,7 +1248,7 @@ class PluginFusioninventoryFormatconvert {
       }
 
       // * USERS
-      /*
+
       $cnt = 0;
       if (isset($array['USERS'])) {
          if (count($array['USERS']) > 0) {
@@ -1270,7 +1271,7 @@ class PluginFusioninventoryFormatconvert {
                   $user .= "@".$array_tmp['domain'];
                }
             }
-            if ($cnt == 0) {
+            /*if ($cnt == 0) {
                if (isset($array_tmp['login'])) {
                   $query = "SELECT `id`
                             FROM `glpi_users`
@@ -1281,7 +1282,7 @@ class PluginFusioninventoryFormatconvert {
                      $a_inventory['Computer']['users_id'] = $DB->result($result, 0, 0);
                   }
                }
-            }
+            }*/
 
             if ($user != '') {
                if (isset($a_inventory['Computer']['contact'])) {
@@ -1299,7 +1300,7 @@ class PluginFusioninventoryFormatconvert {
          if (empty($a_inventory['Computer']['contact'])) {
             $a_inventory['Computer']['contact'] = $user_temp;
          }
-      }*/
+      }
 
       // * VIRTUALMACHINES
       $a_inventory['virtualmachine'] = array();

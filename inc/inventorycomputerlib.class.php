@@ -1050,7 +1050,6 @@ class PluginFusioninventoryInventoryComputerLib extends CommonDBTM {
                             'computers_id'        => $computers_id,
                             'softwareversions_id' => $softwareversions_id,
                             'is_dynamic'          => 1,
-                            '_auto'               => 1,
                             'entities_id'         => $computer->fields['entities_id'],
                             'date_install'        => 'NULL'
                             );

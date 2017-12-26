@@ -405,6 +405,7 @@ class PluginFusioninventoryCommunicationNetworkInventory {
          }
          $inputdb['rules_id'] = $_SESSION['plugin_fusioninventory_rules_id'];
          $inputdb['method'] = 'networkinventory';
+         $inputdb['_auto']  = 1;
          $pfIgnoredimportdevice->add($inputdb);
          unset($_SESSION['plugin_fusioninventory_rules_id']);
       }
@@ -477,7 +478,8 @@ class PluginFusioninventoryCommunicationNetworkInventory {
          $_SESSION["plugin_fusioninventory_entity"] = $input['entities_id'];
 
          //Add defaut status if there's one defined in the configuration
-         $input    = PluginFusioninventoryToolbox::addDefaultStateIfNeeded('snmp', $input);
+         $input          = PluginFusioninventoryToolbox::addDefaultStateIfNeeded('snmp', $input);
+         $input['_auto'] = 1;
          $items_id = $class->add($input);
          if (isset($_SESSION['plugin_fusioninventory_rules_id'])) {
             $pfRulematchedlog = new PluginFusioninventoryRulematchedlog();
