@@ -1628,7 +1628,6 @@ class PluginFusioninventoryFormatconvert {
                      //Manufacturer not defined : set it's value to 0
                      $array_tmp['manufacturers_id'] = 0;
                   }
-
                   //The rules engine has modified the entity
                   //(meaning that the software is recursive and defined
                   //in an upper entity)
@@ -1636,7 +1635,6 @@ class PluginFusioninventoryFormatconvert {
                      $array_tmp['entities_id'] = $res_rule['new_entities_id'];
                      $is_software_recursive    = 1;
                   }
-
                   //The entity has not been modified and is not set :
                   //use the computer's entity
                   if (!isset($array_tmp['entities_id'])
