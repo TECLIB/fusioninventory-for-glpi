@@ -1628,6 +1628,7 @@ class PluginFusioninventoryFormatconvert {
                      //Manufacturer not defined : set it's value to 0
                      $array_tmp['manufacturers_id'] = 0;
                   }
+
                   //The rules engine has modified the entity
                   //(meaning that the software is recursive and defined
                   //in an upper entity)
@@ -1635,6 +1636,7 @@ class PluginFusioninventoryFormatconvert {
                      $array_tmp['entities_id'] = $res_rule['new_entities_id'];
                      $is_software_recursive    = 1;
                   }
+
                   //The entity has not been modified and is not set :
                   //use the computer's entity
                   if (!isset($array_tmp['entities_id'])
@@ -1654,7 +1656,21 @@ class PluginFusioninventoryFormatconvert {
                   //Store if the software is recursive or not
                   $array_tmp['is_recursive']         = $is_software_recursive;
 
-                  //Step 1 : test using the old format
+                  //Step 1 : test if the software exists in the array using the new format
+                  //this change has been introduced in FI 9.2+2.0 to fix software
+                  //install / reinstall bug that can happend if the name has been modified
+                  //by the software dictionnary
+                  //To fix it, we store RAW software's name and version,
+                  //as it was done during the OCS times
+                  //we also change the format and add a separator at the begining to detect
+                  //which format we're using
+                  $new_comp_key = self::FI_SOFTWARE_SEPARATOR.strtolower($original_infos['name']).
+                                  self::FI_SOFTWARE_SEPARATOR.strtolower($original_infos['version']).
+                                  self::FI_SOFTWARE_SEPARATOR.$array_tmp['manufacturers_id'].
+                                  self::FI_SOFTWARE_SEPARATOR.$array_tmp['entities_id'].
+                                  self::FI_SOFTWARE_SEPARATOR.$array_tmp['operatingsystems_id'];
+
+                  //Step 2 : test using the old format
                   //String with the manufacturer
                   $comp_key = strtolower($array_tmp['name']).
                                self::FI_SOFTWARE_SEPARATOR.strtolower($array_tmp['version']).
