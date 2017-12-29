@@ -1564,10 +1564,12 @@ class PluginFusioninventoryFormatconvert {
          //Check if the install date has the right format to be inserted in DB
          if (isset($array_tmp['date_install'])) {
             $matches = [];
-            preg_match("/^(\d{2})\/(\d{2})\/(\d{4})$/", $array_tmp['date_install'], $matches);
+            preg_match("/^(\d{2})\/(\d{2})\/(\d{4})$/",
+                       $array_tmp['date_install'], $matches);
             //This is the right date format : rewrite the date
             if (count($matches) == 4) {
-               $array_tmp['date_install'] = $matches[3]."-".$matches[2]."-".$matches[1];
+               $array_tmp['date_install']
+                  = $matches[3]."-".$matches[2]."-".$matches[1];
             } else {
                //Not the right format, remove the date
                unset($array_tmp['date_install']);
