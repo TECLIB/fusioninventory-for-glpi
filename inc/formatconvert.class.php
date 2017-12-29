@@ -1485,10 +1485,10 @@ class PluginFusioninventoryFormatconvert {
     */
    function computerSoftwareTransformation($a_inventory, $entities_id) {
 
-   /*
-    * Sometimes we can have 2 same software, but one without manufacturer and
-    * one with. So in this case, delete the software without manufacturer
-    */
+      /*
+       * Sometimes we can have 2 same software, but one without manufacturer and
+       * one with. So in this case, delete the software without manufacturer
+       */
 
       //By default, no operating system is set
       $operatingsystems_id = 0;
@@ -1512,11 +1512,12 @@ class PluginFusioninventoryFormatconvert {
 
       //Count the number of software dictionnary rules
       $nb_RuleDictionnarySoftware
-                                 = countElementsInTable("glpi_rules",
-                                                ['sub_type'  => 'RuleDictionnarySoftware',
-                                                 'is_active' => 1
-                                                ]
-                                 );
+         = countElementsInTable("glpi_rules",
+               ['sub_type'  => 'RuleDictionnarySoftware',
+                'is_active' => 1
+               ]
+      );
+
       //Configuration says that software can be created in the computer's entity
       if ($entities_id_software < 0) {
          $entities_id_software = $entities_id;
@@ -1551,7 +1552,7 @@ class PluginFusioninventoryFormatconvert {
                                        ]
          );
          //If the name of the software is empty, use it's GUID as name
-         //it should only happend on Windows...
+         //it should only happened on Windows...
          if (!isset($array_tmp['name'])
                  || $array_tmp['name'] == '') {
             if (isset($a_softwares['GUID'])
@@ -1598,7 +1599,6 @@ class PluginFusioninventoryFormatconvert {
 
                if (!isset($res_rule['_ignore_import'])
                   || $res_rule['_ignore_import'] != 1) {
-
                   //If the name has been modified by the rules engine
                   if (isset($res_rule["name"])) {
                      $array_tmp['name'] = $res_rule["name"];
@@ -1607,12 +1607,13 @@ class PluginFusioninventoryFormatconvert {
                   if (isset($res_rule["version"])) {
                      $array_tmp['version'] = $res_rule["version"];
                   }
+
                   //If the manufacturer has been modified or set by the rules engine
                   if (isset($res_rule["manufacturer"])) {
                      $array_tmp['manufacturers_id']
-                                             = Dropdown::import("Manufacturer",
-                                                                ['name' => $res_rule["manufacturer"]]
-                                               );
+                        = Dropdown::import("Manufacturer",
+                                           ['name' => $res_rule["manufacturer"]]
+                          );
                   } else if (isset($array_tmp['manufacturers_id'])
                           && $array_tmp['manufacturers_id'] != ''
                           && $array_tmp['manufacturers_id'] != '0') {
@@ -1674,24 +1675,25 @@ class PluginFusioninventoryFormatconvert {
 
                   //Step 2 : test using the old format
                   //String with the manufacturer
-                  $comp_key = strtolower($array_tmp['name']).
+                  $comp_key  = self::FI_SOFTWARE_SEPARATOR.strtolower($original_infos['name']).
                                self::FI_SOFTWARE_SEPARATOR.strtolower($array_tmp['version']).
                                self::FI_SOFTWARE_SEPARATOR.$array_tmp['manufacturers_id'].
                                self::FI_SOFTWARE_SEPARATOR.$array_tmp['entities_id'].
                                self::FI_SOFTWARE_SEPARATOR.$array_tmp['operatingsystems_id'];
 
                   //String without the manufacturer
-                  $comp_key_simple = strtolower($array_tmp['name']).
-                               self::FI_SOFTWARE_SEPARATOR.strtolower($array_tmp['version']).
-                               self::FI_SOFTWARE_SEPARATOR.$array_tmp['entities_id'].
-                               self::FI_SOFTWARE_SEPARATOR.$array_tmp['operatingsystems_id'];
+                  $comp_key_simple = self::FI_SOFTWARE_SEPARATOR.strtolower($original_infos['name']).
+                                     self::FI_SOFTWARE_SEPARATOR.strtolower($array_tmp['version']).
+                                     self::FI_SOFTWARE_SEPARATOR.$array_tmp['entities_id'].
+                                     self::FI_SOFTWARE_SEPARATOR.$array_tmp['operatingsystems_id'];
 
                   if ($array_tmp['manufacturers_id'] == 0) {
+                     $array_tmp['new_comp_key'] = $new_comp_key;
                      $softwareWithoutManufacturer[$comp_key_simple] = $array_tmp;
                   } else {
-                     if (!isset($a_inventory['software'][$comp_key])) {
+                     if (!isset($a_inventory['software'][$new_comp_key])) {
                         $softwareWithManufacturer[$comp_key_simple] = 1;
-                        $a_inventory['software'][$comp_key] = $array_tmp;
+                        $a_inventory['software'][$new_comp_key] = $array_tmp;
                      }
                   }
                }
@@ -1702,15 +1704,12 @@ class PluginFusioninventoryFormatconvert {
       //Browse all softwares without a manufacturer. If one exists with a manufacturer
       //the remove the one without
       foreach ($softwareWithoutManufacturer as $key => $array_tmp) {
-         if (!isset($softwareWithManufacturer[$key])) {
-            $comp_key = strtolower($array_tmp['name']).
-                         self::FI_SOFTWARE_SEPARATOR.strtolower($array_tmp['version']).
-                         self::FI_SOFTWARE_SEPARATOR.$array_tmp['manufacturers_id'].
-                         self::FI_SOFTWARE_SEPARATOR.$array_tmp['entities_id'].
-                         self::FI_SOFTWARE_SEPARATOR.$array_tmp['operatingsystems_id'];
-            if (!isset($a_inventory['software'][$comp_key])) {
-               $a_inventory['software'][$comp_key] = $array_tmp;
-            }
+         //If the software
+         $new_comp_key = $array_tmp['new_comp_key'];
+         if (!isset($softwareWithManufacturer[$key])
+            && !isset($a_inventory['software'][$new_comp_key])) {
+            unset($array_tmp['new_comp_key']);
+            $a_inventory['software'][$new_comp_key] = $array_tmp;
          }
       }
       unset($a_inventory['SOFTWARES']);

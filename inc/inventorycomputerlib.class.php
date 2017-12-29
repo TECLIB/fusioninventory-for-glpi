@@ -2047,22 +2047,28 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
       if ($lastid > 0) {
          $whereid .= ' AND `id` > "'.$lastid.'"';
       }
-      $a_softSearch = array();
-      $nbSoft = 0;
+      $a_softSearch = [];
+      $nbSoft       = 0;
       if (count($this->softList) == 0) {
          foreach ($a_soft as $a_software) {
-            $a_softSearch[] = "'".$a_software['name']."$$$$".$a_software['manufacturers_id']."'";
+            $a_softSearch[] = "'".$a_software['name']
+               .PluginFusioninventoryFormatconvert::FI_SOFTWARE_SEPARATOR
+               .$a_software['manufacturers_id']."'";
             $nbSoft++;
          }
       } else {
          foreach ($a_soft as $a_software) {
-            if (!isset($this->softList[$a_software['name']."$$$$".$a_software['manufacturers_id']])) {
-               $a_softSearch[] = "'".$a_software['name']."$$$$".$a_software['manufacturers_id']."'";
+            $software_name = $a_software['name']
+               .PluginFusioninventoryFormatconvert::FI_SOFTWARE_SEPARATOR
+               .$a_software['manufacturers_id'];
+            if (!isset($this->softList[$software_name])) {
+               $a_softSearch[] = "'$software_name'";
                $nbSoft++;
             }
          }
       }
-      $whereid .= " AND CONCAT_WS('$$$$', `name`, `manufacturers_id`) IN (".implode(",", $a_softSearch).")";
+      $whereid .= " AND CONCAT_WS('".PluginFusioninventoryFormatconvert::FI_SOFTWARE_SEPARATOR
+                     ."', `name`, `manufacturers_id`) IN (".implode(",", $a_softSearch).")";
 
       $sql     = "SELECT max( id ) AS max FROM `glpi_softwares`";
       $result  = $DB->query($sql);
@@ -2077,7 +2083,8 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
               FROM `glpi_softwares`
               WHERE `entities_id`='".$entities_id."'".$whereid;
       foreach ($DB->request($sql) as $data) {
-         $this->softList[Toolbox::addslashes_deep($data['name'])."$$$$".$data['manufacturers_id']] = $data['id'];
+         $this->softList[Toolbox::addslashes_deep($data['name'])
+            .PluginFusioninventoryFormatconvert::FI_SOFTWARE_SEPARATOR.$data['manufacturers_id']] = $data['id'];
       }
       return $lastid;
    }
