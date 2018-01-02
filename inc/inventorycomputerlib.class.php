@@ -2707,4 +2707,84 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
    }
 }
 
-?>
+   /**
+   * Put a lock to prevent import of software/software version
+   * @since 9.2+2.0
+   *
+   * @param string $type type of lock ('software' or 'softwareversion')
+   */
+   function setLock($type = 'software') {
+      global $DB;
+
+      //Set a lock for softwares to prevent new software import
+      $query = "INSERT INTO `glpi_plugin_fusioninventory_dblock".$type."s`
+                SET `value`='1'";
+      $CFG_GLPI["use_log_in_files"] = false;
+      while (!$DB->query($query)) {
+         usleep(100000);
+      }
+      $CFG_GLPI["use_log_in_files"] = true;
+   }
+
+   /**
+   * Put a lock to prevent import of software/software version
+   * @since 9.2+2.0
+   *
+   * @param string $type type of lock ('software' or 'softwareversion')
+   */
+   function releaseLock($type = 'software') {
+      global $DB;
+
+      //Release the lock
+      $query = "DELETE FROM `glpi_plugin_fusioninventory_dblock".$type."s`
+                WHERE `value`='1'";
+      $DB->query($query);
+   }
+
+   /**
+   * Load the software list and set a lock to prevent new software import
+   * during software inventory processing
+   * @since 9.2+2.0
+   *
+   * @param integer $entities_id the ID of the entity
+   * @param array $a_computerinventory the computer inventory as an array
+   */
+   function setLockAndLoadSoftware($entities_id, $a_computerinventory) {
+      //This action is done for performances purpose: we load the software
+      //list and store the ID of the last software recorded
+      $lastSoftwareid
+         = $this->loadSoftwares($entities_id,
+                                $a_computerinventory['software'],
+                                $lastSoftwareid);
+
+      $this->setLock('software');
+      //Reload the software list, add to the list softwares that
+      //have been imported between last import and the lock
+      $this->loadSoftwares($entities_id,
+                           $a_computerinventory['software'],
+                           $lastSoftwareid);
+   }
+
+   /**
+   * Load the software version list and set a lock to prevent new software import
+   * during software inventory processing
+   * @since 9.2+2.0
+   *
+   * @param integer $entities_id the ID of the entity
+   * @param array $a_computerinventory the computer inventory as an array
+   */
+   function setLockAndLoadSoftwareVersion($entities_id, $a_computerinventory) {
+      //Load software versions that could have been imported between
+      //the first loading and the lock
+      $this->loadSoftwareVersions($entities_id,
+                                  $a_computerinventory['software'],
+                                  $lastSoftwareVid);
+
+      $this->setLock('softwareversion');
+      //Reload the software list, add to the list softwares that
+      //have been imported between last import and the lock
+      $this->loadSoftwareVersions($entities_id,
+                                  $a_computerinventory['software'],
+                                  $lastSoftwareid);
+   }
+}
