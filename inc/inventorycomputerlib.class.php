@@ -2196,27 +2196,15 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
    function addSoftwareVersionsComputer($a_input) {
       global $DB;
 
-      // split with and without date_install
-      $input_date   = [];
-      $input_nodate = [];
+      $versions = [];
       foreach ($a_input as $input) {
-         if (substr($input, -7) == "'NULL')") {
-            $input_nodate[] = str_replace(",'NULL')", ")", $input);
-         } else {
-            $input_date[] = $input;
-         }
+         $versions[] = $input;
       }
-      if (count($input_date) > 0) {
-         $query = 'INSERT INTO `glpi_computers_softwareversions` (`computers_id`,`softwareversions_id`,`is_dynamic`,`entities_id`,`date_install`) ';
-         $query .= ' VALUES '.implode(',', $input_date);
-         $DB->query($query);
-      }
-
-      if (count($input_nodate) > 0) {
-         $query = 'INSERT INTO `glpi_computers_softwareversions` (`computers_id`,`softwareversions_id`,`is_dynamic`,`entities_id`) ';
-         $query .= ' VALUES '.implode(',', $input_nodate);
-         $DB->query($query);
-      }
+      // split with and without date_install
+      $query = 'INSERT INTO `glpi_computers_softwareversions`
+                (`computers_id`,`softwareversions_id`,`is_dynamic`,`entities_id`,`date_install`)
+               VALUES '.implode(',', $versions);
+      $DB->query($query);
    }
 
 

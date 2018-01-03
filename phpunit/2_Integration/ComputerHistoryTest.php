@@ -240,7 +240,7 @@ class ComputerHistory extends RestoreDatabase_TestCase {
 
 
    /**
-    * Test with network card vmxnet3
+    * Import the 2 xml files and check historical
     *
     * @test
     */
@@ -249,6 +249,10 @@ class ComputerHistory extends RestoreDatabase_TestCase {
       $this->checkComputerLogs($this->xml_linux);
    }
 
+   /**
+   * Import a computer and then update it. This test checks that during the
+   * second import, no log is written (the inventory should not have changed)
+   */
    public function checkComputerLogs($xml = "") {
       global $DB;
 
@@ -258,18 +262,24 @@ class ComputerHistory extends RestoreDatabase_TestCase {
       $log             = new Log();
       $computer        = new Computer();
 
-      // add computer
+      //First import : add the computer
       $pfCommunication->handleOCSCommunication('', $xml, 'glpi');
       $DB->query("TRUNCATE TABLE `glpi_logs`");
 
-      // find number of computers
+      //Store the number of computers in database
       $found       = $computer->find();
       $nb_computer = count($found);
 
-      // update computer
+      //Second import : update computer
       $pfCommunication->handleOCSCommunication('', $xml, 'glpi');
+
+      //Check that no other computer has been added
       $this->assertEquals($nb_computer, countElementsInTable('glpi_computers'));
-      $this->assertEquals(0, countElementsInTable('glpi_logs'), print_r($log->find(), true));
+
+      //Check that no log has been added
+      //(nothing has changed since the first import)
+      $this->assertEquals(0, countElementsInTable('glpi_logs'),
+                          print_r($log->find(), true));
    }
 
 }

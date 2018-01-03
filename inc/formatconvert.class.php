@@ -1658,7 +1658,7 @@ class PluginFusioninventoryFormatconvert {
 
                   //Store if the software is recursive or not
                   $array_tmp['is_recursive']         = $is_software_recursive;
-
+/*
                   //Step 1 : test if the software exists in the array using the new format
                   //this change has been introduced in FI 9.2+2.0 to fix software
                   //install / reinstall bug that can happend if the name has been modified
@@ -1714,8 +1714,8 @@ class PluginFusioninventoryFormatconvert {
       }
       unset($a_inventory['SOFTWARES']);
       return $a_inventory;
-   }
-   /*
+   }*/
+
                   $comp_key = strtolower($array_tmp['name']).
                                "$$$$".strtolower($array_tmp['version']).
                                "$$$$".$array_tmp['manufacturers_id'].
@@ -1751,7 +1751,7 @@ class PluginFusioninventoryFormatconvert {
       }
       unset($a_inventory['SOFTWARES']);
       return $a_inventory;
-   }*/
+   }
 
 
    /**
