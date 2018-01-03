@@ -1688,12 +1688,12 @@ class PluginFusioninventoryFormatconvert {
                                      self::FI_SOFTWARE_SEPARATOR.$array_tmp['operatingsystems_id'];
 
                   if ($array_tmp['manufacturers_id'] == 0) {
-                     $array_tmp['new_comp_key'] = $new_comp_key;
+                     //$array_tmp['new_comp_key'] = $new_comp_key;
                      $softwareWithoutManufacturer[$comp_key_simple] = $array_tmp;
                   } else {
-                     if (!isset($a_inventory['software'][$new_comp_key])) {
+                     if (!isset($a_inventory['software'][$comp_key])) {
                         $softwareWithManufacturer[$comp_key_simple] = 1;
-                        $a_inventory['software'][$new_comp_key] = $array_tmp;
+                        $a_inventory['software'][$comp_key] = $array_tmp;
                      }
                   }
                }
@@ -1705,17 +1705,53 @@ class PluginFusioninventoryFormatconvert {
       //the remove the one without
       foreach ($softwareWithoutManufacturer as $key => $array_tmp) {
          //If the software
-         $new_comp_key = $array_tmp['new_comp_key'];
+         //$new_comp_key = $array_tmp['new_comp_key'];
          if (!isset($softwareWithManufacturer[$key])
-            && !isset($a_inventory['software'][$new_comp_key])) {
-            unset($array_tmp['new_comp_key']);
-            $a_inventory['software'][$new_comp_key] = $array_tmp;
+            && !isset($a_inventory['software'][$comp_key])) {
+            //unset($array_tmp['new_comp_key']);
+            $a_inventory['software'][$comp_key] = $array_tmp;
          }
       }
       unset($a_inventory['SOFTWARES']);
       return $a_inventory;
    }
-
+   /*
+                  $comp_key = strtolower($array_tmp['name']).
+                               "$$$$".strtolower($array_tmp['version']).
+                               "$$$$".$array_tmp['manufacturers_id'].
+                               "$$$$".$array_tmp['entities_id'].
+                               "$$$$".$array_tmp['operatingsystems_id'];
+                  $comp_key_simple = strtolower($array_tmp['name']).
+                               "$$$$".strtolower($array_tmp['version']).
+                               "$$$$".$array_tmp['entities_id'].
+                               "$$$$".$array_tmp['operatingsystems_id'];
+                  if ($array_tmp['manufacturers_id'] == 0) {
+                     $softwareWithoutManufacturer[$comp_key_simple] = $array_tmp;
+                  } else {
+                     if (!isset($a_inventory['software'][$comp_key])) {
+                        $softwareWithManufacturer[$comp_key_simple] = 1;
+                        $a_inventory['software'][$comp_key] = $array_tmp;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      foreach ($softwareWithoutManufacturer as $key=>$array_tmp) {
+         if (!isset($softwareWithManufacturer[$key])) {
+            $comp_key = strtolower($array_tmp['name']).
+                      "$$$$".strtolower($array_tmp['version']).
+                      "$$$$".$array_tmp['manufacturers_id'].
+                      "$$$$".$array_tmp['entities_id'].
+                      "$$$$".$array_tmp['operatingsystems_id'];
+            if (!isset($a_inventory['software'][$comp_key])) {
+               $a_inventory['software'][$comp_key] = $array_tmp;
+            }
+         }
+      }
+      unset($a_inventory['SOFTWARES']);
+      return $a_inventory;
+   }*/
 
 
    /**

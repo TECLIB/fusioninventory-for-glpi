@@ -811,7 +811,7 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
 
       //Import or update softwares and software versions
       if ($pfConfig->getValue("import_software") != 0) {
-         $this->manageImportSoftwares($computers_id, $a_computerinventory,
+         $this->manageImportSoftwares($computer, $a_computerinventory,
                                       $no_history);
       }
 
@@ -2175,12 +2175,12 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
    function addSoftwareVersion($a_software, $softwares_id) {
 
       $options = array();
-      $options['disable_unicity_check'] = TRUE;
+      $options['disable_unicity_check'] = true;
 
       $a_software['name']         = $a_software['version'];
       $a_software['softwares_id'] = $softwares_id;
-      $a_software['_no_history']  = TRUE;
-      $softwareversions_id = $this->softwareVersion->add($a_software, $options, FALSE);
+      $a_software['_no_history']  = true;
+      $softwareversions_id = $this->softwareVersion->add($a_software, $options, false);
       $this->addPrepareLog($softwareversions_id, 'SoftwareVersion');
       $this->softVersionList[strtolower($a_software['version'])."$$$$".$softwares_id."$$$$".$a_software['operatingsystems_id']] = $softwareversions_id;
    }
@@ -2197,8 +2197,8 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
       global $DB;
 
       // split with and without date_install
-      $input_date = array();
-      $input_nodate = array();
+      $input_date   = [];
+      $input_nodate = [];
       foreach ($a_input as $input) {
          if (substr($input, -7) == "'NULL')") {
             $input_nodate[] = str_replace(",'NULL')", ")", $input);
@@ -2786,7 +2786,7 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
    function setLockAndLoadSoftwareVersion($entities_id, $a_computerinventory) {
       //Load software versions that could have been imported between
       //the first loading and the lock
-      $this->loadSoftwareVersions($entities_id, $a_computerinventory['software']);
+      $lastVersions_id = $this->loadSoftwareVersions($entities_id, $a_computerinventory['software']);
 
       //Lock software version import
       $this->setLock('softwareversions');
@@ -2795,19 +2795,21 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
       //have been imported between last import and the lock
       $this->loadSoftwareVersions($entities_id,
                                   $a_computerinventory['software'],
-                                  $lastSoftwareid);
+                                  $lastVersions_id);
    }
 
    /**
    * Manage import or update softwares and versions
    * @since 9.2+2.0
    *
-   * @param integer $computers_id the ID of the computer
+   * @param Computer $computer the computer object
    * @param array $a_computerinventory the computer inventory as an array
    * @param boolean $no_history do we take care of historical or not
    */
-   function manageImportSoftwares($computers_id, $a_computerinventory, $no_history) {
+   function manageImportSoftwares($computer, $a_computerinventory, $no_history) {
       global $DB;
+
+      $computers_id = $computer->getID();
 
       //By default entity  = root
       $entities_id = 0;
@@ -2983,7 +2985,7 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
 
                   $changes[0] = '0';
                   $changes[1] = "";
-                  $changes[2] = sprintf(__('%1$s (%2$s)'), $computerName, $computers_id);
+                  $changes[2] = sprintf(__('%1$s (%2$s)'), $computer->getName(), $computers_id);
                   $this->addPrepareLog($softwareversions_id, 'SoftwareVersion', 'Computer', $changes,
                                Log::HISTORY_INSTALL_SOFTWARE);
                }
@@ -3008,6 +3010,8 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
 
             //Software version's to uninstall from the computer
             if (count($db_software) > 0) {
+               $version = new SoftwareVersion();
+
                //Delete the software version's installation on the computer
                foreach ($db_software as $idtmp) {
                   $this->computerSoftwareVersion->getFromDB($idtmp);
@@ -3019,21 +3023,21 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
                      $changes[0] = '0';
                      $changes[1] = addslashes($this->computerSoftwareVersion->getHistoryNameForItem1($this->softwareVersion, 'delete'));
                      $changes[2] = "";
-                     $this->addPrepareLog($computers_id, 'Computer', 'SoftwareVersion', $changes,
+                     $this->addPrepareLog($computers_id, 'Computer',
+                                          'SoftwareVersion', $changes,
                                   Log::HISTORY_UNINSTALL_SOFTWARE);
 
                      $changes[0] = '0';
-                     $changes[1] = sprintf(__('%1$s (%2$s)'), $computerName, $computers_id);
+                     $changes[1] = sprintf(__('%1$s (%2$s)'), $computer->getName(), $computers_id);
                      $changes[2] = "";
                      $this->addPrepareLog($idtmp, 'SoftwareVersion', 'Computer', $changes,
                                   Log::HISTORY_UNINSTALL_SOFTWARE);
                   }
                }
 
-               //Delete the installation : raw query for performances purposes
-               $query = "DELETE FROM `glpi_computers_softwareversions` "
-                       ."WHERE `id` IN ('".implode("', '", $db_software)."')";
-               $DB->query($query);
+               //Remove software versions in one time
+               $version->deleteByCriteria('glpi_computers_softwareversions',
+                                          ['id' => $db_software], true);
             }
 
             //Install version on the computer
@@ -3122,15 +3126,22 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
                      $changes[0] = '0';
                      $changes[1] = "";
                      $changes[2] = $a_software['name']." - ".
-                           sprintf(__('%1$s (%2$s)'), $a_software['version'], $softwareversions_id);
-                     $this->addPrepareLog($computers_id, 'Computer', 'SoftwareVersion', $changes,
-                                  Log::HISTORY_INSTALL_SOFTWARE);
+                           sprintf(__('%1$s (%2$s)'), $a_software['version'],
+                                   $softwareversions_id);
+                     $this->addPrepareLog($computers_id, 'Computer',
+                                          'SoftwareVersion',
+                                          $changes,
+                                          Log::HISTORY_INSTALL_SOFTWARE);
 
                      $changes[0] = '0';
                      $changes[1] = "";
-                     $changes[2] = sprintf(__('%1$s (%2$s)'), $computerName, $computers_id);
-                     $this->addPrepareLog($softwareversions_id, 'SoftwareVersion', 'Computer', $changes,
-                                  Log::HISTORY_INSTALL_SOFTWARE);
+                     $changes[2] = sprintf(__('%1$s (%2$s)'),
+                                           $computer->getName(),
+                                           $computers_id);
+                     $this->addPrepareLog($softwareversions_id,
+                                          'SoftwareVersion',
+                                          'Computer', $changes,
+                                          Log::HISTORY_INSTALL_SOFTWARE);
                   }
                }
             }

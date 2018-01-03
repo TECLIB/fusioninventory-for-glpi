@@ -263,7 +263,7 @@ class ComputerHistory extends RestoreDatabase_TestCase {
       $DB->query("TRUNCATE TABLE `glpi_logs`");
 
       // find number of computers
-      $found = $computer->find();
+      $found       = $computer->find();
       $nb_computer = count($found);
 
       // update computer
