@@ -2124,25 +2124,24 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
          }
          $nbVersions++;
       }
+
       $whereid .= " AND CONCAT_WS('$$$$', `name`, `softwares_id`, `operatingsystems_id`) IN ( ";
       $whereid .= implode(',', $arr);
       $whereid .= " ) ";
 
-
-      $sql = "SELECT max( id ) AS max FROM `glpi_softwareversions`";
-      $result = $DB->query($sql);
-      $data = $DB->fetch_assoc($result);
-      $lastid = $data['max'];
+      $iterator = $DB->request("SELECT max( id ) AS max FROM `glpi_softwareversions`");
+      $max      = $iterator->next();
+      $lastid   = $max['max'];
       $whereid .= " AND `id` <= '".$lastid."'";
 
-      if ($nbVersions == 0) {
+      if (!$nbVersions) {
          return $lastid;
       }
 
       $sql = "SELECT `id`, `name`, `softwares_id`, `operatingsystems_id` FROM `glpi_softwareversions`
       WHERE `entities_id`='".$entities_id."'".$whereid;
-      $result = $DB->query($sql);
-      while ($data = $DB->fetch_assoc($result)) {
+      Toolbox::logDebug($sql);
+      foreach ($DB->request($sql) as $data) {
          $this->softVersionList[strtolower($data['name'])."$$$$".$data['softwares_id']."$$$$".$data['operatingsystems_id']] = $data['id'];
       }
 
