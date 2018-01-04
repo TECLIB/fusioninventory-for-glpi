@@ -2071,11 +2071,11 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
       $whereid .= " AND CONCAT_WS('".PluginFusioninventoryFormatconvert::FI_SOFTWARE_SEPARATOR
                      ."', `name`, `manufacturers_id`) IN (".implode(",", $a_softSearch).")";
 
-      $sql     = "SELECT max( id ) AS max FROM `glpi_softwares`";
-      $result  = $DB->query($sql);
-      $data    = $DB->fetch_assoc($result);
-      $lastid  = $data['max'];
-      $whereid.= " AND `id` <= '".$lastid."'";
+      $lastid = $this->getSoftwareMaxID();
+      if ($lastid) {
+         $whereid.= " AND `id` < $lastid";
+      }
+
       if ($nbSoft == 0) {
          return $lastid;
       }
@@ -2108,8 +2108,8 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
       if ($lastid > 0) {
          $whereid .= ' AND `id` > "'.$lastid.'"';
       }
-      $arr = array();
-      $a_versions = array();
+      $arr        = [];
+      $a_versions = [];
       foreach ($a_softVersion as $a_software) {
          $softwares_id = $this->softList[$a_software['name']."$$$$".$a_software['manufacturers_id']];
          if (!isset($this->softVersionList[strtolower($a_software['version'])."$$$$".$softwares_id."$$$$".$a_software['operatingsystems_id']])) {
@@ -2118,7 +2118,7 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
       }
 
       $nbVersions = 0;
-      foreach ($a_versions as $name=>$a_softwares_id) {
+      foreach ($a_versions as $name => $a_softwares_id) {
          foreach ($a_softwares_id as $softwares_id) {
             $arr[] = "'".$name."$$$$".$softwares_id."$$$$".$a_software['operatingsystems_id']."'";
          }
@@ -2129,26 +2129,42 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
       $whereid .= implode(',', $arr);
       $whereid .= " ) ";
 
-      $iterator = $DB->request("SELECT max( id ) AS max FROM `glpi_softwareversions`");
-      $max      = $iterator->next();
-      $lastid   = $max['max'];
-      $whereid .= " AND `id` <= '".$lastid."'";
-
+      $lastid = $this->getSoftwareMaxID(false);
+      if ($lastid) {
+         $whereid.= " AND `id` < $lastid";
+      }
       if (!$nbVersions) {
          return $lastid;
       }
 
-      $sql = "SELECT `id`, `name`, `softwares_id`, `operatingsystems_id` FROM `glpi_softwareversions`
-      WHERE `entities_id`='".$entities_id."'".$whereid;
-      Toolbox::logDebug($sql);
+      $sql = "SELECT `id`, `name`, `softwares_id`, `operatingsystems_id`
+              FROM `glpi_softwareversions`
+              WHERE `entities_id`='".$entities_id."'".$whereid;
       foreach ($DB->request($sql) as $data) {
-         $this->softVersionList[strtolower($data['name'])."$$$$".$data['softwares_id']."$$$$".$data['operatingsystems_id']] = $data['id'];
-      }
 
+         $this->softVersionList[strtolower($data['name'])
+                                 ."$$$$".$data['softwares_id'].
+                                 "$$$$".$data['operatingsystems_id']]
+                                 = $data['id'];
+      }
       return $lastid;
    }
 
+   /**
+    * Get last ID in database for softwares or software versions
+    * @since 9.2+2.0
+    *
+    * @param boolean $software true if we're looking for the software table,
+    *                          false for software versions
+    * @param integer the last inserted ID
+    */
+   function getSoftwareMaxID($software = true) {
+      global $DB;
 
+      $table  = ($software?'glpi_softwares':'glpi_softwareversions');
+      $result = $DB->query("SELECT max( id ) AS max FROM `$table`");
+      return $DB->result($result, 0, 'max');
+   }
 
    /**
     * Add a new software
@@ -2749,7 +2765,7 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
    function setLockAndLoadSoftware($entities_id, $a_computerinventory) {
       //This action is done for performances purpose: we load the software
       //list and store the ID of the last software recorded
-      $lastSoftwareid
+      $softwares_id_last
          = $this->loadSoftwares($entities_id, $a_computerinventory['software']);
 
       //Lock software import
@@ -2759,7 +2775,7 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
       //have been imported between last import and the lock
       $this->loadSoftwares($entities_id,
                            $a_computerinventory['software'],
-                           $lastSoftwareid);
+                           $softwares_id_last);
    }
 
    /**
@@ -2773,7 +2789,9 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
    function setLockAndLoadSoftwareVersion($entities_id, $a_computerinventory) {
       //Load software versions that could have been imported between
       //the first loading and the lock
-      $lastVersions_id = $this->loadSoftwareVersions($entities_id, $a_computerinventory['software']);
+      $softwareversions_id_last
+         = $this->loadSoftwareVersions($entities_id,
+                                       $a_computerinventory['software']);
 
       //Lock software version import
       $this->setLock('softwareversions');
@@ -2782,7 +2800,7 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
       //have been imported between last import and the lock
       $this->loadSoftwareVersions($entities_id,
                                   $a_computerinventory['software'],
-                                  $lastVersions_id);
+                                  $softwareversions_id_last);
    }
 
    /**
@@ -2898,7 +2916,6 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
          //Release the lock
          $this->releaseLock('softwares');
 
-
          //-----------------------------------
          //Step 2 : import software versions
          //-----------------------------------
@@ -2939,12 +2956,14 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
                 'entities_id'         => $computer->fields['entities_id'],
                 'date_install'        => 'NULL'
                 ];
+
             //If the software contains an installation date => add it
             if (isset($a_software['date_install'])) {
                $a_tmp['date_install'] = $a_software['date_install'];
             }
             $a_toinsert[] = "('".implode("','", $a_tmp)."')";
          }
+
          //If there's at least one softqare version to add
          if (count($a_toinsert) > 0) {
             //Add software versions: this is done using raw SQL queries
