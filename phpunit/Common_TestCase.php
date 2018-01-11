@@ -73,9 +73,6 @@ abstract class Common_TestCase extends PHPUnit_Framework_TestCase {
 
       $_SESSION['glpi_use_mode'] = Session::NORMAL_MODE;
 
-      require (GLPI_ROOT . "/inc/includes.php");
-
-
       $plugin = new Plugin();
       $DB->connect();
       $plugin->getFromDBbyDir("fusioninventory");

@@ -1,5 +1,6 @@
 <?php
 
+define ('TU_USER', '_test_fi');
 if (!defined('GLPI_ROOT')) {
    define('GLPI_ROOT', realpath('./glpi'));
    define('FUSINV_ROOT', GLPI_ROOT . DIRECTORY_SEPARATOR . '/plugins/fusioninventory');
@@ -10,7 +11,10 @@ if (!defined('GLPI_ROOT')) {
    );
 }
 
-require_once (GLPI_ROOT . "/inc/autoload.function.php");
+global $CFG_GLPI;
+
+require_once GLPI_ROOT . '/inc/includes.php';
+set_error_handler(['Toolbox', 'userErrorHandlerNormal']);
 
 include_once("Common_TestCase.php");
 include_once("RestoreDatabase_TestCase.php");

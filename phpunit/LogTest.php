@@ -60,6 +60,11 @@ class GLPIlogs extends PHPUnit_Framework_TestCase {
       $this->assertEquals('', $filecontent, 'php-errors.log not empty');
       // Reinitialize file
       file_put_contents(GLPI_ROOT."/files/_log/php-errors.log", '');
+      //test that something can be logged
+      trigger_error("Write PHP log test");
+      $filecontent = file_get_contents(GLPI_ROOT."/files/_log/php-errors.log");
+      $this->assertTrue((bool)preg_match("/.*Write PHP log test.*/s", $filecontent), "Error not logged for PHP!");
+      file_put_contents(GLPI_ROOT."/files/_log/php-errors.log", '');
    }
 
 }
