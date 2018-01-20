@@ -248,18 +248,19 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
                         $computers_id, $no_history);
 
       //Import devices
-      $this->importDevices($itemtype, $a_computerinventory,
-                           $items_id, $no_history);
+      $this->importDevices('Computer', $a_computerinventory,
+                           $computers_id, $no_history);
 
       // * Software
       if ($pfConfig->getValue("import_software") != 0) {
-         $this->importSoftware('Computer', $a_computerinventory, $computer, $no_history);
+         $this->importSoftware('Computer', $a_computerinventory,
+                               $computer, $no_history);
       }
 
       // * Virtualmachines
       if ($pfConfig->getValue("import_vm") == 1) {
-         $this->importVirtualmachines($itemtype, $a_computerinventory,
-                                      $items_id, $no_history);
+         $this->importVirtualmachines('Computer', $a_computerinventory,
+                                      $computers_id, $no_history);
       }
       if ($pfConfig->getValue("create_vm") == 1) {
          // Create VM based on information of section VIRTUALMACHINE

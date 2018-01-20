@@ -547,7 +547,7 @@ class PluginFusioninventoryInventoryCommon extends CommonDBTM {
       $item_device = new $device_class();
       $device      = new $device_type();
       $fk_device   = getForeignKeyFieldForTable(getTableForItemType($device_type));
-      $devices_id = $device->import($data);
+      $devices_id  = $device->import($data);
       $data = [
          $fk_device   => $devices_id,
          'itemtype'   => $itemtype,
