@@ -223,4 +223,8 @@ class PluginFusioninventoryImportDevice implements PluginFusioninventoryImportIn
          }
       }
    }
+
+   function toEndProcess() {
+      return true;
+   }
 }
