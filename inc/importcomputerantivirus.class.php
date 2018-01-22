@@ -71,11 +71,16 @@ class PluginFusioninventoryImportComputerAntivirus extends PluginFusioninventory
       ];
    }
 
-   function importItem($no_history = false) {
+   function canImport() {
+      return ($this->pfConfig->getValue("import_antivirus") > 0);
+
+   }
+   
+   function importItem() {
       global $DB;
       $computerAntivirus = new ComputerAntivirus();
       $db_antivirus = [];
-      if ($no_history === false) {
+      if ($this->no_history === false) {
          foreach ($DB->request($this->getQuery()) as $data) {
             $idtmp = $data['id'];
             unset($data['id']);
@@ -101,7 +106,7 @@ class PluginFusioninventoryImportComputerAntivirus extends PluginFusioninventory
                $input               = $this->a_inventory[$this->section][$key];
                $input['id']         = $keydb;
                $input['is_dynamic'] = 1;
-               $computerAntivirus->update($input, !$no_history);
+               $computerAntivirus->update($input, !$this->no_history);
                unset($simpleantivirus[$key]);
                unset($this->a_inventory[$this->section][$key]);
                unset($db_antivirus[$keydb]);
@@ -119,7 +124,7 @@ class PluginFusioninventoryImportComputerAntivirus extends PluginFusioninventory
             foreach ($this->a_inventory[$this->section] as $a_antivirus) {
                $a_antivirus['computers_id'] = $this->items_id;
                $a_antivirus['is_dynamic']   = true;
-               $computerAntivirus->add($a_antivirus, [], !$no_history);
+               $computerAntivirus->add($a_antivirus, [], !$this->no_history);
             }
          }
       }

@@ -77,7 +77,7 @@ class PluginFusioninventoryImportMonitor extends PluginFusioninventoryImportDevi
                   AND `glpi_monitors`.`is_global`='0'";
    }
 
-   function importItem($no_history = false) {
+   function importItem() {
       global $DB;
 
       $monitor       = new Monitor();
@@ -119,8 +119,8 @@ class PluginFusioninventoryImportMonitor extends PluginFusioninventoryImportDevi
             $input['itemtype']       = 'Monitor';
             $input['items_id']       = $monitors_id;
             $input['is_dynamic']     = true;
-            $input['_no_history']    = $no_history;
-            $computer_Item->add($input, [], !$no_history);
+            $input['_no_history']    = $this->no_history;
+            $computer_Item->add($input, [], !$this->no_history);
          }
       } else {
          // Check all fields from source:
@@ -148,8 +148,8 @@ class PluginFusioninventoryImportMonitor extends PluginFusioninventoryImportDevi
                   $input['itemtype']       = 'Monitor';
                   $input['items_id']       = $monitors_id;
                   $input['is_dynamic']     = 1;
-                  $input['_no_history']    = $no_history;
-                  $computer_Item->add($input, [], !$no_history);
+                  $input['_no_history']    = $this->no_history;
+                  $computer_Item->add($input, [], !$this->no_history);
                }
             }
          }

@@ -63,33 +63,36 @@ class PluginFusioninventoryImportDeviceBios extends PluginFusioninventoryImportD
    //Store the key related to the
    protected $section = 'bios';
 
+   function getQuery() {
+      return "SELECT `glpi_items_devicefirmwares`.`id`, `serial`,
+            `designation`, `version`
+            FROM `glpi_items_devicefirmwares`
+               LEFT JOIN `glpi_devicefirmwares`
+                  ON `devicefirmwares_id`=`glpi_devicefirmwares`.`id`
+         WHERE `items_id` = '".$this->items_id."'
+            AND `itemtype`='".$this->import_itemtype."'
+            AND `is_dynamic`='1'";
+
+   }
    /**
     * Import bioses
     *
     * @param string $itemtype the itemtype to be inventoried
     * @param array   $a_inventory Inventory data
     * @param integer     Asset id
-    * @param boolean $no_history should history be added in the logs
+    * @param boolean $this->no_history should history be added in the logs
     *
     * @return void
     */
-   function importItem($no_history = false) {
+   function importItem() {
       global $DB;
 
       $item_DeviceBios = new Item_DeviceFirmware();
 
       // * BIOS
       $db_bios = [];
-      if ($no_history === false) {
-         $query = "SELECT `glpi_items_devicefirmwares`.`id`, `serial`,
-               `designation`, `version`
-               FROM `glpi_items_devicefirmwares`
-                  LEFT JOIN `glpi_devicefirmwares`
-                     ON `devicefirmwares_id`=`glpi_devicefirmwares`.`id`
-            WHERE `items_id` = '".$this->items_id."'
-               AND `itemtype`='".$this->import_itemtype."'
-               AND `is_dynamic`='1'";
-         foreach ($DB->request($query) as $data) {
+      if ($this->no_history === false) {
+         foreach ($DB->request($this->getQuery()) as $data) {
             $idtmp = $data['id'];
             unset($data['id']);
             $data1 = Toolbox::addslashes_deep($data);
@@ -101,13 +104,14 @@ class PluginFusioninventoryImportDeviceBios extends PluginFusioninventoryImportD
       if (count($db_bios) == 0) {
          if (isset($a_inventory['bios'])) {
             $this->addBios($itemtype, $a_inventory['bios'],
-                           $items_id, $no_history);
+                           $items_id);
          }
       } else {
          if (isset($a_inventory['bios'])) {
             $arrayslower = array_map('strtolower', $a_inventory['bios']);
             foreach ($db_bios as $keydb => $arraydb) {
-               if (isset($arrayslower['version']) && $arrayslower['version'] == $arraydb['version']) {
+               if (isset($arrayslower['version'])
+                  && $arrayslower['version'] == $arraydb['version']) {
                   unset($a_inventory['bios']);
                   unset($db_bios[$keydb]);
                   break;
@@ -118,13 +122,13 @@ class PluginFusioninventoryImportDeviceBios extends PluginFusioninventoryImportD
          if (count($db_bios) != 0) {
             // Delete BIOS in DB
             foreach ($db_bios as $idtmp => $data) {
-               $item_DeviceBios->delete(['id'=>$idtmp], 1);
+               $item_DeviceBios->delete(['id' => $idtmp], 1);
             }
          }
 
          if (isset($a_inventory['bios'])) {
             $this->addBios($itemtype, $a_inventory['bios'],
-                           $items_id, $no_history);
+                           $items_id);
          }
       }
    }
@@ -134,9 +138,9 @@ class PluginFusioninventoryImportDeviceBios extends PluginFusioninventoryImportD
     *
     * @param array $data
     * @param integer $$items_id
-    * @param boolean $no_history
+    * @param boolean $this->no_history
     */
-   function addBios($itemtype, $data, $items_id, $no_history) {
+   function addBios($itemtype, $data, $items_id) {
       $item_DeviceBios  = new Item_DeviceFirmware();
       $deviceBios       = new DeviceFirmware();
 
@@ -145,13 +149,13 @@ class PluginFusioninventoryImportDeviceBios extends PluginFusioninventoryImportD
       $type_id = $fwTypes->getID();
       $data['devicefirmwaretypes_id'] = $type_id;
 
-      $bios_id = $deviceBios->import($data);
+      $bios_id                      = $deviceBios->import($data);
       $data['devicefirmwares_id']   = $bios_id;
       $data['itemtype']             = $itemtype;
       $data['items_id']             = $items_id;
       $data['is_dynamic']           = 1;
-      $data['_no_history']          = $no_history;
-      $item_DeviceBios->add($data, [], !$no_history);
+      $data['_no_history']          = $this->no_history;
+      $item_DeviceBios->add($data, [], !$this->no_history);
    }
 
 }

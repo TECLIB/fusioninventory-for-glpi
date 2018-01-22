@@ -65,5 +65,5 @@ interface PluginFusioninventoryImportInterface {
    * Import a device
    * @since 9.3+3.0
    */
-   public function importItem($no_history = false);
+   public function importItem();
 }

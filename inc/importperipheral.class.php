@@ -66,17 +66,18 @@ class PluginFusioninventoryImportPeripheral extends PluginFusioninventoryImportD
    protected $entities_id = 0;
 
    function getQuery() {
-      return "SELECT `glpi_peripherals`.`id`, `glpi_computers_items`.`id` as link_id
-            FROM `glpi_computers_items`
-         LEFT JOIN `glpi_peripherals` ON `items_id`=`glpi_peripherals`.`id`
-         WHERE `itemtype`=$this->section
-         AND `computers_id`='".$this->items_id."'
-         AND `entities_id`='".$this->entities_id."'
-            AND `glpi_computers_items`.`is_dynamic`='1'
-            AND `glpi_peripherals`.`is_global`='0'";
+      return "SELECT `glpi_peripherals`.`id`,
+                      `glpi_computers_items`.`id` AS link_id
+               FROM `glpi_computers_items`
+               LEFT JOIN `glpi_peripherals` ON `items_id`=`glpi_peripherals`.`id`
+               WHERE `itemtype`='".$this->device_itemtype."'
+                  AND `computers_id`='".$this->items_id."'
+                  AND `entities_id`='".$this->entities_id."'
+                  AND `glpi_computers_items`.`is_dynamic`='1'
+                  AND `glpi_peripherals`.`is_global`='0'";
    }
 
-   function importItem($no_history = false) {
+   function importItem() {
       global $DB;
 
       $peripheral    = new Peripheral();
@@ -85,22 +86,23 @@ class PluginFusioninventoryImportPeripheral extends PluginFusioninventoryImportD
       // * Peripheral
       $rule = new PluginFusioninventoryInventoryRuleImportCollection();
       $a_peripherals = [];
-      foreach ($this->inventory[$this->section] as $key => $arrays) {
-         $input = [];
+      foreach ($this->a_inventory[$this->section] as $key => $arrays) {
+         $input             = [];
          $input['itemtype'] = "Peripheral";
          $input['name']     = $arrays['name'];
          $input['serial']   = isset($arrays['serial'])
                                ? $arrays['serial']
                                : "";
-         $data = $rule->processAllRules($input, [], ['class'=>$this, 'return' => true]);
-         if (isset($data['found_equipment'])) {
-            if ($data['found_equipment'][0] == 0) {
+         $result = $rule->processAllRules($input, [],
+                                       ['class'=> $this, 'return' => true]);
+         if (isset($result['found_equipment'])) {
+            if ($result['found_equipment'][0] == 0) {
                // add peripheral
-               $arrays['entities_id'] = $entities_id;
+               $arrays['entities_id'] = $this->entities_id;
 
                $a_peripherals[] = $peripheral->add($arrays);
             } else {
-               $a_peripherals[] = $data['found_equipment'][0];
+               $a_peripherals[] = $result['found_equipment'][0];
             }
          }
       }
@@ -118,8 +120,8 @@ class PluginFusioninventoryImportPeripheral extends PluginFusioninventoryImportD
             $input['itemtype']       = $this->section;
             $input['items_id']       = $peripherals_id;
             $input['is_dynamic']     = true;
-            $input['_no_history']    = $no_history;
-            $computer_Item->add($input, [], !$no_history);
+            $input['_no_history']    = $this->no_history;
+            $computer_Item->add($input, [], !$this->no_history);
          }
       } else {
          // Check all fields from source:
@@ -137,7 +139,7 @@ class PluginFusioninventoryImportPeripheral extends PluginFusioninventoryImportD
             if (count($db_peripherals) != 0) {
                // Delete peripherals links in DB
                foreach ($db_peripherals as $idtmp => $data) {
-                  $computer_Item->delete(['id'=>$idtmp], 1);
+                  $computer_Item->delete(['id' => $idtmp], 1);
                }
             }
             if (count($a_peripherals) != 0) {
@@ -147,8 +149,8 @@ class PluginFusioninventoryImportPeripheral extends PluginFusioninventoryImportD
                   $input['itemtype']       = $this->section;
                   $input['items_id']       = $peripherals_id;
                   $input['is_dynamic']     = true;
-                  $input['_no_history']    = $no_history;
-                  $computer_Item->add($input, [], !$no_history);
+                  $input['_no_history']    = $this->no_history;
+                  $computer_Item->add($input, [], !$this->no_history);
                }
             }
          }

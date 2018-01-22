@@ -63,60 +63,47 @@ class PluginFusioninventoryImportDeviceFirmware extends PluginFusioninventoryImp
    //Store the key related to the
    protected $section = 'firmwares';
 
-   public function importItem($no_history = false) {
-      /**
-       * Import firmwares
-       * @since 9.2+2.0
-       *
-       * @param string $itemtype the itemtype to be inventoried
-       * @param array   $a_inventory Inventory data
-       * @param integer     Asset id
-       *
-       * @return void
-       */
-      function importFirmwares($itemtype, $a_inventory, $items_id) {
-         if (!isset($a_inventory['firmwares']) || !count($a_inventory['firmwares'])) {
-            return;
+   public function importItem() {
+      if (!isset($a_inventory['firmwares']) || !count($a_inventory['firmwares'])) {
+         return;
+      }
+
+      $ftype = new DeviceFirmwareType();
+      $ftype->getFromDBByCrit(['name' => 'Firmware']);
+      $default_type = $ftype->getId();
+      foreach ($a_inventory['firmwares'] as $a_firmware) {
+         $firmware = new DeviceFirmware();
+         $input = [
+            'designation'              => $a_firmware['name'],
+            'version'                  => $a_firmware['version'],
+            'devicefirmwaretypes_id'   => isset($a_firmware['devicefirmwaretypes_id']) ? $a_firmware['devicefirmwaretypes_id'] : $default_type,
+            'manufacturers_id'         => $a_firmware['manufacturers_id']
+         ];
+
+         //Check if firmware exists
+         $firmware->getFromDBByCrit($input);
+         if ($firmware->isNewItem()) {
+            $input['entities_id'] = $_SESSION['glpiactive_entity'];
+            //firmware does not exists yet, create it
+            $fid = $firmware->add($input);
+         } else {
+            $fid = $firmware->getID();
          }
-
-         $ftype = new DeviceFirmwareType();
-         $ftype->getFromDBByCrit(['name' => 'Firmware']);
-         $default_type = $ftype->getId();
-         foreach ($a_inventory['firmwares'] as $a_firmware) {
-            $firmware = new DeviceFirmware();
-            $input = [
-               'designation'              => $a_firmware['name'],
-               'version'                  => $a_firmware['version'],
-               'devicefirmwaretypes_id'   => isset($a_firmware['devicefirmwaretypes_id']) ? $a_firmware['devicefirmwaretypes_id'] : $default_type,
-               'manufacturers_id'         => $a_firmware['manufacturers_id']
+         $relation = new Item_DeviceFirmware();
+         $input = [
+            'itemtype'           => $itemtype,
+            'items_id'           => $items_id,
+            'devicefirmwares_id' => $fid
+         ];
+         //Check if firmware relation with equipment
+         $relation->getFromDBByCrit($input);
+         if ($relation->isNewItem()) {
+            $input = $input + [
+               'is_dynamic'   => 1,
+               'entities_id'  => $_SESSION['glpiactive_entity']
             ];
-
-            //Check if firmware exists
-            $firmware->getFromDBByCrit($input);
-            if ($firmware->isNewItem()) {
-               $input['entities_id'] = $_SESSION['glpiactive_entity'];
-               //firmware does not exists yet, create it
-               $fid = $firmware->add($input);
-            } else {
-               $fid = $firmware->getID();
-            }
-
-            $relation = new Item_DeviceFirmware();
-            $input = [
-               'itemtype'           => $itemtype,
-               'items_id'           => $items_id,
-               'devicefirmwares_id' => $fid
-            ];
-            //Check if firmware relation with equipment
-            $relation->getFromDBByCrit($input);
-            if ($relation->isNewItem()) {
-               $input = $input + [
-                  'is_dynamic'   => 1,
-                  'entities_id'  => $_SESSION['glpiactive_entity']
-               ];
-               $relation->add($input);
-            }
+            $relation->add($input);
          }
-      }      
+      }
    }
 }

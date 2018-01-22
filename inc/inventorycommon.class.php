@@ -65,8 +65,7 @@ class PluginFusioninventoryInventoryCommon extends CommonDBTM {
     *
     * @return void
     */
-   function importDevicesForAComputer($a_inventory, $items_id, $no_history,
-                                      $entities_id = 0, $check_import = false) {
+   function importDevicesForAComputer($params = []) {
 
       $devices = ['DeviceProcessor', 'DeviceBattery', 'DeviceMemory',
                   'DeviceFirmware', 'DeviceBios', 'DeviceDrive',
@@ -74,8 +73,7 @@ class PluginFusioninventoryInventoryCommon extends CommonDBTM {
                   'DeviceControl', 'DeviceGraphicCard', 'DeviceSoundCard',
                   'DeviceNetworkCard'
       ];
-      $this->importDevicesFromList($devices, $a_inventory, 'Computer',
-                                   $items_id, $entities_id, $no_history);
+      $this->importDevicesFromList($devices, $params);
    }
 
    /**
@@ -113,18 +111,11 @@ class PluginFusioninventoryInventoryCommon extends CommonDBTM {
     *
     * @return void
     */
-   function importDevicesFromList($devices, $a_inventory, $itemtype, $items_id,
-                                  $entities_id, $no_history,
-                                  $check_import = false) {
+   function importDevicesFromList($devices, $params = []) {
       foreach ($devices as $device) {
-         if (!$check_import
-            || ($check_import && $pfConfig->getValue("component_".$device) != 0)) {
-            $classname = 'PluginFusioninventoryImport'.$device;
-            $class     = new $classname($a_inventory, $itemtype, $items_id,
-                                        $entities_id);
-            $class->importItem($no_history);
-         }
+         $classname = 'PluginFusioninventoryImport'.$device;
+         $class     = new $classname($params);
+         $class->importItem();
       }
    }
-
 }

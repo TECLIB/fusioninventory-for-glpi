@@ -67,6 +67,8 @@ function pluginFusioninventoryInstall($version, $migrationname = 'Migration') {
    require_once(GLPI_ROOT . '/plugins/fusioninventory/inc/taskjobview.class.php');
    require_once(GLPI_ROOT . '/plugins/fusioninventory/inc/taskview.class.php');
    require_once(GLPI_ROOT . '/plugins/fusioninventory/inc/deploypackageitem.class.php');
+   require_once(GLPI_ROOT . '/plugins/fusioninventory/inc/importinterface.class.php');
+   require_once(GLPI_ROOT . '/plugins/fusioninventory/inc/importdevice.class.php');
    foreach (glob(GLPI_ROOT.'/plugins/fusioninventory/inc/*.php') as $file) {
       require_once($file);
    }
@@ -361,4 +363,3 @@ function pluginFusioninventoryInstall($version, $migrationname = 'Migration') {
    $mode_cli = (basename($_SERVER['SCRIPT_NAME']) == "cli_install.php");
 
 }
-

@@ -52,29 +52,37 @@ if (!defined('GLPI_ROOT')) {
  * Import graphic card
  * @since 9.3+1.0
  */
-class PluginFusioninventoryImportComputerLicenseInfo extends PluginFusioninventoryImportDevice {
+class PluginFusioninventoryImportComputerDisk extends PluginFusioninventoryImportDevice {
 
    //Store the inventory to be processed
    protected $a_inventory = [];
 
    //The itemtype of the device we're processing
-   protected $device_itemtype = 'ComputerLicenseInfo';
+   protected $device_itemtype = 'ComputerDisk';
 
    //Store the key related to the
-   protected $section = 'licenseinfo';
+   protected $section = 'computerdisk';
 
    function getQuery() {
       return [
-         'FROM' => 'glpi_plugin_fusioninventory_computerlicenseinfos',
-         'FIELDS' => ['id', 'name', 'fullname', 'serial'],
-         'WHERE'  => ['computers_id' => $this->items_id]
+         'SELECT' => ['id', 'name', 'device', 'mountpoint'],
+         'FROM'   => 'glpi_computerdisks',
+         'WHERE'  => [
+            'computers_id' => $this->items_id,
+            'is_dynamic'   => 1
+         ]
       ];
+   }
+
+   function canImport() {
+      return ($this->pfConfig->getValue("import_volume") > 0);
    }
 
    function importItem() {
       global $DB;
-      $pfComputerLicenseInfo = new PluginFusioninventoryComputerLicenseInfo();
-      $db_licenseinfo        = [];
+
+      $computerDisk    = new computerDisk();
+      $db_computerdisk = [];
 
       if ($this->no_history === false) {
          foreach ($DB->request($this->getQuery()) as $data) {
@@ -82,32 +90,55 @@ class PluginFusioninventoryImportComputerLicenseInfo extends PluginFusioninvento
             unset($data['id']);
             $data1 = Toolbox::addslashes_deep($data);
             $data2 = array_map('strtolower', $data1);
-            $db_licenseinfo[$idtmp] = $data2;
+            $db_computerdisk[$idtmp] = $data2;
          }
       }
-      foreach ($this->a_inventory[$this->section] as $key => $arrays) {
+      $simplecomputerdisk = [];
+      foreach ($this->a_inventory[$this->section] as $key=>$a_computerdisk) {
+         $a_field = ['name', 'device', 'mountpoint'];
+         foreach ($a_field as $field) {
+            if (isset($a_computerdisk[$field])) {
+               $simplecomputerdisk[$key][$field] = $a_computerdisk[$field];
+            }
+         }
+      }
+      foreach ($simplecomputerdisk as $key => $arrays) {
          $arrayslower = array_map('strtolower', $arrays);
-         foreach ($db_licenseinfo as $keydb => $arraydb) {
+         foreach ($db_computerdisk as $keydb => $arraydb) {
             if ($arrayslower == $arraydb) {
+               $input = [];
+               $input['id'] = $keydb;
+               if (isset($this->a_inventory[$this->section][$key]['filesystems_id'])) {
+                  $input['filesystems_id'] =
+                           $this->a_inventory[$this->section][$key]['filesystems_id'];
+               }
+               $input['totalsize'] = $this->a_inventory[$this->section][$key]['totalsize'];
+               $input['freesize'] = $this->a_inventory[$this->section][$key]['freesize'];
+               $input['_no_history'] = true;
+               $computerDisk->update($input, false);
+               unset($simplecomputerdisk[$key]);
                unset($this->a_inventory[$this->section][$key]);
-               unset($db_licenseinfo[$keydb]);
+               unset($db_computerdisk[$keydb]);
                break;
             }
          }
       }
-      if (count($this->a_inventory[$this->section]) || count($db_licenseinfo)) {
-         if (count($db_licenseinfo) != 0) {
-            foreach ($db_licenseinfo as $idtmp => $data) {
-               $pfComputerLicenseInfo->delete(['id'=>$idtmp], 1);
+
+      if (count($this->a_inventory[$this->section]) || count($db_computerdisk)) {
+         if (count($db_computerdisk) != 0) {
+            // Delete computerdisk in DB
+            foreach ($db_computerdisk as $idtmp => $data) {
+               $computerDisk->delete(['id'=>$idtmp], 1);
             }
          }
          if (count($this->a_inventory[$this->section]) != 0) {
-            foreach ($this->a_inventory[$this->section] as $a_licenseinfo) {
-               $a_licenseinfo['computers_id'] = $this->items_id;
-               $pfComputerLicenseInfo->add($a_licenseinfo, [], !$this->no_history);
+            foreach ($this->a_inventory[$this->section] as $a_computerdisk) {
+               $a_computerdisk['computers_id']  = $this->items_id;
+               $a_computerdisk['is_dynamic']    = 1;
+               $a_computerdisk['_no_history']   = $this->no_history;
+               $computerDisk->add($a_computerdisk, [], !$this->no_history);
             }
          }
       }
-
    }
 }

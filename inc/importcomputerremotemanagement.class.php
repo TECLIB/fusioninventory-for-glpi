@@ -71,11 +71,11 @@ class PluginFusioninventoryImportComputerRemoteManagement extends PluginFusionin
       ];
    }
 
-   function importItem($no_history = false) {
+   function importItem() {
       global $DB;
       $pfComputerRemotemgmt = new PluginFusioninventoryComputerRemoteManagement();
       $db_remotemgmt        = [];
-      if ($no_history === false) {
+      if ($this->no_history === false) {
          foreach ($DB->request($this->getQuery()) as $data) {
              $idtmp = $data['id'];
              unset($data['id']);
@@ -103,7 +103,7 @@ class PluginFusioninventoryImportComputerRemoteManagement extends PluginFusionin
          if (count($this->a_inventory[$this->section]) != 0) {
             foreach ($this->a_inventory[$this->section] as $a_remotemgmt) {
                $a_remotemgmt['computers_id'] = $this->items_id;
-               $pfComputerRemotemgmt->add($a_remotemgmt, [], !$no_history);
+               $pfComputerRemotemgmt->add($a_remotemgmt, [], !$this->no_history);
             }
          }
       }

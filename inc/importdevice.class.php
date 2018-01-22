@@ -68,11 +68,15 @@ class PluginFusioninventoryImportDevice implements PluginFusioninventoryImportIn
    //Store the key related to the
    protected $section = '';
 
-   public function __construct($inventory, $itemtype, $items_id, $entities_id = 0) {
-      $this->a_inventory      = $inventory;
-      $this->import_itemtype = $itemtype;
-      $this->items_id         = $items_id;
-      $this->entities_id      = $entities_id;
+   //Store plugin configuration
+   protected $pfConfig   = null;
+
+   protected $no_history = false;
+
+   public function __construct($params = []) {
+      foreach ($params as $key => $value) {
+         $this->$key = $value;
+      }
    }
 
    function transformItem() {
@@ -88,10 +92,9 @@ class PluginFusioninventoryImportDevice implements PluginFusioninventoryImportIn
     * Add a new device component
     * @since 9.3+1.0
     *
-    * @param boolean $no_history
     * @return boolean true if the device is added, false if something went wrong
     */
-   function addDevice($a_inventory, $no_history = false) {
+   function addDevice($a_inventory) {
       $item_device = $this->getItemDeviceClass();
       $device      = new $this->device_itemtype();
       $fk_device   = getForeignKeyFieldForTable(getTableForItemType($this->device_itemtype));
@@ -102,9 +105,9 @@ class PluginFusioninventoryImportDevice implements PluginFusioninventoryImportIn
             'itemtype'   => $this->import_itemtype,
             'items_id'   => $this->items_id,
             'is_dynamic' => 1,
-            '_no_history' => $no_history
+            '_no_history' => $this->no_history
          ];
-         return $item_device->add($data, [], !$no_history);
+         return $item_device->add($data, [], !$this->no_history);
       } else {
          return false;
       }
@@ -148,37 +151,22 @@ class PluginFusioninventoryImportDevice implements PluginFusioninventoryImportIn
     * Get query
     * @since 9.3+1.0
     *
-    * @param boolean $no_history should history be added in the logs
+    * @param boolean $this->no_history should history be added in the logs
     *
     * @return void
     */
    function getQuery() {
-      /*
-      $params = [
-               'SELECT' =>
-               [
-                  $item_device_table => 'id',
-                  $device_table      => ['designation', 'manufacturers_id']
-               ],
-               'FROM' => $item_device_table,
-               'LEFT JOIN' =>
-                  [
-                     $device_table =>
-                     ['FKEY' =>
-                        [
-                           $item_device_table => $fk_device,
-                           $device_table      => 'id'
-                        ]
-                     ]
-                  ]
-               'WHERE' =>
-                  [
-                     'items_id'   => $this->items_id,
-                     'itemtype'   => $this->device_itemtype,
-                     'is_dynamic' => 1
-                  ]
-      ];*/
       return '';
+   }
+
+   /**
+   * Check if the itemtype must be processed
+   * @since 9.3+1.0
+   *
+   * @return true if it must be processed
+   */
+   function canImport() {
+      return true;
    }
 
    /**
@@ -188,20 +176,23 @@ class PluginFusioninventoryImportDevice implements PluginFusioninventoryImportIn
     * @param string $itemtype the itemtype to be inventoried
     * @param array   $a_inventory Inventory data
     * @param integer     Asset id
-    * @param boolean $no_history should history be added in the logs
+    * @param boolean $this->no_history should history be added in the logs
     *
     * @return void
     */
-   function importItem($no_history = false) {
+   function importItem() {
       global $DB;
 
+      if (!$this->canImport()) {
+         return true;
+      }
       $item_device = $this->getItemDeviceClass();
       $device      = new $this->device_itemtype();
 
       $device_table      = $device->getTable();
       $db_devices        = [];
 
-      if ($no_history === false) {
+      if ($this->no_history === false) {
          foreach ($DB->request($this->getQuery()) as $data) {
             $idtmp              = $data['id'];
             $db_devices[$idtmp] = $this->checkBefore($data);
@@ -209,7 +200,7 @@ class PluginFusioninventoryImportDevice implements PluginFusioninventoryImportIn
       }
       if (count($db_devices) == 0) {
          foreach ($this->a_inventory[$this->section] as $a_device) {
-            $this->addDevice($a_device, $no_history);
+            $this->addDevice($a_device, $this->no_history);
          }
       } else {
          // Check all fields from source: 'designation', 'mac'
@@ -226,7 +217,7 @@ class PluginFusioninventoryImportDevice implements PluginFusioninventoryImportIn
             }
             if (count($this->a_inventory[$this->section]) != 0) {
                foreach ($this->a_inventory[$this->section] as $a_device) {
-                  $this->addDevice($a_device, $no_history);
+                  $this->addDevice($a_device, $this->no_history);
                }
             }
          }

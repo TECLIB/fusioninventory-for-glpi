@@ -52,99 +52,103 @@ if (!defined('GLPI_ROOT')) {
  * Importprinters
  * @since 9.3+1.0
  */
-class PluginFusioninventoryImportPrinter extends PluginFusioninventoryImportDevice {
+class PluginFusioninventoryImportPeripheral extends PluginFusioninventoryImportDevice {
 
    //Store the inventory to be processed
    protected $a_inventory = [];
 
    //The itemtype of the device we're processing
-   protected $device_itemtype = 'Printer';
+   protected $device_itemtype = 'Software';
 
    //Store the key related to the
-   protected $section = 'printer';
+   protected $section = 'software';
 
    protected $entities_id = 0;
 
    function getQuery() {
-      return "SELECT `glpi_printers`.`id`, `glpi_computers_items`.`id` as link_id
-            FROM `glpi_computers_items`
-         LEFT JOIN `glpi_printers` ON `items_id`=`glpi_printers`.`id`
-         WHERE `itemtype`='Printer'
-         AND `computers_id`='".$this->items_id."'
-         AND `entities_id`='".$this->entities_id."'
-            AND `glpi_computers_items`.`is_dynamic`='1'
-            AND `glpi_printers`.`is_global`='0'";
+      return "SELECT `glpi_peripherals`.`id`,
+                      `glpi_computers_items`.`id` AS link_id
+               FROM `glpi_computers_items`
+               LEFT JOIN `glpi_peripherals` ON `items_id`=`glpi_peripherals`.`id`
+               WHERE `itemtype`='".$this->device_itemtype."'
+                  AND `computers_id`='".$this->items_id."'
+                  AND `entities_id`='".$this->entities_id."'
+                  AND `glpi_computers_items`.`is_dynamic`='1'
+                  AND `glpi_peripherals`.`is_global`='0'";
    }
 
    function importItem() {
       global $DB;
 
-      $printer       = new Printer();
+      $peripheral    = new Peripheral();
       $computer_Item = new computer_Item();
 
-      // * Printers
+      // * Peripheral
       $rule = new PluginFusioninventoryInventoryRuleImportCollection();
-      $a_printers = [];
+      $a_peripherals = [];
       foreach ($this->a_inventory[$this->section] as $key => $arrays) {
-         $input = [];
-         $input['itemtype'] = "Printer";
+         $input             = [];
+         $input['itemtype'] = "Peripheral";
          $input['name']     = $arrays['name'];
          $input['serial']   = isset($arrays['serial'])
                                ? $arrays['serial']
                                : "";
-         $data = $rule->processAllRules($input, [], ['class' => $this, 'return' => true]);
-         if (isset($data['found_equipment'])) {
-            if ($data['found_equipment'][0] == 0) {
-               // add printer
-               $arrays['entities_id'] = $entities_id;
+         $result = $rule->processAllRules($input, [],
+                                       ['class'=> $this, 'return' => true]);
+         if (isset($result['found_equipment'])) {
+            if ($result['found_equipment'][0] == 0) {
+               // add peripheral
+               $arrays['entities_id'] = $this->entities_id;
 
-               $a_printers[] = $printer->add($arrays);
+               $a_peripherals[] = $peripheral->add($arrays);
             } else {
-               $a_printers[] = $data['found_equipment'][0];
+               $a_peripherals[] = $result['found_equipment'][0];
             }
          }
       }
-      $db_printers = [];
+      $db_peripherals = [];
       foreach ($DB->request($this->getQuery()) as $data) {
          $idtmp = $data['link_id'];
          unset($data['link_id']);
-         $db_printers[$idtmp] = $data['id'];
+         $db_peripherals[$idtmp] = $data['id'];
       }
-      if (count($db_printers) == 0) {
-         foreach ($a_printers as $printers_id) {
-            $input['entities_id']    = $this->entities_id;
+
+      if (count($db_peripherals) == 0) {
+         foreach ($a_peripherals as $peripherals_id) {
+            $input                   = [];
             $input['computers_id']   = $this->items_id;
-            $input['itemtype']       = 'Printer';
-            $input['items_id']       = $printers_id;
-            $input['is_dynamic']     = 1;
+            $input['itemtype']       = $this->section;
+            $input['items_id']       = $peripherals_id;
+            $input['is_dynamic']     = true;
             $input['_no_history']    = $this->no_history;
             $computer_Item->add($input, [], !$this->no_history);
          }
       } else {
          // Check all fields from source:
-         foreach ($a_printers as $key => $printers_id) {
-            foreach ($db_printers as $keydb => $prints_id) {
-               if ($printers_id == $prints_id) {
-                  unset($a_printers[$key]);
-                  unset($db_printers[$keydb]);
+         foreach ($a_peripherals as $key => $peripherals_id) {
+            foreach ($db_peripherals as $keydb => $periphs_id) {
+               if ($peripherals_id == $periphs_id) {
+                  unset($a_peripherals[$key]);
+                  unset($db_peripherals[$keydb]);
                   break;
                }
             }
          }
-         if (count($a_printers) || count($db_printers)) {
-            if (count($db_printers) != 0) {
-               // Delete printers links in DB
-               foreach ($db_printers as $idtmp => $data) {
-                  $computer_Item->delete(['id'=>$idtmp], 1);
+
+         if (count($a_peripherals) || count($db_peripherals)) {
+            if (count($db_peripherals) != 0) {
+               // Delete peripherals links in DB
+               foreach ($db_peripherals as $idtmp => $data) {
+                  $computer_Item->delete(['id' => $idtmp], 1);
                }
             }
-            if (count($a_printers) != 0) {
-               foreach ($a_printers as $printers_id) {
-                  $input['entities_id']    = $this->entities_id;
+            if (count($a_peripherals) != 0) {
+               foreach ($a_peripherals as $peripherals_id) {
+                  $input                   = [];
                   $input['computers_id']   = $this->items_id;
-                  $input['itemtype']       = 'Printer';
-                  $input['items_id']       = $printers_id;
-                  $input['is_dynamic']     = 1;
+                  $input['itemtype']       = $this->section;
+                  $input['items_id']       = $peripherals_id;
+                  $input['is_dynamic']     = true;
                   $input['_no_history']    = $this->no_history;
                   $computer_Item->add($input, [], !$this->no_history);
                }

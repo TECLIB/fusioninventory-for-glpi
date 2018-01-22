@@ -73,7 +73,7 @@ class PluginFusioninventoryImportDeviceSimcard extends PluginFusioninventoryImpo
     *
     * @return void
     */
-   function importItem($no_history = false) {
+   function importItem() {
       if (!isset($this->a_inventory['simcards'])
          || !count($this->a_inventory['simcards'])) {
          return;
