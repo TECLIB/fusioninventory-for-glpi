@@ -128,7 +128,7 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
       $input = $a_computerinventory['Computer'];
 
       $input['id'] = $computers_id;
-      $history = true;
+      $history     = true;
       if ($no_history) {
          $history = false;
       }

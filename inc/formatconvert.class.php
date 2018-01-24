@@ -61,8 +61,8 @@ class PluginFusioninventoryFormatconvert {
     * @var array
     */
    var $foreignkey_itemtype = [];
-
    /**
+
     * Initialize the manufacturer cache
     *
     * @var array
@@ -289,20 +289,23 @@ class PluginFusioninventoryFormatconvert {
                                         'computermodels_id' => 'computermodels_id',
                                         'serial' => 'serial',
                                         'computertypes_id' => 'computertypes_id']);
-      if (!isset($array['OPERATINGSYSTEM']) || empty($array['OPERATINGSYSTEM'])) {
-         $array['OPERATINGSYSTEM'] = [];
-         if (isset($array['HARDWARE']['OSNAME'])) {
-            $array['OPERATINGSYSTEM']['FULL_NAME'] = $array['HARDWARE']['OSNAME'];
-         }
-         if (isset($array['HARDWARE']['OSVERSION'])) {
-            $array['OPERATINGSYSTEM']['VERSION'] = $array['HARDWARE']['OSVERSION'];
-         }
-         if (isset($array['HARDWARE']['OSCOMMENTS'])
-                 && $array['HARDWARE']['OSCOMMENTS'] != ''
-                 && !strstr($array['HARDWARE']['OSCOMMENTS'], 'UTC')) {
-            $array['OPERATINGSYSTEM']['SERVICE_PACK'] = $array['HARDWARE']['OSCOMMENTS'];
-         }
+
+
+      $params = [
+         'a_inventory'      => $a_inventory,
+         'import_itemtype'  => 'Computer',
+         'pfConfig'         => $pfConfig,
+      ];
+
+      $other_items = [
+         'PluginFusioninventoryImportOperatingSystem',
+         'PluginFusioninventoryImportDeviceBios'
+      ];
+      foreach ($other_items as $item) {
+         $itemInstance = new $item($params);
+         $array = $itemInstance->transformItem($array, $a_inventory);
       }
+
       if (isset($array_tmp['users_id'])) {
          if ($array_tmp['users_id'] == '') {
             unset($array_tmp['users_id']);
@@ -365,67 +368,6 @@ class PluginFusioninventoryFormatconvert {
          $a_inventory['fusioninventorycomputer']['operatingsystem_installationdate'] = "NULL";
       }
 
-      // * BIOS
-      if (isset($array['BIOS'])) {
-         if (isset($array['BIOS']['ASSETTAG'])
-                 && !empty($array['BIOS']['ASSETTAG'])) {
-            $a_inventory['Computer']['otherserial'] = $array['BIOS']['ASSETTAG'];
-         }
-         if ((isset($array['BIOS']['SMANUFACTURER']))
-               AND (!empty($array['BIOS']['SMANUFACTURER']))) {
-            $a_inventory['Computer']['manufacturers_id'] = $array['BIOS']['SMANUFACTURER'];
-         } else if ((isset($array['BIOS']['MMANUFACTURER']))
-                      AND (!empty($array['BIOS']['MMANUFACTURER']))) {
-            $a_inventory['Computer']['manufacturers_id'] = $array['BIOS']['MMANUFACTURER'];
-         } else if ((isset($array['BIOS']['BMANUFACTURER']))
-                      AND (!empty($array['BIOS']['BMANUFACTURER']))) {
-            $a_inventory['Computer']['manufacturers_id'] = $array['BIOS']['BMANUFACTURER'];
-         } else {
-            if ((isset($array['BIOS']['MMANUFACTURER']))
-                         AND (!empty($array['BIOS']['MMANUFACTURER']))) {
-               $a_inventory['Computer']['manufacturers_id'] = $array['BIOS']['MMANUFACTURER'];
-            } else {
-               if ((isset($array['BIOS']['BMANUFACTURER']))
-                            AND (!empty($array['BIOS']['BMANUFACTURER']))) {
-                  $a_inventory['Computer']['manufacturers_id'] = $array['BIOS']['BMANUFACTURER'];
-               }
-            }
-         }
-         if ((isset($array['BIOS']['MMANUFACTURER']))
-                      AND (!empty($array['BIOS']['MMANUFACTURER']))) {
-            $a_inventory['Computer']['mmanufacturer'] = $array['BIOS']['MMANUFACTURER'];
-         }
-         if ((isset($array['BIOS']['BMANUFACTURER']))
-                      AND (!empty($array['BIOS']['BMANUFACTURER']))) {
-            $a_inventory['Computer']['bmanufacturer'] = $array['BIOS']['BMANUFACTURER'];
-         }
-
-         if (isset($array['BIOS']['SMODEL']) AND $array['BIOS']['SMODEL'] != '') {
-            $a_inventory['Computer']['computermodels_id'] = $array['BIOS']['SMODEL'];
-         } else if (isset($array['BIOS']['MMODEL']) AND $array['BIOS']['MMODEL'] != '') {
-            $a_inventory['Computer']['computermodels_id'] = $array['BIOS']['MMODEL'];
-         }
-         if (isset($array['BIOS']['MMODEL']) AND $array['BIOS']['MMODEL'] != '') {
-            $a_inventory['Computer']['mmodel'] = $array['BIOS']['MMODEL'];
-         }
-
-         if (isset($array['BIOS']['SSN'])) {
-            $a_inventory['Computer']['serial'] = trim($array['BIOS']['SSN']);
-            // HP patch for serial begin with 'S'
-            if ((isset($a_inventory['Computer']['manufacturers_id']))
-                  AND (strstr($a_inventory['Computer']['manufacturers_id'], "ewlett"))
-                    && preg_match("/^[sS]/", $a_inventory['Computer']['serial'])) {
-               $a_inventory['Computer']['serial'] = trim(
-                                                preg_replace("/^[sS]/",
-                                                             "",
-                                                             $a_inventory['Computer']['serial']));
-            }
-         }
-         if (isset($array['BIOS']['MSN'])) {
-            $a_inventory['Computer']['mserial'] = trim($array['BIOS']['MSN']);
-         }
-      }
-
       // * Type of computer
 
       //First the HARDWARE/VMSYSTEM is not Physical : then it's a virtual machine
@@ -462,11 +404,8 @@ class PluginFusioninventoryFormatconvert {
          }
       }
 
-      //if (isset($array['BIOS']['SKUNUMBER'])) {
-      //   $a_inventory['BIOS']['PARTNUMBER'] = $array['BIOS']['SKUNUMBER'];
-      //}
-
-      $CFG_GLPI['plugin_fusioninventory_computermanufacturer'][$a_inventory['Computer']['manufacturers_id']] = $a_inventory['Computer']['manufacturers_id'];
+      $CFG_GLPI['plugin_fusioninventory_computermanufacturer'][$a_inventory['Computer']['manufacturers_id']]
+         = $a_inventory['Computer']['manufacturers_id'];
 
       // * BIOS
       if (isset($array['BIOS'])) {
@@ -521,6 +460,7 @@ class PluginFusioninventoryFormatconvert {
             $array_tmp['license_number'] = $a_inventory['Computer']['license_number'];
             unset($a_inventory['Computer']['license_number']);
          }
+
 
          $array_tmp['operatingsystemeditions_id'] = '';
          if (isset($array['OPERATINGSYSTEM']['FULL_NAME']) && $pfConfig->getValue('manage_osname') == 1) {

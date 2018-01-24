@@ -637,10 +637,35 @@ class PluginFusioninventoryImportSoftware extends PluginFusioninventoryImportDev
     * @param array $changes
     * @param integer $linked_action
     */
-   function addPrepareLog($items_id, $itemtype, $itemtype_link = '', $changes = ['0', '', ''], $linked_action = Log::HISTORY_CREATE_ITEM) {
-      $this->log_add[] = [$items_id, $itemtype, $itemtype_link, $_SESSION["glpi_currenttime"], $changes, $linked_action];
+   function addPrepareLog($items_id, $itemtype, $itemtype_link = '',
+                          $changes = ['0', '', ''],
+                          $linked_action = Log::HISTORY_CREATE_ITEM) {
+      $this->log_add[] = [
+         $items_id,
+         $itemtype,
+         $itemtype_link,
+         $_SESSION["glpi_currenttime"],
+         $changes,
+         $linked_action
+      ];
    }
 
+   /**
+    * Add a software version
+    *
+    * @param array $a_software
+    * @param integer $softwares_id
+    */
+   function addSoftwareVersion($a_software, $softwares_id) {
+      $options = [];
+      $options['disable_unicity_check'] = true;
+      $a_software['name']         = $a_software['version'];
+      $a_software['softwares_id'] = $softwares_id;
+      $a_software['_no_history']  = true;
+      $softwareversions_id = $this->softwareVersion->add($a_software, $options, false);
+      $this->addPrepareLog($softwareversions_id, 'SoftwareVersion');
+      $this->softVersionList[strtolower($a_software['version'])."$$$$".$softwares_id."$$$$".$a_software['operatingsystems_id']] = $softwareversions_id;
+   }
    /**
     * Insert logs are in queue
     *

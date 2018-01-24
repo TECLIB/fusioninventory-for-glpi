@@ -79,7 +79,7 @@ class PluginFusioninventoryImportDevice implements PluginFusioninventoryImportIn
       }
    }
 
-   function transformItem() {
+   function transformItem(&$inventory_as_array = [], &$output_inventory = []) {
 
    }
 
@@ -224,7 +224,46 @@ class PluginFusioninventoryImportDevice implements PluginFusioninventoryImportIn
       }
    }
 
-   function toEndProcess() {
-      return true;
+   /**
+    * Convert data in right format (string, integer) when have empty or not
+    * exist in inventory
+    *
+    * @param array $array inventory data
+    * @param array $a_key the key to check
+    * @return string|array
+    */
+   function addValues($array, $a_key) {
+      $a_return = [];
+      //if (!is_array($array)) {
+      if ((array)$array !== $array) {
+         return $a_return;
+      }
+      foreach ($array as $key => $value) {
+         if (isset($a_key[$key])) {
+            $a_return[$a_key[$key]] = $value;
+         }
+      }
+
+      $a_int_values = [
+         'capacity', 'freesize', 'totalsize', 'memory', 'memory_size',
+         'pages_total', 'pages_n_b', 'pages_color', 'pages_recto_verso',
+         'scanned', 'pages_total_print', 'pages_n_b_print', 'pages_color_print',
+         'pages_total_copy', 'pages_n_b_copy', 'pages_color_copy',
+         'pages_total_fax', 'cpu', 'trunk', 'is_active', 'uptodate',
+         'nbthreads', 'vcpu', 'ram', 'ifinerrors', 'ifinoctets', 'ifouterrors',
+         'ifoutoctets', 'ifmtu', 'speed', 'nbcores', 'nbthreads', 'frequency'
+      ];
+      foreach ($a_key as $key => $value) {
+         if (!isset($a_return[$value])
+                 || $a_return[$value] == '') {
+
+            if (in_array($value, $a_int_values)) {
+               $a_return[$value] = 0;
+            } else {
+               $a_return[$value] = '';
+            }
+         }
+      }
+      return $a_return;
    }
 }

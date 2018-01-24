@@ -64,14 +64,89 @@ class PluginFusioninventoryImportDeviceBios extends PluginFusioninventoryImportD
    protected $section = 'bios';
 
    function getQuery() {
-      return "SELECT `glpi_items_devicefirmwares`.`id`, `serial`,
-            `designation`, `version`
-            FROM `glpi_items_devicefirmwares`
-               LEFT JOIN `glpi_devicefirmwares`
-                  ON `devicefirmwares_id`=`glpi_devicefirmwares`.`id`
-         WHERE `items_id` = '".$this->items_id."'
-            AND `itemtype`='".$this->import_itemtype."'
-            AND `is_dynamic`='1'";
+      return [
+         'FROM' => 'glpi_items_devicefirmwares',
+         'FIELDS' => [
+            'glpi_items_devicefirmwares' => ['id', 'serial'],
+            'glpi_devicefirmwares' => ['designation', 'version']
+         ],
+         'LEFT JOIN' => [
+            'glpi_devicefirmwares' => [
+               'FKEY' => [
+                  'glpi_items_devicefirmwares' => 'devicefirmwares_id',
+                  'glpi_devicefirmwares'       => 'id'
+               ]
+            ]
+         ],
+         'WHERE' => [
+            'items_id'   => $this->items_id,
+            'itemtype'   => $this->import_itemtype,
+            'is_dynamic' => 1
+         ]
+      ];
+   }
+
+   function transformItem(&$inventory_as_array = [], &$output_inventory = []) {
+      // * BIOS
+      if (isset($inventory_as_array['BIOS'])) {
+         if (isset($inventory_as_array['BIOS']['ASSETTAG'])
+                 && !empty($inventory_as_array['BIOS']['ASSETTAG'])) {
+            $output_inventory['Computer']['otherserial'] = $inventory_as_array['BIOS']['ASSETTAG'];
+         }
+         if ((isset($inventory_as_array['BIOS']['SMANUFACTURER']))
+               && (!empty($inventory_as_array['BIOS']['SMANUFACTURER']))) {
+            $output_inventory['Computer']['manufacturers_id'] = $inventory_as_array['BIOS']['SMANUFACTURER'];
+         } else if ((isset($inventory_as_array['BIOS']['MMANUFACTURER']))
+                      && (!empty($inventory_as_array['BIOS']['MMANUFACTURER']))) {
+            $output_inventory['Computer']['manufacturers_id'] = $inventory_as_array['BIOS']['MMANUFACTURER'];
+         } else if ((isset($inventory_as_array['BIOS']['BMANUFACTURER']))
+                      && (!empty($inventory_as_array['BIOS']['BMANUFACTURER']))) {
+            $output_inventory['Computer']['manufacturers_id'] = $inventory_as_array['BIOS']['BMANUFACTURER'];
+         } else {
+            if ((isset($inventory_as_array['BIOS']['MMANUFACTURER']))
+                         && (!empty($inventory_as_array['BIOS']['MMANUFACTURER']))) {
+               $output_inventory['Computer']['manufacturers_id'] = $inventory_as_array['BIOS']['MMANUFACTURER'];
+            } else {
+               if ((isset($inventory_as_array['BIOS']['BMANUFACTURER']))
+                            && (!empty($inventory_as_array['BIOS']['BMANUFACTURER']))) {
+                  $output_inventory['Computer']['manufacturers_id'] = $inventory_as_array['BIOS']['BMANUFACTURER'];
+               }
+            }
+         }
+         if ((isset($inventory_as_array['BIOS']['MMANUFACTURER']))
+                      && (!empty($inventory_as_array['BIOS']['MMANUFACTURER']))) {
+            $output_inventory['Computer']['mmanufacturer'] = $inventory_as_array['BIOS']['MMANUFACTURER'];
+         }
+         if ((isset($inventory_as_array['BIOS']['BMANUFACTURER']))
+                      && (!empty($inventory_as_array['BIOS']['BMANUFACTURER']))) {
+            $output_inventory['Computer']['bmanufacturer'] = $inventory_as_array['BIOS']['BMANUFACTURER'];
+         }
+
+         if (isset($inventory_as_array['BIOS']['SMODEL']) && $inventory_as_array['BIOS']['SMODEL'] != '') {
+            $output_inventory['Computer']['computermodels_id'] = $inventory_as_array['BIOS']['SMODEL'];
+         } else if (isset($inventory_as_array['BIOS']['MMODEL']) && $inventory_as_array['BIOS']['MMODEL'] != '') {
+            $output_inventory['Computer']['computermodels_id'] = $inventory_as_array['BIOS']['MMODEL'];
+         }
+         if (isset($inventory_as_array['BIOS']['MMODEL']) && $inventory_as_array['BIOS']['MMODEL'] != '') {
+            $output_inventory['Computer']['mmodel'] = $inventory_as_array['BIOS']['MMODEL'];
+         }
+
+         if (isset($inventory_as_array['BIOS']['SSN'])) {
+            $output_inventory['Computer']['serial'] = trim($inventory_as_array['BIOS']['SSN']);
+            // HP patch for serial begin with 'S'
+            if ((isset($output_inventory['Computer']['manufacturers_id']))
+                  && (strstr($output_inventory['Computer']['manufacturers_id'], "ewlett"))
+                    && preg_match("/^[sS]/", $output_inventory['Computer']['serial'])) {
+               $output_inventory['Computer']['serial'] = trim(
+                                                preg_replace("/^[sS]/",
+                                                             "",
+                                                             $output_inventory['Computer']['serial']));
+            }
+         }
+         if (isset($inventory_as_array['BIOS']['MSN'])) {
+            $output_inventory['Computer']['mserial'] = trim($inventory_as_array['BIOS']['MSN']);
+         }
+      }
 
    }
    /**
@@ -102,17 +177,16 @@ class PluginFusioninventoryImportDeviceBios extends PluginFusioninventoryImportD
       }
 
       if (count($db_bios) == 0) {
-         if (isset($a_inventory['bios'])) {
-            $this->addBios($itemtype, $a_inventory['bios'],
-                           $items_id);
+         if (isset($this->a_inventory['bios'])) {
+            $this->addBios($this->a_inventory['bios']);
          }
       } else {
-         if (isset($a_inventory['bios'])) {
-            $arrayslower = array_map('strtolower', $a_inventory['bios']);
+         if (isset($this->a_inventory['bios'])) {
+            $arrayslower = array_map('strtolower', $this->a_inventory['bios']);
             foreach ($db_bios as $keydb => $arraydb) {
                if (isset($arrayslower['version'])
                   && $arrayslower['version'] == $arraydb['version']) {
-                  unset($a_inventory['bios']);
+                  unset($this->a_inventory['bios']);
                   unset($db_bios[$keydb]);
                   break;
                }
@@ -126,9 +200,8 @@ class PluginFusioninventoryImportDeviceBios extends PluginFusioninventoryImportD
             }
          }
 
-         if (isset($a_inventory['bios'])) {
-            $this->addBios($itemtype, $a_inventory['bios'],
-                           $items_id);
+         if (isset($this->a_inventory['bios'])) {
+            $this->addBios($this->a_inventory['bios'], $this->items_id);
          }
       }
    }
@@ -137,10 +210,10 @@ class PluginFusioninventoryImportDeviceBios extends PluginFusioninventoryImportD
     * Add a new bios component
     *
     * @param array $data
-    * @param integer $$items_id
+    * @param integer $$this->items_id
     * @param boolean $this->no_history
     */
-   function addBios($itemtype, $data, $items_id) {
+   function addBios($data) {
       $item_DeviceBios  = new Item_DeviceFirmware();
       $deviceBios       = new DeviceFirmware();
 
@@ -151,8 +224,8 @@ class PluginFusioninventoryImportDeviceBios extends PluginFusioninventoryImportD
 
       $bios_id                      = $deviceBios->import($data);
       $data['devicefirmwares_id']   = $bios_id;
-      $data['itemtype']             = $itemtype;
-      $data['items_id']             = $items_id;
+      $data['itemtype']             = $this->import_itemtype;
+      $data['items_id']             = $this->items_id;
       $data['is_dynamic']           = 1;
       $data['_no_history']          = $this->no_history;
       $item_DeviceBios->add($data, [], !$this->no_history);

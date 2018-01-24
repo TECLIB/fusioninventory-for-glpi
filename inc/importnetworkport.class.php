@@ -68,7 +68,7 @@ class PluginFusioninventoryImportNetworkPort extends PluginFusioninventoryImport
    //Asset ID
    protected $items_id = 0;
 
-   function transformItem() {
+   function transformItem(&$inventory_as_array = [], &$output_inventory = []) {
    }
 
    function canImport() {

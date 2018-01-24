@@ -69,6 +69,135 @@ class PluginFusioninventoryImportOperatingSystem extends PluginFusioninventoryIm
       return ($this->import_itemtype == 'Computer');
    }
 
+   function transformItem(&$inventory_as_array = [], &$output_inventory = []) {
+      if (!isset($inventory_as_array['OPERATINGSYSTEM']) || empty($inventory_as_array['OPERATINGSYSTEM'])) {
+         $inventory_as_array['OPERATINGSYSTEM'] = [];
+         if (isset($inventory_as_array['HARDWARE']['OSNAME'])) {
+            $inventory_as_array['OPERATINGSYSTEM']['FULL_NAME'] = $inventory_as_array['HARDWARE']['OSNAME'];
+         }
+         if (isset($inventory_as_array['HARDWARE']['OSVERSION'])) {
+            $inventory_as_array['OPERATINGSYSTEM']['VERSION'] = $inventory_as_array['HARDWARE']['OSVERSION'];
+         }
+         if (isset($inventory_as_array['HARDWARE']['OSCOMMENTS'])
+                 && $inventory_as_array['HARDWARE']['OSCOMMENTS'] != ''
+                 && !strstr($inventory_as_array['HARDWARE']['OSCOMMENTS'], 'UTC')) {
+            $inventory_as_array['OPERATINGSYSTEM']['SERVICE_PACK'] = $inventory_as_array['HARDWARE']['OSCOMMENTS'];
+         }
+      }
+
+      if (isset($array['OPERATINGSYSTEM'])) {
+         $array_tmp = $this->addValues(
+                 $array['OPERATINGSYSTEM'],
+                 [
+                  'NAME'           => 'operatingsystems_id',
+                  'VERSION'        => 'operatingsystemversions_id',
+                  'SERVICE_PACK'   => 'operatingsystemservicepacks_id',
+                  'ARCH'           => 'operatingsystemarchitectures_id',
+                  'KERNEL_NAME'    => 'operatingsystemkernels_id',
+                  'KERNEL_VERSION' => 'operatingsystemkernelversions_id'
+                 ]);
+
+         if (isset($array['OPERATINGSYSTEM']['HOSTID'])) {
+            $a_inventory['fusioninventorycomputer']['hostid'] = $array['OPERATINGSYSTEM']['HOSTID'];
+         }
+
+         if (isset($a_inventory['Computer']['licenseid'])) {
+            $array_tmp['licenseid'] = $a_inventory['Computer']['licenseid'];
+            unset($a_inventory['Computer']['licenseid']);
+         }
+
+         if (isset($a_inventory['Computer']['license_number'])) {
+            $array_tmp['license_number'] = $a_inventory['Computer']['license_number'];
+            unset($a_inventory['Computer']['license_number']);
+         }
+
+         $array_tmp['operatingsystemeditions_id'] = '';
+         if (isset($inventory_as_array['OPERATINGSYSTEM']['FULL_NAME'])
+            && $this->pfConfig->getValue('manage_osname') == 1) {
+            $matches = [];
+            preg_match("/.+ Windows (XP |\d\.\d |\d{1,4} |Vista(™)? )(.*)/",
+                       $inventory_as_array['OPERATINGSYSTEM']['FULL_NAME'],
+                       $matches);
+            if (count($matches) == 4) {
+               $array_tmp['operatingsystemeditions_id'] = $matches[3];
+               if ($array_tmp['operatingsystemversions_id'] == '') {
+                  $matches[1] = trim($matches[1]);
+                  if ($matches[2] != '') {
+                     $matches[1] = trim($matches[1], $matches[2]);
+                  }
+                  $array_tmp['operatingsystemversions_id'] = $matches[1];
+               }
+            } else if (count($matches) == 2) {
+               $array_tmp['operatingsystemeditions_id'] = $matches[1];
+            } else {
+               preg_match("/^(.*) GNU\/Linux (\d{1,2}|\d{1,2}\.\d{1,2}) \((.*)\)$/",
+                          $inventory_as_array['OPERATINGSYSTEM']['FULL_NAME'],
+                          $matches);
+               if (count($matches) == 4) {
+                  if (empty($array_tmp['operatingsystems_id'])) {
+                     $array_tmp['operatingsystems_id'] = $matches[1];
+                  }
+                  if (empty($array_tmp['operatingsystemkernelversions_id'])) {
+                     $array_tmp['operatingsystemkernelversions_id'] = $array_tmp['operatingsystemversions_id'];
+                     $array_tmp['operatingsystemversions_id'] = $matches[2]." (".$matches[3].")";
+                  } else if (empty($array_tmp['operatingsystemversions_id'])) {
+                     $array_tmp['operatingsystemversions_id'] = $matches[2]." (".$matches[3].")";
+                  }
+                  if (empty($array_tmp['operatingsystemkernels_id'])) {
+                     $array_tmp['operatingsystemkernels_id'] = 'linux';
+                  }
+               } else {
+                  preg_match("/Linux (.*) (\d{1,2}|\d{1,2}\.\d{1,2}) \((.*)\)$/",
+                             $inventory_as_array['OPERATINGSYSTEM']['FULL_NAME'],
+                             $matches);
+                  if (count($matches) == 4) {
+                     if (empty($array_tmp['operatingsystemversions_id'])) {
+                        $array_tmp['operatingsystemversions_id'] = $matches[2];
+                     }
+                     if (empty($array_tmp['operatingsystemarchitectures_id'])) {
+                        $array_tmp['operatingsystemarchitectures_id'] = $matches[3];
+                     }
+                     if (empty($array_tmp['operatingsystemkernels_id'])) {
+                        $array_tmp['operatingsystemkernels_id'] = 'linux';
+                     }
+                     $array_tmp['operatingsystemeditions_id'] = trim($matches[1]);
+                  } else {
+                     preg_match("/\w[\s\S]{0,4} (?:Windows[\s\S]{0,4} |)(.*) (\d{4} R2|\d{4})(?:, | |)(.*|)$/",
+                               $inventory_as_array['OPERATINGSYSTEM']['FULL_NAME'],
+                               $matches);
+                     if (count($matches) == 4) {
+                        $array_tmp['operatingsystemversions_id'] = $matches[2];
+                        $array_tmp['operatingsystemeditions_id'] = trim($matches[1]." ".$matches[3]);
+                     } else if ($inventory_as_array['OPERATINGSYSTEM']['FULL_NAME'] == 'Microsoft Windows Embedded Standard') {
+                        $array_tmp['operatingsystemeditions_id'] = 'Embedded Standard';
+                     } else if (empty($array_tmp['operatingsystems_id'])) {
+                        $array_tmp['operatingsystems_id'] = $inventory_as_array['OPERATINGSYSTEM']['FULL_NAME'];
+                     }
+                  }
+               }
+            }
+         } else if (isset($inventory_as_array['OPERATINGSYSTEM']['FULL_NAME'])) {
+            $array_tmp['operatingsystems_id'] = $inventory_as_array['OPERATINGSYSTEM']['FULL_NAME'];
+         }
+         if (isset($array_tmp['operatingsystemarchitectures_id'])
+                 && $array_tmp['operatingsystemarchitectures_id'] != '') {
+
+            $rulecollection = new RuleDictionnaryOperatingSystemArchitectureCollection();
+            $res_rule = $rulecollection->processAllRules(["name" => $array_tmp['operatingsystemarchitectures_id']]);
+            if (isset($res_rule['name'])) {
+               $array_tmp['operatingsystemarchitectures_id'] = $res_rule['name'];
+            }
+            if ($array_tmp['operatingsystemarchitectures_id'] == '0') {
+               $array_tmp['operatingsystemarchitectures_id'] = '';
+            }
+         }
+         if ($array_tmp['operatingsystemservicepacks_id'] == '0') {
+            $array_tmp['operatingsystemservicepacks_id'] = '';
+         }
+         $output_inventory['fusioninventorycomputer']['items_operatingsystems_id'] = $array_tmp;
+      }
+   }
+
    function importItem() {
       global $DB;
 
