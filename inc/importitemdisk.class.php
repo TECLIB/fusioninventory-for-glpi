@@ -52,13 +52,13 @@ if (!defined('GLPI_ROOT')) {
  * Import graphic card
  * @since 9.3+1.0
  */
-class PluginFusioninventoryImportComputerDisk extends PluginFusioninventoryImportDevice {
+class PluginFusioninventoryImportItemDisk extends PluginFusioninventoryImportDevice {
 
    //Store the inventory to be processed
    protected $a_inventory = [];
 
    //The itemtype of the device we're processing
-   protected $device_itemtype = 'ComputerDisk';
+   protected $device_itemtype = 'Item_Disk';
 
    //Store the key related to the
    protected $section = 'computerdisk';
@@ -66,9 +66,10 @@ class PluginFusioninventoryImportComputerDisk extends PluginFusioninventoryImpor
    function getQuery() {
       return [
          'SELECT' => ['id', 'name', 'device', 'mountpoint'],
-         'FROM'   => 'glpi_computerdisks',
+         'FROM'   => 'glpi_items_disks',
          'WHERE'  => [
-            'computers_id' => $this->items_id,
+            'itemtype' => $this->import_itemtype,
+            'items_id' => $this->items_id,
             'is_dynamic'   => 1
          ]
       ];
@@ -81,7 +82,7 @@ class PluginFusioninventoryImportComputerDisk extends PluginFusioninventoryImpor
    function importItem() {
       global $DB;
 
-      $computerDisk    = new computerDisk();
+      $computerDisk    = new $this->import_itemtype();
       $db_computerdisk = [];
 
       if ($this->no_history === false) {
@@ -112,8 +113,8 @@ class PluginFusioninventoryImportComputerDisk extends PluginFusioninventoryImpor
                   $input['filesystems_id'] =
                            $this->a_inventory[$this->section][$key]['filesystems_id'];
                }
-               $input['totalsize'] = $this->a_inventory[$this->section][$key]['totalsize'];
-               $input['freesize'] = $this->a_inventory[$this->section][$key]['freesize'];
+               $input['totalsize']   = $this->a_inventory[$this->section][$key]['totalsize'];
+               $input['freesize']    = $this->a_inventory[$this->section][$key]['freesize'];
                $input['_no_history'] = true;
                $computerDisk->update($input, false);
                unset($simplecomputerdisk[$key]);
@@ -133,7 +134,8 @@ class PluginFusioninventoryImportComputerDisk extends PluginFusioninventoryImpor
          }
          if (count($this->a_inventory[$this->section]) != 0) {
             foreach ($this->a_inventory[$this->section] as $a_computerdisk) {
-               $a_computerdisk['computers_id']  = $this->items_id;
+               $a_computerdisk['items_id']      = $this->items_id;
+               $a_computerdisk['itemtype']      = $this->import_itemtype;
                $a_computerdisk['is_dynamic']    = 1;
                $a_computerdisk['_no_history']   = $this->no_history;
                $computerDisk->add($a_computerdisk, [], !$this->no_history);

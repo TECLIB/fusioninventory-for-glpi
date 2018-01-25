@@ -200,7 +200,7 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
          'PluginFusioninventoryImportMonitor',
          'PluginFusioninventoryImportPrinter',
          'PluginFusioninventoryImportPeripheral',
-         'PluginFusioninventoryImportComputerDisk',
+         'PluginFusioninventoryImportItemDisk',
          'PluginFusioninventoryImportDeviceProcessor',
          'PluginFusioninventoryImportDeviceBattery',
          'PluginFusioninventoryImportDeviceMemory',
