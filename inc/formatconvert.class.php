@@ -318,7 +318,9 @@ class PluginFusioninventoryFormatconvert {
       ];
       foreach ($other_items as $item) {
          $itemInstance = new $item($params);
-         $array = $itemInstance->transformItem($array, $a_inventory);
+         $result       = $itemInstance->transformItem($array, $a_inventory);
+         $array        = $result['inventory_as_array'];
+         $a_inventory  = $result['output_inventory'];
       }
 
       if (isset($array_tmp['users_id'])) {
@@ -348,7 +350,8 @@ class PluginFusioninventoryFormatconvert {
                                      [
                                         'OSINSTALLDATE'  => 'operatingsystem_installationdate',
                                         'WINOWNER'       => 'winowner',
-                                        'WINCOMPANY'     => 'wincompany']);
+                                        'WINCOMPANY'     => 'wincompany'
+                                     ]);
       $array_tmp['last_fusioninventory_update'] = date('Y-m-d H:i:s');
 
       // * Determine "Public contact address"

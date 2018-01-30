@@ -86,7 +86,7 @@ class PluginFusioninventoryImportDeviceBios extends PluginFusioninventoryImportD
       ];
    }
 
-   function transformItem(&$inventory_as_array = [], &$output_inventory = []) {
+   function transformItem($inventory_as_array = [], $output_inventory = []) {
       // * BIOS
       if (isset($inventory_as_array['BIOS'])) {
          if (isset($inventory_as_array['BIOS']['ASSETTAG'])
@@ -147,8 +147,12 @@ class PluginFusioninventoryImportDeviceBios extends PluginFusioninventoryImportD
             $output_inventory['Computer']['mserial'] = trim($inventory_as_array['BIOS']['MSN']);
          }
       }
-
+      return [
+         'inventory_as_array' => $inventory_as_array,
+         'output_inventory' => $output_inventory
+      ];
    }
+
    /**
     * Import bioses
     *

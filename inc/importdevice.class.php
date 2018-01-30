@@ -79,7 +79,7 @@ class PluginFusioninventoryImportDevice implements PluginFusioninventoryImportIn
       }
    }
 
-   function transformItem(&$inventory_as_array = [], &$output_inventory = []) {
+   function transformItem($inventory_as_array = [], $output_inventory = []) {
 
    }
 
@@ -234,7 +234,6 @@ class PluginFusioninventoryImportDevice implements PluginFusioninventoryImportIn
     */
    function addValues($array, $a_key) {
       $a_return = [];
-      //if (!is_array($array)) {
       if ((array)$array !== $array) {
          return $a_return;
       }

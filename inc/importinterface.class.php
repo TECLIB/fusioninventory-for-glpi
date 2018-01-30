@@ -59,7 +59,7 @@ interface PluginFusioninventoryImportInterface {
    * inside the plugin
    * @since 9.3+3.0
    */
-   public function transformItem(&$inventory_as_array = [], &$output_inventory = []);
+   public function transformItem($inventory_as_array = [], $output_inventory = []);
 
    /**
    * Import a device

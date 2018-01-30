@@ -295,7 +295,7 @@ class PluginFusioninventoryImportSoftware extends PluginFusioninventoryImportDev
             }
 
             foreach ($this->a_inventory[$this->section] as $a_software) {
-            if (!$no_history && !$no_history_for_this_software) {
+            if (!$this->no_history && !$no_history_for_this_software) {
                   $softwares_id = $this->softList[$a_software['name']."$$$$".$a_software['manufacturers_id']];
                   $softwareversions_id = $this->softVersionList[strtolower($a_software['version'])."$$$$".$softwares_id."$$$$".$a_software['operatingsystems_id']];
 

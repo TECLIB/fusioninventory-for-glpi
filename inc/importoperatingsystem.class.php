@@ -69,7 +69,7 @@ class PluginFusioninventoryImportOperatingSystem extends PluginFusioninventoryIm
       return ($this->import_itemtype == 'Computer');
    }
 
-   function transformItem(&$inventory_as_array = [], &$output_inventory = []) {
+   function transformItem($inventory_as_array = [], $output_inventory = []) {
       if (!isset($inventory_as_array['OPERATINGSYSTEM']) || empty($inventory_as_array['OPERATINGSYSTEM'])) {
          $inventory_as_array['OPERATINGSYSTEM'] = [];
          if (isset($inventory_as_array['HARDWARE']['OSNAME'])) {
@@ -194,8 +194,14 @@ class PluginFusioninventoryImportOperatingSystem extends PluginFusioninventoryIm
          if ($array_tmp['operatingsystemservicepacks_id'] == '0') {
             $array_tmp['operatingsystemservicepacks_id'] = '';
          }
+
          $output_inventory['fusioninventorycomputer']['items_operatingsystems_id'] = $array_tmp;
       }
+      
+      return [
+         'inventory_as_array' => $inventory_as_array,
+         'output_inventory' => $output_inventory
+      ];
    }
 
    function importItem() {

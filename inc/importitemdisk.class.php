@@ -82,7 +82,7 @@ class PluginFusioninventoryImportItemDisk extends PluginFusioninventoryImportDev
    function importItem() {
       global $DB;
 
-      $computerDisk    = new $this->import_itemtype();
+      $itemDisk    = new $this->device_itemtype();
       $db_computerdisk = [];
 
       if ($this->no_history === false) {
@@ -116,7 +116,7 @@ class PluginFusioninventoryImportItemDisk extends PluginFusioninventoryImportDev
                $input['totalsize']   = $this->a_inventory[$this->section][$key]['totalsize'];
                $input['freesize']    = $this->a_inventory[$this->section][$key]['freesize'];
                $input['_no_history'] = true;
-               $computerDisk->update($input, false);
+               $itemDisk->update($input, false);
                unset($simplecomputerdisk[$key]);
                unset($this->a_inventory[$this->section][$key]);
                unset($db_computerdisk[$keydb]);
@@ -129,16 +129,17 @@ class PluginFusioninventoryImportItemDisk extends PluginFusioninventoryImportDev
          if (count($db_computerdisk) != 0) {
             // Delete computerdisk in DB
             foreach ($db_computerdisk as $idtmp => $data) {
-               $computerDisk->delete(['id'=>$idtmp], 1);
+               $itemDisk->delete(['id'=>$idtmp], 1);
             }
          }
          if (count($this->a_inventory[$this->section]) != 0) {
             foreach ($this->a_inventory[$this->section] as $a_computerdisk) {
                $a_computerdisk['items_id']      = $this->items_id;
                $a_computerdisk['itemtype']      = $this->import_itemtype;
+               $a_computerdisk['entities_id']   = $this->entities_id;
                $a_computerdisk['is_dynamic']    = 1;
                $a_computerdisk['_no_history']   = $this->no_history;
-               $computerDisk->add($a_computerdisk, [], !$this->no_history);
+               $itemDisk->add($a_computerdisk, [], !$this->no_history);
             }
          }
       }
