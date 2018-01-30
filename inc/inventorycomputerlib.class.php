@@ -81,7 +81,7 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
     *
     * @var array
     */
-   var $installationWithoutLogs = array();
+   var $installationWithoutLogs = [];
 
    /**
     * __contruct function where initialize many variables
@@ -246,7 +246,6 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
       $computer->update($input);
 
       $a_tables = [
-         'glpi_computerdisks',
          'glpi_computers_items',
          'glpi_computers_softwareversions',
          'glpi_computervirtualmachines'
@@ -266,7 +265,9 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
                    "glpi_items_deviceharddrives", "glpi_items_devicememories",
                    "glpi_items_devicemotherboards", "glpi_items_devicenetworkcards",
                    "glpi_items_devicepcis", "glpi_items_devicepowersupplies",
-                   "glpi_items_deviceprocessors", "glpi_items_devicesoundcards"];
+                   "glpi_items_deviceprocessors", "glpi_items_devicesoundcards",
+                   'glpi_items_disks'
+      ];
 
       foreach ($a_tables as $table) {
          $DB->update(

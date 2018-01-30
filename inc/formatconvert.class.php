@@ -82,6 +82,21 @@ class PluginFusioninventoryFormatconvert {
 
       $PLUGIN_FUSIONINVENTORY_XML = $xml;
       $datainventory = json_decode(json_encode((array)$xml), true);
+
+      //TODO: factorize this code with older one (need to find a suitable solution for all)
+      //Fix multivalued/standalone
+      $multi = [
+         'FIRMWARES',
+         'SIMCARDS'
+      ];
+      foreach ($multi as $elt) {
+         if (count($xml->xpath('/REQUEST/CONTENT/DEVICE/' . $elt)) == 1) {
+            $tmp = $datainventory['CONTENT']['DEVICE'][$elt];
+            unset($datainventory['CONTENT']['DEVICE'][$elt]);
+            $datainventory['CONTENT']['DEVICE'][$elt] = [$tmp];
+         }
+      }
+
       if (isset($datainventory['CONTENT']['ENVS'])) {
          unset($datainventory['CONTENT']['ENVS']);
       }
@@ -1935,13 +1950,6 @@ class PluginFusioninventoryFormatconvert {
    */
    function simcardTransformation($array, &$a_inventory) {
       if (isset($array['SIMCARDS'])) {
-         //If there's only one entry
-         if (!isset($array['SIMCARDS'][0])) {
-            $tmp                 = $array['SIMCARDS'];
-            $array               = [];
-            //We're waiting for an array of simcards
-            $array['SIMCARDS'][0] = $tmp;
-         }
          $mapping = [
             'ICCID'         => 'serial',
             'MANUFACTURER'  => 'manufacturers_id',
@@ -1971,12 +1979,12 @@ class PluginFusioninventoryFormatconvert {
          foreach ($array['PORTS']['PORT'] as $a_port) {
             if (isset($a_port['IFNUMBER'])) {
                $array_tmp = $this->addValues($a_port,
-                                              array(
+                                              [
                                                  'IFNAME'   => 'name',
                                                  'IFNUMBER' => 'logical_number',
                                                  'MAC'      => 'mac',
                                                  'IP'       => 'ip',
-                                                 'IFTYPE'   => 'iftype'));
+                                                 'IFTYPE'   => 'iftype']);
 
                $a_inventory['networkport'][$a_port['IFNUMBER']] = $array_tmp;
             }

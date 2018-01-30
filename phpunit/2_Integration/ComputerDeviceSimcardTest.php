@@ -81,7 +81,7 @@ class ComputerDeviceSimcardTest extends RestoreDatabase_TestCase {
              'devicesimcards_id' => 1,
              'is_dynamic'        => 1,
              'entities_id'       => 0
-          ],
+            ],
             ['serial'            => '22344406000051565613',
              'msin'              => '126543721717241',
              'devicesimcards_id' => 1,
@@ -149,7 +149,7 @@ class ComputerDeviceSimcardTest extends RestoreDatabase_TestCase {
              'devicesimcards_id' => 1,
              'is_dynamic'        => 1,
              'entities_id'       => 0
-          ]
+            ]
          ],
          'itemtype'       => 'Computer'
       ];
@@ -163,14 +163,16 @@ class ComputerDeviceSimcardTest extends RestoreDatabase_TestCase {
       $formatConvert = new PluginFusioninventoryFormatconvert();
 
       $input = [
-            'SIMCARDS' => [
-            'COUNTRY'       => 'France',
-            'ICCID'         => "11124406000051565111",
-            'IMSI'          => "204043721717241",
-            'OPERATOR_CODE' => '208.10',
-            'OPERATOR_NAME' => 'SFR',
-            'STATE'         => 'SIM1 - Ready (PIN checking disabled)',
-         ]
+         'SIMCARDS' => [
+            0  => [
+               'COUNTRY'       => 'France',
+               'ICCID'         => "11124406000051565111",
+               'IMSI'          => "204043721717241",
+               'OPERATOR_CODE' => '208.10',
+               'OPERATOR_NAME' => 'SFR',
+               'STATE'         => 'SIM1 - Ready (PIN checking disabled)'
+            ]
+            ]
       ];
       $a_inventory = [];
       $formatConvert->simcardTransformation($input, $a_inventory);
@@ -269,7 +271,6 @@ class ComputerDeviceSimcardTest extends RestoreDatabase_TestCase {
          $pfItemDeviceSimcard->fields,
          'Item Simcard data'
       );
-
 
       $simcards            = $pfItemDeviceSimcard->find("`serial`='22344406000051565613'");
       $this->assertGreaterThan(0, $pfItemDeviceSimcard->getFromDBByCrit(['serial' => '22344406000051565613']));
