@@ -280,6 +280,7 @@ function plugin_init_fusioninventory() {
       }
       if (script_endswith("deploypackage.form.php")) {
          $PLUGIN_HOOKS['add_css']['fusioninventory'][]="lib/extjs/resources/css/ext-all.css";
+         $PLUGIN_HOOKS['add_css']['fusioninventory'][]="lib/font-awesome/css/font-awesome".($debug_mode?"":".min").".css";
 
          array_push(
             $PLUGIN_HOOKS['add_javascript']['fusioninventory'],
