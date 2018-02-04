@@ -57,13 +57,19 @@ interface PluginFusioninventoryImportInterface {
    /**
    * Method to transform raw inventory data into data that can be processed
    * inside the plugin
-   * @since 9.3+3.0
+   * @since 9.3+1.0
    */
    public function transformItem($inventory_as_array = [], $output_inventory = []);
 
    /**
    * Import a device
-   * @since 9.3+3.0
+   * @since 9.3+1.0
    */
    public function importItem();
+
+   /**
+   * Prepare transformation of data
+   * @since 9.3+1.0
+   */
+   public function prepareTransformItem($inventory_as_array = [], $temporary_array = []);
 }

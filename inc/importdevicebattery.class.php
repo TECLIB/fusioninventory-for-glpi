@@ -84,30 +84,30 @@ class PluginFusioninventoryImportDeviceBattery extends PluginFusioninventoryImpo
     * @param array  $data Device data
     * @return array device data modified
     */
-   function checkAfter(&$a_inventory, &$db_devices, $key, $arrays) {
+   function checkAfter(&$a_inventory, &$db_devices, $key, $inventory_as_arrays) {
       $item_DeviceBattery = new item_DeviceBattery();
-      $arrayslower        = array_map('strtolower', $arrays);
+      $inventory_as_arrayslower        = array_map('strtolower', $inventory_as_arrays);
 
-      foreach ($db_devices as $keydb => $arraydb) {
-         if (isset($arrayslower['serial'])
-            && isset($arraydb['serial'])
-            && $arrayslower['serial'] == $arraydb['serial']
+      foreach ($db_devices as $keydb => $inventory_as_arraydb) {
+         if (isset($inventory_as_arrayslower['serial'])
+            && isset($inventory_as_arraydb['serial'])
+            && $inventory_as_arrayslower['serial'] == $inventory_as_arraydb['serial']
          ) {
             $update = false;
-            if ($arraydb['capacity'] == 0
-                     && $arrayslower['capacity'] > 0) {
+            if ($inventory_as_arraydb['capacity'] == 0
+                     && $inventory_as_arrayslower['capacity'] > 0) {
                $input = [
                   'id'       => $keydb,
-                  'capacity' => $arrayslower['capacity']
+                  'capacity' => $inventory_as_arrayslower['capacity']
                ];
                $update = true;
             }
 
-            if ($arraydb['voltage'] == 0
-                     && $arrayslower['voltage'] > 0) {
+            if ($inventory_as_arraydb['voltage'] == 0
+                     && $inventory_as_arrayslower['voltage'] > 0) {
                $input = [
                   'id'        => $keydb,
-                  'voltage'   => $arrayslower['voltage']
+                  'voltage'   => $inventory_as_arrayslower['voltage']
                ];
                $update = true;
             }
@@ -119,6 +119,40 @@ class PluginFusioninventoryImportDeviceBattery extends PluginFusioninventoryImpo
             unset($a_inventory['batteries'][$key]);
             unset($db_devices[$keydb]);
             break;
+         }
+      }
+   }
+
+   public function transformItem($inventory_as_array = [], $output_inventory = []) {
+      // * BATTERIES
+      $a_inventory['batteries'] = [];
+      if ($pfConfig->getValue('component_battery') == 1) {
+         if (isset($inventory_as_array['BATTERIES'])) {
+            foreach ($inventory_as_array['BATTERIES'] as $a_batteries) {
+               $a_battery = $this->addValues($a_batteries,
+                  [
+                     'NAME'         => 'designation',
+                     'MANUFACTURER' => 'manufacturers_id',
+                     'SERIAL'       => 'serial',
+                     'DATE'         => 'manufacturing_date',
+                     'CAPACITY'     => 'capacity',
+                     'CHEMISTRY'    => 'devicebatterytypes_id',
+                     'VOLTAGE'      => 'voltage'
+                  ]
+               );
+
+               // test date_install
+               $matches = [];
+               if (isset($a_battery['manufacturing_date'])) {
+                  preg_match("/^(\d{2})\/(\d{2})\/(\d{4})$/", $a_battery['manufacturing_date'], $matches);
+                  if (count($matches) == 4) {
+                     $a_battery['manufacturing_date'] = $matches[3]."-".$matches[2]."-".$matches[1];
+                  } else {
+                     unset($a_battery['manufacturing_date']);
+                  }
+               }
+               $output_inventory['batteries'][] = $a_battery;
+            }
          }
       }
    }

@@ -319,7 +319,7 @@ class PluginFusioninventoryImportSoftware extends PluginFusioninventoryImportDev
 
          //It's not the first inventory, or not an OS change/upgrade
          //Do software migration first if needed
-         $a_inventory = $this->migratePlatformForVersion($a_inventory, $db_software);
+         $a_inventory = $this->migratePlatformForVersion($this->a_inventory, $db_software);
 
          //If software exists in DB, do not process it
          foreach ($this->a_inventory[$this->section] as $key => $arrayslower) {

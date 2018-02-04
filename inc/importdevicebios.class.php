@@ -147,6 +147,36 @@ class PluginFusioninventoryImportDeviceBios extends PluginFusioninventoryImportD
             $output_inventory['Computer']['mserial'] = trim($inventory_as_array['BIOS']['MSN']);
          }
       }
+
+      // * BIOS
+      if (isset($inventory_as_array['BIOS'])) {
+         $a_bios = $this->addValues(
+            $inventory_as_array['BIOS'],
+            [
+               'BDATE'           => 'date',
+               'BVERSION'        => 'version',
+               'BMANUFACTURER'   => 'manufacturers_id',
+               'BIOSSERIAL'      => 'serial'
+            ]
+         );
+
+         $a_bios['designation'] = sprintf(
+            __('%1$s BIOS'),
+            isset($inventory_as_array['BIOS']['BMANUFACTURER'])
+               ? $inventory_as_array['BIOS']['BMANUFACTURER'] : ''
+         );
+
+         $matches = [];
+         preg_match("/^(\d{2})\/(\d{2})\/(\d{4})$/", $a_bios['date'], $matches);
+         if (count($matches) == 4) {
+            $a_bios['date'] = $matches[3]."-".$matches[1]."-".$matches[2];
+         } else {
+            unset($a_bios['date']);
+         }
+
+         $output_inventory['bios'] = $a_bios;
+      }
+
       return [
          'inventory_as_array' => $inventory_as_array,
          'output_inventory' => $output_inventory

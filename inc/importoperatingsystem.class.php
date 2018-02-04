@@ -195,9 +195,25 @@ class PluginFusioninventoryImportOperatingSystem extends PluginFusioninventoryIm
             $array_tmp['operatingsystemservicepacks_id'] = '';
          }
 
+         $output_inventory['fusioninventorycomputer'] = $array_tmp;
+         if (isset($output_inventory['OPERATINGSYSTEM']['INSTALL_DATE'])
+                 && !empty($output_inventory['OPERATINGSYSTEM']['INSTALL_DATE'])) {
+            $output_inventory['fusioninventorycomputer']['operatingsystem_installationdate'] =
+                        $output_inventory['OPERATINGSYSTEM']['INSTALL_DATE'];
+         }
+
+         if (isset($output_inventory['HARDWARE']['DESCRIPTION'])) {
+            $output_inventory['fusioninventorycomputer']['oscomment']
+               = $output_inventory['HARDWARE']['DESCRIPTION'];
+         }
+
+         if (empty($output_inventory['fusioninventorycomputer']['operatingsystem_installationdate'])) {
+            $output_inventory['fusioninventorycomputer']['operatingsystem_installationdate'] = "NULL";
+         }
+
          $output_inventory['fusioninventorycomputer']['items_operatingsystems_id'] = $array_tmp;
       }
-      
+
       return [
          'inventory_as_array' => $inventory_as_array,
          'output_inventory' => $output_inventory

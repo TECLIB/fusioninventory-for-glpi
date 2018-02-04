@@ -72,4 +72,22 @@ class PluginFusioninventoryImportDeviceSoundCard extends PluginFusioninventoryIm
                   AND `itemtype`='".$this->import_itemtype."'
                   AND `is_dynamic`='1'";
    }
+
+   public function transformItem($inventory_as_array = [], $output_inventory = []) {
+      // * SOUNDS
+      $a_inventory['soundcard'] = [];
+      if ($pfConfig->getValue('component_soundcard') == 1) {
+         if (isset($array['SOUNDS'])) {
+            foreach ($array['SOUNDS'] as $a_sounds) {
+               $a_inventory['soundcard'][] = $thisc->addValues($a_sounds,
+                                                           [
+                                                              'NAME'          => 'designation',
+                                                              'MANUFACTURER'  => 'manufacturers_id',
+                                                              'DESCRIPTION'   => 'comment']);
+
+               $ignorecontrollers[$a_sounds['NAME']] = 1;
+            }
+         }
+      }
+   }
 }

@@ -126,7 +126,7 @@ class PluginFusioninventoryFormatconvert {
          if (isset($datainventory['CONTENT'])
               && isset($datainventory['CONTENT']['BIOS'])
               && !is_array($datainventory['CONTENT']['BIOS'])) {
-         unset($datainventory['CONTENT']['BIOS']);
+            unset($datainventory['CONTENT']['BIOS']);
          }
          if (isset($datainventory['CONTENT']['VIRTUALMACHINES'])) {
             foreach ($datainventory['CONTENT']['VIRTUALMACHINES'] as $key=>$data) {
@@ -314,7 +314,9 @@ class PluginFusioninventoryFormatconvert {
 
       $other_items = [
          'PluginFusioninventoryImportOperatingSystem',
-         'PluginFusioninventoryImportDeviceBios'
+         'PluginFusioninventoryImportDeviceBios',
+         'PluginFusioninventoryImportDeviceBattery',
+         'PluginFusioninventoryImportDeviceSoundcard',
       ];
       foreach ($other_items as $item) {
          $itemInstance = new $item($params);
@@ -371,6 +373,7 @@ class PluginFusioninventoryFormatconvert {
          $array_tmp['remote_addr'] = $_SERVER['REMOTE_ADDR'];
       }
 
+/*
       $a_inventory['fusioninventorycomputer'] = $array_tmp;
       if (isset($array['OPERATINGSYSTEM']['INSTALL_DATE'])
               && !empty($array['OPERATINGSYSTEM']['INSTALL_DATE'])) {
@@ -385,7 +388,7 @@ class PluginFusioninventoryFormatconvert {
       if (empty($a_inventory['fusioninventorycomputer']['operatingsystem_installationdate'])) {
          $a_inventory['fusioninventorycomputer']['operatingsystem_installationdate'] = "NULL";
       }
-
+*/
       // * Type of computer
 
       //First the HARDWARE/VMSYSTEM is not Physical : then it's a virtual machine
@@ -425,138 +428,6 @@ class PluginFusioninventoryFormatconvert {
       $CFG_GLPI['plugin_fusioninventory_computermanufacturer'][$a_inventory['Computer']['manufacturers_id']]
          = $a_inventory['Computer']['manufacturers_id'];
 
-      // * BIOS
-      if (isset($array['BIOS'])) {
-         $a_bios = $thisc->addValues(
-            $array['BIOS'],
-            [
-               'BDATE'           => 'date',
-               'BVERSION'        => 'version',
-               'BMANUFACTURER'   => 'manufacturers_id',
-               'BIOSSERIAL'      => 'serial'
-            ]
-         );
-
-         $a_bios['designation'] = sprintf(
-            __('%1$s BIOS'),
-            isset($array['BIOS']['BMANUFACTURER']) ? $array['BIOS']['BMANUFACTURER'] : ''
-         );
-
-         $matches = [];
-         preg_match("/^(\d{2})\/(\d{2})\/(\d{4})$/", $a_bios['date'], $matches);
-         if (count($matches) == 4) {
-            $a_bios['date'] = $matches[3]."-".$matches[1]."-".$matches[2];
-         } else {
-            unset($a_bios['date']);
-         }
-
-         $a_inventory['bios'] = $a_bios;
-      }
-
-      // * OPERATINGSYSTEM
-      if (isset($array['OPERATINGSYSTEM'])) {
-         $array_tmp = $thisc->addValues(
-                 $array['OPERATINGSYSTEM'],
-                 [
-                    'NAME'           => 'operatingsystems_id',
-                    'VERSION'        => 'operatingsystemversions_id',
-                    'SERVICE_PACK'   => 'operatingsystemservicepacks_id',
-                    'ARCH'           => 'operatingsystemarchitectures_id',
-                    'KERNEL_NAME'    => 'operatingsystemkernels_id',
-                    'KERNEL_VERSION' => 'operatingsystemkernelversions_id']);
-
-         if (isset($array['OPERATINGSYSTEM']['HOSTID'])) {
-            $a_inventory['fusioninventorycomputer']['hostid'] = $array['OPERATINGSYSTEM']['HOSTID'];
-         }
-
-         if (isset($a_inventory['Computer']['licenseid'])) {
-            $array_tmp['licenseid'] = $a_inventory['Computer']['licenseid'];
-            unset($a_inventory['Computer']['licenseid']);
-         }
-
-         if (isset($a_inventory['Computer']['license_number'])) {
-            $array_tmp['license_number'] = $a_inventory['Computer']['license_number'];
-            unset($a_inventory['Computer']['license_number']);
-         }
-
-
-         $array_tmp['operatingsystemeditions_id'] = '';
-         if (isset($array['OPERATINGSYSTEM']['FULL_NAME']) && $pfConfig->getValue('manage_osname') == 1) {
-            $matches = [];
-            preg_match("/.+ Windows (XP |\d\.\d |\d{1,4} |Vista(™)? )(.*)/", $array['OPERATINGSYSTEM']['FULL_NAME'], $matches);
-            if (count($matches) == 4) {
-               $array_tmp['operatingsystemeditions_id'] = $matches[3];
-               if ($array_tmp['operatingsystemversions_id'] == '') {
-                  $matches[1] = trim($matches[1]);
-                  if ($matches[2] != '') {
-                     $matches[1] = trim($matches[1], $matches[2]);
-                  }
-                  $array_tmp['operatingsystemversions_id'] = $matches[1];
-               }
-            } else if (count($matches) == 2) {
-               $array_tmp['operatingsystemeditions_id'] = $matches[1];
-            } else {
-               preg_match("/^(.*) GNU\/Linux (\d{1,2}|\d{1,2}\.\d{1,2}) \((.*)\)$/", $array['OPERATINGSYSTEM']['FULL_NAME'], $matches);
-               if (count($matches) == 4) {
-                  if (empty($array_tmp['operatingsystems_id'])) {
-                     $array_tmp['operatingsystems_id'] = $matches[1];
-                  }
-                  if (empty($array_tmp['operatingsystemkernelversions_id'])) {
-                     $array_tmp['operatingsystemkernelversions_id'] = $array_tmp['operatingsystemversions_id'];
-                     $array_tmp['operatingsystemversions_id'] = $matches[2]." (".$matches[3].")";
-                  } else if (empty($array_tmp['operatingsystemversions_id'])) {
-                     $array_tmp['operatingsystemversions_id'] = $matches[2]." (".$matches[3].")";
-                  }
-                  if (empty($array_tmp['operatingsystemkernels_id'])) {
-                     $array_tmp['operatingsystemkernels_id'] = 'linux';
-                  }
-               } else {
-                  preg_match("/Linux (.*) (\d{1,2}|\d{1,2}\.\d{1,2}) \((.*)\)$/", $array['OPERATINGSYSTEM']['FULL_NAME'], $matches);
-                  if (count($matches) == 4) {
-                     if (empty($array_tmp['operatingsystemversions_id'])) {
-                        $array_tmp['operatingsystemversions_id'] = $matches[2];
-                     }
-                     if (empty($array_tmp['operatingsystemarchitectures_id'])) {
-                        $array_tmp['operatingsystemarchitectures_id'] = $matches[3];
-                     }
-                     if (empty($array_tmp['operatingsystemkernels_id'])) {
-                        $array_tmp['operatingsystemkernels_id'] = 'linux';
-                     }
-                     $array_tmp['operatingsystemeditions_id'] = trim($matches[1]);
-                  } else {
-                     preg_match("/\w[\s\S]{0,4} (?:Windows[\s\S]{0,4} |)(.*) (\d{4} R2|\d{4})(?:, | |)(.*|)$/", $array['OPERATINGSYSTEM']['FULL_NAME'], $matches);
-                     if (count($matches) == 4) {
-                        $array_tmp['operatingsystemversions_id'] = $matches[2];
-                        $array_tmp['operatingsystemeditions_id'] = trim($matches[1]." ".$matches[3]);
-                     } else if ($array['OPERATINGSYSTEM']['FULL_NAME'] == 'Microsoft Windows Embedded Standard') {
-                        $array_tmp['operatingsystemeditions_id'] = 'Embedded Standard';
-                     } else if (empty($array_tmp['operatingsystems_id'])) {
-                        $array_tmp['operatingsystems_id'] = $array['OPERATINGSYSTEM']['FULL_NAME'];
-                     }
-                  }
-               }
-            }
-         } else if (isset($array['OPERATINGSYSTEM']['FULL_NAME'])) {
-            $array_tmp['operatingsystems_id'] = $array['OPERATINGSYSTEM']['FULL_NAME'];
-         }
-         if (isset($array_tmp['operatingsystemarchitectures_id'])
-                 && $array_tmp['operatingsystemarchitectures_id'] != '') {
-
-            $rulecollection = new RuleDictionnaryOperatingSystemArchitectureCollection();
-            $res_rule = $rulecollection->processAllRules(["name"=>$array_tmp['operatingsystemarchitectures_id']]);
-            if (isset($res_rule['name'])) {
-               $array_tmp['operatingsystemarchitectures_id'] = $res_rule['name'];
-            }
-            if ($array_tmp['operatingsystemarchitectures_id'] == '0') {
-               $array_tmp['operatingsystemarchitectures_id'] = '';
-            }
-         }
-         if ($array_tmp['operatingsystemservicepacks_id'] == '0') {
-            $array_tmp['operatingsystemservicepacks_id'] = '';
-         }
-         $a_inventory['fusioninventorycomputer']['items_operatingsystems_id'] = $array_tmp;
-      }
-
       // otherserial (on tag) if defined in config
       if ($pfConfig->getValue('otherserial') == 1) {
          if (isset($array['ACCOUNTINFO'])) {
@@ -579,38 +450,6 @@ class PluginFusioninventoryFormatconvert {
       if (isset($a_inventory['fusioninventorycomputer']['items_operatingsystems_id']['operatingsystems_id'])
               && strstr($a_inventory['fusioninventorycomputer']['items_operatingsystems_id']['operatingsystems_id'], 'VMware ESX')) {
          $PF_ESXINVENTORY = true;
-      }
-
-      // * BATTERIES
-      $a_inventory['batteries'] = [];
-      if ($pfConfig->getValue('component_battery') == 1) {
-         if (isset($array['BATTERIES'])) {
-            foreach ($array['BATTERIES'] as $a_batteries) {
-               $a_battery = $thisc->addValues($a_batteries,
-                  [
-                     'NAME'         => 'designation',
-                     'MANUFACTURER' => 'manufacturers_id',
-                     'SERIAL'       => 'serial',
-                     'DATE'         => 'manufacturing_date',
-                     'CAPACITY'     => 'capacity',
-                     'CHEMISTRY'    => 'devicebatterytypes_id',
-                     'VOLTAGE'      => 'voltage'
-                  ]
-               );
-
-               // test date_install
-               $matches = [];
-               if (isset($a_battery['manufacturing_date'])) {
-                  preg_match("/^(\d{2})\/(\d{2})\/(\d{4})$/", $a_battery['manufacturing_date'], $matches);
-                  if (count($matches) == 4) {
-                     $a_battery['manufacturing_date'] = $matches[3]."-".$matches[2]."-".$matches[1];
-                  } else {
-                     unset($a_battery['manufacturing_date']);
-                  }
-               }
-               $a_inventory['batteries'][] = $a_battery;
-            }
-         }
       }
 
       // * SOUNDS
