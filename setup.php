@@ -281,7 +281,6 @@ function plugin_init_fusioninventory() {
       }
       if (script_endswith("deploypackage.form.php")) {
          $PLUGIN_HOOKS['add_css']['fusioninventory'][]="lib/extjs/resources/css/ext-all.css";
-         $PLUGIN_HOOKS['add_css']['fusioninventory'][]="lib/font-awesome/css/font-awesome".($debug_mode?"":".min").".css";
 
          array_push(
             $PLUGIN_HOOKS['add_javascript']['fusioninventory'],
@@ -302,6 +301,8 @@ function plugin_init_fusioninventory() {
             "lib/mustache.js-2.0.0/mustache".($debug_mode?"":".min").".js",
             "js/taskjobs".($debug_mode?"":".min").".js"
          );
+
+         $PLUGIN_HOOKS['add_css']['fusioninventory'][]="lib/font-awesome/css/font-awesome".($debug_mode?"":".min").".css";
       }
       if (script_endswith("menu.php")) {
          $PLUGIN_HOOKS['add_javascript']['fusioninventory'][] = "js/stats.js";
@@ -386,6 +387,7 @@ function plugin_init_fusioninventory() {
          if ($pfDeployPackage->canUserDeploySelf()) {
             $PLUGIN_HOOKS['helpdesk_menu_entry']['fusioninventory'] = '/front/deploypackage.public.php';
             $PLUGIN_HOOKS['add_css']['fusioninventory'][]="css/views.css";
+            $PLUGIN_HOOKS['add_css']['fusioninventory'][]="lib/font-awesome/css/font-awesome".($debug_mode?"":".min").".css";
          }
       }
 
