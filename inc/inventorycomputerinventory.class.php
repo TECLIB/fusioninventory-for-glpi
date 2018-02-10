@@ -197,7 +197,7 @@ class PluginFusioninventoryInventoryComputerInventory {
       }
       // End hack
       $a_computerinventory = PluginFusioninventoryFormatconvert::computerInventoryTransformation(
-                                             $arrayinventory['CONTENT']);
+                                             $arrayinventory['CONTENT'], $arrayinventory['DEVICEID']);
 
       // Get tag is defined and put it in fusioninventory_agent table
       $tagAgent = "";

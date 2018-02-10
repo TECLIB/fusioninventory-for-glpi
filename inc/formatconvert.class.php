@@ -251,10 +251,11 @@ class PluginFusioninventoryFormatconvert {
     * @global object $DB
     * @global boolean $PF_ESXINVENTORY
     * @global array $CFG_GLPI
-    * @param array $array
+    * @param array $array the inventory as an array
+    * @param string $device_id the agent's device_id
     * @return array
     */
-   static function computerInventoryTransformation($array) {
+   static function computerInventoryTransformation($array, $device_id) {
       global $DB, $PF_ESXINVENTORY, $CFG_GLPI;
 
       // Initialize
@@ -337,9 +338,13 @@ class PluginFusioninventoryFormatconvert {
             }
          }
       }
-      $array_tmp['is_dynamic'] = 1;
 
-      $a_inventory['Computer'] = $array_tmp;
+      $array_tmp['is_dynamic']          = 1;
+      $array_tmp['date_last_seen']      = $_SESSION['glpi_currenttime'];
+      $array_tmp['date_last_inventory'] = $_SESSION['glpi_currenttime'];
+      $array_tmp['inventorytypes_id']   = PluginFusioninventoryInventoryCommon::LOCAL_INVENTORY;
+      $array_tmp['inventory_source']    = $device_id;
+      $a_inventory['Computer']          = $array_tmp;
 
       $array_tmp = $thisc->addValues($array['HARDWARE'],
                                      [
@@ -2056,8 +2061,9 @@ class PluginFusioninventoryFormatconvert {
    *
    * @param array $array the inventory
    * @param array $a_inventory reference to the output inventory
+   * @param string device_id the device ID of the agent performing the remote inventory
    */
-   function generalInfosTransformation($itemtype, $array, &$a_inventory) {
+   function generalInfosTransformation($itemtype, $array, &$a_inventory, $device_id) {
       // * INFO
       $fk    = getForeignKeyFieldForTable(getTableForItemType($itemtype.'Model'));
       $infos = [
@@ -2083,6 +2089,12 @@ class PluginFusioninventoryFormatconvert {
       if ($itemtype == 'Printer') {
          $array_tmp['have_ethernet'] = 1;
       }
+
+      $array_tmp['date_last_seen']      = $_SESSION['glpi_currenttime'];
+      $array_tmp['date_last_inventory'] = $_SESSION['glpi_currenttime'];
+      $array_tmp['inventorytypes_id']   = PluginFusioninventoryInventoryCommon::SNMP_INVENTORY;
+      $array_tmp['inventory_source']    = $device_id;
+
       $a_inventory[$itemtype]  = $array_tmp;
       $a_inventory['itemtype'] = $itemtype;
    }
@@ -2118,13 +2130,13 @@ class PluginFusioninventoryFormatconvert {
     * @param array $array
     * @return array
     */
-   static function networkequipmentInventoryTransformation($array) {
+   static function networkequipmentInventoryTransformation($array, $device_id) {
 
       $a_inventory = [];
       $thisc       = new self();
 
       $thisc->generalInfosTransformation('NetworkEquipment', $array,
-                                         $a_inventory);
+                                         $a_inventory, $device_id);
       $thisc->additionalInfoTransformation('NetworkEquipment', $array,
                                            $a_inventory);
       $thisc->firmwareTransformation($array, $a_inventory);
@@ -2263,12 +2275,12 @@ class PluginFusioninventoryFormatconvert {
     * @param array $array
     * @return array
     */
-   static function printerInventoryTransformation($array) {
+   static function printerInventoryTransformation($array, $device_id) {
 
       $a_inventory = [];
       $thisc       = new self();
 
-      $thisc->generalInfosTransformation('Printer', $array, $a_inventory);
+      $thisc->generalInfosTransformation('Printer', $array, $a_inventory, $device_id);
       $thisc->firmwareTransformation($array, $a_inventory);
       $thisc->simcardTransformation($array, $a_inventory);
       $thisc->networkPortTransformation($array, $a_inventory);

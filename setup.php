@@ -65,7 +65,6 @@ define("PLUGIN_FUSIONINVENTORY_MANIFESTS_DIR",
 define("PLUGIN_FUSIONINVENTORY_XML_DIR",
        GLPI_PLUGIN_DOC_DIR."/fusioninventory/xml/");
 
-
 /**
  * Check if the script name finish by
  *

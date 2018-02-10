@@ -119,7 +119,7 @@ class PluginFusioninventoryCommunicationNetworkInventory {
           $this->addtaskjoblog();
       }
 
-      $this->importContent($a_CONTENT);
+      $this->importContent($a_CONTENT, $p_DEVICEID);
 
       if (isset($a_CONTENT['AGENT']['END'])) {
          $cnt = countElementsInTable('glpi_plugin_fusioninventory_taskjoblogs',
@@ -149,9 +149,10 @@ class PluginFusioninventoryCommunicationNetworkInventory {
     * Import the content (where have all devices)
     *
     * @param array $arrayinventory
+    * @param string device_id the device_id of the agent performing the scan
     * @return string errors or empty string
     */
-   function importContent($arrayinventory) {
+   function importContent($arrayinventory, $device_id) {
 
       PluginFusioninventoryCommunication::addLog(
               'Function PluginFusioninventoryCommunicationNetworkInventory->importContent().');
@@ -176,9 +177,9 @@ class PluginFusioninventoryCommunicationNetworkInventory {
                   $a_inventory = [];
                   if (isset($dchild['INFO'])) {
                      if ($dchild['INFO']['TYPE'] == "NETWORKING" || $dchild['INFO']['TYPE'] == "STORAGE") {
-                        $a_inventory = PluginFusioninventoryFormatconvert::networkequipmentInventoryTransformation($dchild);
+                        $a_inventory = PluginFusioninventoryFormatconvert::networkequipmentInventoryTransformation($dchild, $device_id);
                      } else if ($dchild['INFO']['TYPE'] == "PRINTER") {
-                        $a_inventory = PluginFusioninventoryFormatconvert::printerInventoryTransformation($dchild);
+                        $a_inventory = PluginFusioninventoryFormatconvert::printerInventoryTransformation($dchild, $device_id);
                      }
                   }
                   if (isset($dchild['ERROR'])) {
@@ -557,4 +558,3 @@ class PluginFusioninventoryCommunicationNetworkInventory {
 
 
 }
-

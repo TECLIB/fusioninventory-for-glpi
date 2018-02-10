@@ -53,6 +53,10 @@ if (!defined('GLPI_ROOT')) {
  */
 class PluginFusioninventoryInventoryCommon extends CommonDBTM {
 
+   const LOCAL_INVENTORY = "FusionInventory - Local";
+   const SNMP_INVENTORY  = "FusionInventory - SNMP";
+   const ESX_INVENTORY   = "FusionInventory - ESX";
+
    /**
     * Import firmwares
     * @since 9.2+2.0
