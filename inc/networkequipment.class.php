@@ -608,21 +608,13 @@ class PluginFusioninventoryNetworkEquipment extends CommonDBTM {
          return;
       }
 
-      echo '<table class="tab_glpi" width="100%">';
-      echo '<tr>';
-      echo '<th colspan="2">'.__('FusionInventory', 'fusioninventory').'</th>';
-      echo '</tr>';
-
-      echo '<tr class="tab_bg_1">';
-      echo '<td>';
-      echo __('Last inventory', 'fusioninventory');
-      echo '</td>';
-      echo '<td>';
-      echo Html::convDateTime($a_networkequipmentextend['last_fusioninventory_update']);
-      echo '</td>';
-      echo '</tr>';
 
       if ($a_networkequipmentextend['uptime'] != '') {
+         echo '<table class="tab_glpi" width="100%">';
+         echo '<tr>';
+         echo '<th colspan="2">'.__('FusionInventory', 'fusioninventory').'</th>';
+         echo '</tr>';
+
          echo '<tr class="tab_bg_1">';
          echo '<td>'.__('Uptime', 'fusioninventory').'</td>';
          echo '<td>';
@@ -658,9 +650,9 @@ class PluginFusioninventoryNetworkEquipment extends CommonDBTM {
 
          echo '</td>';
          echo '</tr>';
-      }
 
-      echo '</table>';
+         echo '</table>';
+      }
    }
 
 

@@ -1054,6 +1054,11 @@ class PluginFusioninventoryFormatconvert {
          }
       }
 
+      $inventory_infos['inventory_source']    = $a_inventory['Computer']['inventory_source'];
+      $inventory_infos['inventorytypes_id']   = $a_inventory['Computer']['inventorytypes_id'];
+      $inventory_infos['date_last_seen']      = $_SESSION['glpi_currenttime'];
+      $inventory_infos['date_last_inventory'] = $_SESSION['glpi_currenttime'];
+
       // * MONITORS
       $a_inventory['monitor'] = [];
       if (isset($array['MONITORS'])) {
@@ -1082,6 +1087,8 @@ class PluginFusioninventoryFormatconvert {
             if (!isset($array_tmp['manufacturers_id'])) {
                $array_tmp['manufacturers_id'] = '';
             }
+
+            $array_tmp += $inventory_infos;
             if (!isset($a_serialMonitor[$array_tmp['serial']])) {
                $a_inventory['monitor'][] = $array_tmp;
                $a_serialMonitor[$array_tmp['serial']] = 1;
@@ -1122,6 +1129,8 @@ class PluginFusioninventoryFormatconvert {
                if (isset($res_rule['manufacturer'])) {
                   $array_tmp['manufacturers_id'] = $res_rule['manufacturer'];
                }
+
+               $array_tmp += $inventory_infos;
                $a_inventory['printer'][] = $array_tmp;
             }
          }
@@ -1166,6 +1175,8 @@ class PluginFusioninventoryFormatconvert {
             }
             unset($array_tmp['productname']);
 
+            $array_tmp += $inventory_infos;
+
             $a_inventory['peripheral'][] = $array_tmp;
             $a_peripheral_name[$array_tmp['name']] = $per;
             $per++;
@@ -1196,6 +1207,8 @@ class PluginFusioninventoryFormatconvert {
             if (isset($a_peripherals['LAYOUT'])) {
                $array_tmp['peripheraltypes_id'] = 'keyboard';
             }
+
+            $array_tmp += $inventory_infos;
 
             if (isset($a_peripheral_name[$array_tmp['name']])) {
                $a_inventory['peripheral'][$a_peripheral_name[$array_tmp['name']]]['peripheraltypes_id'] = $array_tmp['peripheraltypes_id'];

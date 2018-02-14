@@ -259,27 +259,20 @@ class PluginFusioninventoryInventoryComputerComputer extends CommonDBTM {
          return true;
       }
 
-      echo '<table class="tab_glpi" width="100%">';
+//      echo '<table class="table_cadre_fixe">';
 
+/*
       echo '<tr>';
       echo '<th colspan="4">'.__('FusionInventory', 'fusioninventory').'</th>';
       echo '</tr>';
-
-      echo '<tr class="tab_bg_1">';
-      echo '<td>';
-      echo __('Last inventory', 'fusioninventory');
-      echo '</td>';
-      echo '<td>';
-      echo Html::convDateTime($a_computerextend['last_fusioninventory_update']);
-      echo '</td>';
-
+*/
       if ($a_computerextend['remote_addr'] != '') {
+         echo '<tr class="tab_bg_1">';
          echo '<td>'.__('Public contact address', 'fusioninventory').'</td>';
          echo '<td>'.$a_computerextend['remote_addr'].'</td>';
+         echo "<td colspan='2'></td>";
+         echo '</tr>';
       }
-      echo "<td colspan='2'></td>";
-
-      echo '</tr>';
 
       $pfAgent = new PluginFusioninventoryAgent();
       $pfAgent->showInfoForComputer($item, 4);
@@ -309,7 +302,6 @@ class PluginFusioninventoryInventoryComputerComputer extends CommonDBTM {
 
       $pfRemoteManagement = new PluginFusioninventoryComputerRemoteManagement();
       $pfRemoteManagement->showInformation($item->getID());
-      echo '</table>';
       return true;
    }
 

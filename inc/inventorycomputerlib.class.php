@@ -210,7 +210,6 @@ class PluginFusioninventoryInventoryComputerLib extends PluginFusioninventoryInv
       if (!in_array('states_id', $a_lockable)) {
          $input = PluginFusioninventoryToolbox::addDefaultStateIfNeeded('computer', $input);
       }
-      Toolbox::logDebug($input);
       $computer->update($input, !$no_history);
 
       $this->computer = $computer;

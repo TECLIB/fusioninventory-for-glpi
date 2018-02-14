@@ -1133,10 +1133,7 @@ class PluginFusioninventoryAgent extends CommonDBTM {
          }
 
          echo '<td>';
-         echo __('Last contact', 'fusioninventory');
-         echo '</td>';
-         echo '<td>';
-         echo Html::convDateTime($this->fields['last_contact']);
+         echo '<td colspan=\'2\'>';
          echo '</td>';
          echo '</tr>';
 
@@ -1195,4 +1192,3 @@ class PluginFusioninventoryAgent extends CommonDBTM {
 
 
 }
-
